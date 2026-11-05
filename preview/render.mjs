@@ -7,6 +7,7 @@ import path from 'node:path';
 import { installDom, El } from './dom-shim.mjs';
 import { PDLHabitView } from '../src/view.js';
 import { PDLHabitPlugin } from '../src/plugin.js';
+import { HabitModal } from '../src/modals/habit.js';
 import { toast } from '../src/ui.js';
 
 const { } = installDom();
@@ -206,3 +207,106 @@ buildPage({ mode: 'calendar', theme: 'dark', file: 'calendar-dark.html' });
 buildPage({ mode: 'insights', file: 'insights.html' });
 buildPage({ mode: 'insights', theme: 'dark', file: 'insights-dark.html' });
 buildPage({ mode: 'insights', file: 'insights-empty.html', habitList: [] });
+
+/* ------------------------------------------------------------ habit form */
+
+function buildHabitFormPage({ file, theme = 'light', patch = {}, moreOpen = false, habit = null }) {
+  const vars = theme === 'dark' ? DARK : LIGHT;
+  const modal = new HabitModal(app, plugin, habit);
+  Object.assign(modal.draft, patch);
+  if (moreOpen) modal.moreOpen = true;
+  modal.onOpen();
+
+  const page = `<!doctype html>
+<html lang="en" class="theme-${theme}">
+<head>
+<meta charset="utf-8">
+<title>PDL Habit — habit form (${theme})</title>
+<style>
+  :root {
+    ${Object.entries(vars).map(([name, value]) => `${name}: ${value};`).join('\n    ')}
+    --background-primary-alt: var(--background-primary);
+    --background-modifier-hover: rgba(127, 127, 127, .12);
+    --font-interface: -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --text-faint: #9ca3af;
+    color-scheme: ${theme};
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--background-secondary, #f5f6f7);
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .preview-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, ${theme === 'dark' ? '.55' : '.35'});
+  }
+  .preview-modal {
+    width: min(560px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    padding: 20px;
+    border-radius: 12px;
+    background: var(--background-primary);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, ${theme === 'dark' ? '.55' : '.28'});
+  }
+  svg.svg-icon { width: 18px; height: 18px; flex: none; }
+  button { font-family: inherit; }
+${css}
+</style>
+</head>
+<body>
+<div class="preview-backdrop">
+  <div class="preview-modal">
+${modal.contentEl.toHtml('')}
+  </div>
+</div>
+</body>
+</html>
+`;
+
+  fs.writeFileSync(path.join(ROOT, 'preview', file), page);
+  console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
+}
+
+buildHabitFormPage({ file: 'habit-new.html' });
+buildHabitFormPage({ file: 'habit-new-dark.html', theme: 'dark' });
+buildHabitFormPage({
+  file: 'habit-count.html',
+  patch: { name: 'Uống nước', tracking: 'count', target: 3, unit: 'ly', period: 'afternoon' }
+});
+buildHabitFormPage({
+  file: 'habit-week.html',
+  patch: { name: 'Tập thể dục', schedule: 'week', perWeek: 3, period: 'evening', icon: 'dumbbell', color: '#7c3aed' }
+});
+buildHabitFormPage({
+  file: 'habit-advanced.html',
+  moreOpen: true,
+  patch: {
+    name: 'Đọc sách',
+    tracking: 'count',
+    target: 20,
+    unit: 'trang',
+    schedule: 'days',
+    days: [1, 3, 5],
+    period: 'evening',
+    icon: 'book-open',
+    color: '#0891b2',
+    description: 'Đọc trước khi ngủ.',
+    category: 'Learning',
+    cue: 'Sau khi đánh răng',
+    reward: 'Một chương truyện'
+  }
+});
+buildHabitFormPage({
+  file: 'habit-edit.html',
+  habit: { ...habits[1], title: 'Uống nước' }
+});

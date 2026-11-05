@@ -285,9 +285,11 @@ export class PDLHabitView extends ItemView {
     const meta = body.createSpan({ cls: 'pdlh-row-meta' });
     metaChip(meta, 'repeat', this.plugin.scheduleLabel(habit));
     if (streak.current > 0) metaChip(meta, 'flame', String(streak.current), 'is-streak');
+    // "Did it" habits are binary: the check circle already tells the story.
+    const binary = habit.direction === 'build' && habit.frequency !== 'weekly' && target === 1;
     if (state.skipped) metaChip(meta, 'bed', 'Planned rest', 'is-rest');
     else if (habit.direction === 'quit') metaChip(meta, 'gauge', `Limit ${target} ${habit.unit}`);
-    else metaChip(meta, 'target', habit.frequency === 'weekly' ? `${value}/${target} this week` : `${value}/${target} ${habit.unit}`);
+    else if (!binary) metaChip(meta, 'target', habit.frequency === 'weekly' ? `${value}/${target} this week` : `${value}/${target} ${habit.unit}`);
     body.onclick = () => this.openDetail(habit);
 
     const trail = row.createDiv({ cls: 'pdlh-row-trail' });

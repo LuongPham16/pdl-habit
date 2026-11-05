@@ -51,7 +51,7 @@ export class HabitDetailModal extends Modal {
       ['Category', habit.category],
       ['Time', PERIODS[habit.period]],
       ['Schedule', this.plugin.scheduleLabel(habit)],
-      ['Target', habit.frequency === 'weekly' ? `${habit.target} times per week` : `${habit.target} ${habit.unit}`],
+      ['Target', targetLabel(habit)],
       ['Direction', habit.direction === 'quit' ? 'Limit behavior' : 'Build habit'],
       ['Started', habit.startDate]
     ].forEach(([label, value]) => {
@@ -108,4 +108,12 @@ export class HabitDetailModal extends Modal {
   }
 
   onClose() { this.contentEl.empty(); }
+}
+
+/** Human label for the "Target" fact: binary habits have no amount. */
+function targetLabel(habit) {
+  if (habit.frequency === 'weekly') return `${habit.target} times per week`;
+  if (habit.direction === 'quit') return `max ${habit.target} ${habit.unit} per day`;
+  if (Number(habit.target) === 1) return 'Did it (once)';
+  return `${habit.target} ${habit.unit}`;
 }

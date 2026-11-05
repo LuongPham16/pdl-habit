@@ -1,4 +1,4 @@
-# PDL Habit v1.5
+# PDL Habit v1.6
 
 PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một note độc lập; check-in được lưu trong frontmatter `history`, vì vậy dữ liệu vẫn đọc được khi plugin không hoạt động.
 
@@ -6,10 +6,30 @@ PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một n
 
 1. Bật **PDL Habit** trong Community plugins.
 2. Bấm biểu tượng mầm cây ở ribbon hoặc chạy **Open habit dashboard**.
-3. Chọn **New habit**, đặt lịch và mục tiêu.
+3. Bấm **New habit**, gõ tên là xong — các bước còn lại đã có mặc định hợp lý.
 4. Bấm vòng tròn cạnh habit để check-in nhanh; với mục tiêu lớn hơn 1, mở chi tiết để nhập số lượng và ghi chú.
 
 Mặc định, note habit nằm tại `03 - Area/Habits`. Có thể đổi folder trong Settings.
+
+## Tạo habit nhanh (v1.6)
+
+Form chỉ còn **4 quyết định**, tất cả trên một màn hình:
+
+1. **Name** — gõ tên. Ô này tự focus khi mở form.
+2. **Type** — *Did it* / *Count* / *Limit*:
+   - **Did it**: một lần bấm là xong, không cần số lượng.
+   - **Count**: hiện thêm `Amount per day` + đơn vị (ly, trang, phút…).
+   - **Limit**: hiện `Max per day` — dùng cho habit muốn giảm (ví dụ đồ ngọt ≤ 2).
+3. **When** — buổi trong ngày (Morning/Afternoon/Evening/Anytime) và lịch:
+   - **Every day**, **Selected days** (hiện hàng chữ M/T/W/T/F/S/S để chọn), hoặc
+   - **Times per week** — thay ô số lượng bằng `Times per week`; habit kiểu này tính theo **buổi/tuần**, không có "số lượng mỗi ngày".
+4. **Look** — icon + 8 màu.
+
+**More options** (mặc định đóng) chứa: Description, Category, Cue, Reward, Starts, Ends. Nút này ghi rõ số field đang dùng (ví dụ `More options · 2 set`) và **tự mở** khi bạn sửa một habit đã có dữ liệu trong đó.
+
+Phím tắt: **Enter** lưu, **Esc** đóng, **⌘/Ctrl + Enter** lưu từ bất kỳ ô nào. Nút *Create habit* bị mờ cho tới khi có tên; footer luôn dính đáy nên không phải cuộn tìm nút.
+
+Với habit "Did it", danh sách Today không còn hiện chip `0/1 time` vô nghĩa — vòng tròn check đã đủ nói. Trang chi tiết hiển thị Target là *Did it (once)*.
 
 ## Bốn tab, một kiểu trình bày
 

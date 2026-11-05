@@ -5,10 +5,13 @@
 Every habit is a plain note; every check-in is a line of frontmatter. Nothing is
 locked inside the plugin.
 
-> **Version 1.5.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
+> **Version 1.6.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
 
 ## Highlights
 
+- **Quick habit form** — name it, pick *Did it / Count / Limit*, choose when, done.
+  Everything optional sits behind **More options**, the footer never scrolls away,
+  and Enter saves.
 - **Today** — one column that reads top to bottom: page header → week strip →
   progress hero with **Next up** → plan grouped by Morning / Afternoon / Evening /
   Anytime.

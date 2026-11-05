@@ -59,6 +59,7 @@ class El {
 
   addClass(...names) { this.classList.add(...names); return this; }
   removeClass(...names) { this.classList.remove(...names); return this; }
+  toggleClass(name, force) { this.classList.toggle(name, force); return this; }
   setAttribute(name, value) { this.attrs[name] = String(value); }
   getAttribute(name) { return this.attrs[name]; }
   appendText(value) { this.textContent += String(value); }
@@ -67,7 +68,17 @@ class El {
 
   /** `input.value = …` should end up in the markup, like a real element. */
   get value() { return this.attrs.value ?? ''; }
-  set value(next) { this.attrs.value = String(next); }
+  set value(next) {
+    if (this.tagName === 'TEXTAREA') { this.textContent = String(next); return; }
+    this.attrs.value = String(next);
+  }
+
+  /** `disabled` is a reflected property in the browser; mirror it for screenshots. */
+  get disabled() { return this.attrs.disabled !== undefined; }
+  set disabled(next) {
+    if (next) this.attrs.disabled = '';
+    else delete this.attrs.disabled;
+  }
 
   appendChild(child) {
     child.parentElement = this;

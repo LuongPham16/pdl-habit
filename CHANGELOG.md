@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.6.0 — a habit form you can finish in one screen
+
+- **Four decisions, one screen.** The form went from 13 stacked rows to
+  **Name → Type → When → Look**, with the create button always visible in a sticky
+  footer. Optional fields (description, category, cue, reward, start/end dates)
+  moved behind **More options**, which reports how many of them are set and opens
+  automatically when editing a habit that uses them.
+- **Type instead of raw fields.** *Did it* / *Count* / *Limit* replaces the
+  direction + target + unit trio: the amount row only appears for Count and Limit,
+  and the unit placeholder now suggests real units.
+- **Clearer week semantics.** Choosing *Times per week* swaps the amount for a
+  session count and says so, so a 3×/week habit no longer pretends to have a
+  daily amount.
+- **Faster.** The name field is focused on open, **Enter** saves, **Esc** closes,
+  ⌘/Ctrl+Enter saves from anywhere, and the button stays disabled until the habit
+  has a name.
+- **Less noise in the lists.** Binary habits no longer show a meaningless
+  `0/1 time` chip in Today; the detail sheet reports their target as *Did it (once)*.
+- Form helpers (`src/habit-form.js`) are pure and covered by tests: draft ⇄
+  frontmatter mapping, validation, and the tracking-type detection used when
+  editing existing habits.
+
 ## 1.5.0 — undo, reminders, and a searchable habit list
 
 - **Undo on every check-in.** One-tap check-ins, sheet saves, planned rests and

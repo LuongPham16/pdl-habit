@@ -1,4 +1,4 @@
-/* PDL Habit — base shell,
+﻿/* PDL Habit â€” base shell,
 calendar,
 insights,
 habits,
@@ -7,7 +7,9 @@ modals. */
   padding:0!important;
   overflow:hidden;
 }
-.pdlh-view {
+.pdlh-view,
+.pdlh-modal,
+.pdlh-habit-form {
   --pdlh-bg:var(--background-primary);
   --pdlh-surface:var(--background-primary);
   --pdlh-soft:var(--background-secondary);
@@ -770,12 +772,14 @@ button.pdlh-icon-btn:hover {
   }
 }
 /* =====================================================================
-   Today â€” v1.3 redesign
-   A day-first layout: date header â†’ week strip â†’ progress hero â†’ plan.
+   Today Ã¢â‚¬â€ v1.3 redesign
+   A day-first layout: date header Ã¢â€ â€™ week strip Ã¢â€ â€™ progress hero Ã¢â€ â€™ plan.
    Every surface is a card on the canvas so the eye follows one column.
    ===================================================================== */
 
-.pdlh-view {
+.pdlh-view,
+.pdlh-modal,
+.pdlh-habit-form {
   --pdlh-card-radius: 10px;
   --pdlh-shadow: 0 4px 18px rgba(15, 23, 42, .05);
   --pdlh-shadow-sm: 0 1px 2px rgba(15, 23, 42, .05);
@@ -1513,7 +1517,7 @@ button.pdlh-icon-btn:hover {
 }
 
 /* =====================================================================
-   Pages — Habits, Calendar, Insights share the frame used by Today:
+   Pages â€” Habits, Calendar, Insights share the frame used by Today:
    a page header, card surfaces and one block-heading rhythm.
    ===================================================================== */
 
@@ -2146,7 +2150,7 @@ button.pdlh-icon-btn:hover {
 }
 
 /* =====================================================================
-   v1.5 — list toolbar (search / category / sort) and the undo toast
+   v1.5 â€” list toolbar (search / category / sort) and the undo toast
    ===================================================================== */
 
 .pdlh-toolbar {
@@ -2391,5 +2395,346 @@ button.pdlh-icon-btn:hover {
 
   .pdlh-toast {
     max-width: none;
+  }
+}
+
+/* =====================================================================
+   v1.6 â€” compact habit form (name â†’ type â†’ when â†’ look â†’ more)
+   ===================================================================== */
+
+.pdlh-habit-shell {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.pdlh-habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pdlh-form-head h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.pdlh-form-sub {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.pdlh-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pdlh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.pdlh-field-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pdlh-field-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.pdlh-name-input {
+  width: 100%;
+  height: 42px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 9px !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.pdlh-name-input:focus-visible {
+  border-color: #d97706 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, .14) !important;
+}
+
+.pdlh-input,
+.pdlh-number,
+.pdlh-unit,
+.pdlh-textarea {
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 8px !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+}
+
+.pdlh-input:focus-visible,
+.pdlh-number:focus-visible,
+.pdlh-unit:focus-visible,
+.pdlh-textarea:focus-visible {
+  border-color: #d97706 !important;
+  outline: none;
+}
+
+.pdlh-textarea {
+  height: auto !important;
+  min-height: 58px;
+  padding: 8px 10px !important;
+  resize: vertical;
+}
+
+.pdlh-number {
+  width: 84px !important;
+}
+
+.pdlh-unit {
+  flex: 1;
+  min-width: 90px;
+}
+
+.pdlh-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pdlh-choice button {
+  height: 32px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 8px !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+
+.pdlh-choice button:hover {
+  border-color: var(--text-faint) !important;
+  color: var(--text-normal) !important;
+}
+
+.pdlh-choice button.is-active {
+  border-color: color-mix(in srgb, #d97706 55%, var(--background-modifier-border)) !important;
+  background: color-mix(in srgb, #d97706 9%, var(--background-primary)) !important;
+  color: var(--text-normal) !important;
+  font-weight: 750 !important;
+}
+
+.pdlh-form-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pdlh-inline-label {
+  min-width: 96px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.pdlh-days {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pdlh-day-chip {
+  display: grid !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  place-items: center;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 50% !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+}
+
+.pdlh-day-chip.is-active {
+  border-color: #d97706 !important;
+  background: #d97706 !important;
+  color: #fff !important;
+}
+
+.pdlh-look-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pdlh-icon-pick {
+  --habit-color: #d97706;
+  display: inline-flex !important;
+  height: 34px !important;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+  padding: 0 11px 0 6px !important;
+  border: 1px solid color-mix(in srgb, var(--habit-color) 35%, var(--background-modifier-border)) !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--habit-color) 8%, var(--background-primary)) !important;
+  box-shadow: none !important;
+  color: var(--text-normal) !important;
+  cursor: pointer;
+}
+
+.pdlh-icon-pick-mark {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--habit-color);
+  color: #fff;
+}
+
+.pdlh-icon-pick-mark svg {
+  width: 13px;
+  height: 13px;
+}
+
+.pdlh-icon-pick-name {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.pdlh-swatches {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.pdlh-swatch {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 2px solid var(--background-primary) !important;
+  border-radius: 50% !important;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .12) !important;
+  cursor: pointer;
+}
+
+.pdlh-swatch.is-active {
+  box-shadow: 0 0 0 2px var(--background-primary), 0 0 0 3.5px rgba(15, 23, 42, .45) !important;
+}
+
+.pdlh-more {
+  padding-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.pdlh-more-body {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.pdlh-more.is-open .pdlh-more-body {
+  display: flex;
+}
+
+.pdlh-more-toggle {
+  display: inline-flex !important;
+  height: auto !important;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  font-size: 12.5px !important;
+  cursor: pointer;
+}
+
+.pdlh-more-toggle:hover {
+  color: var(--text-normal) !important;
+}
+
+.pdlh-more-caret {
+  display: inline-flex;
+}
+
+.pdlh-more-caret svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pdlh-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pdlh-form-foot {
+  position: sticky;
+  bottom: -20px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  padding: 14px 0 6px;
+  border-top: 1px solid var(--background-modifier-border);
+  background: var(--background-primary);
+}
+
+.pdlh-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.pdlh-form-hint {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.pdlh-primary[disabled] {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .pdlh-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pdlh-form-hint {
+    display: none;
   }
 }

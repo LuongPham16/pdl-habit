@@ -57,7 +57,13 @@ if (process.argv.includes('--shot')) {
     { name: 'insights-desktop.png', file: 'insights.html', ...desktop },
     { name: 'insights-dark.png', file: 'insights-dark.html', ...desktop },
     { name: 'insights-empty.png', file: 'insights-empty.html', width: 1440, height: 800 },
-    { name: 'insights-narrow.png', file: 'insights.html', width: 560, height: 1000 }
+    { name: 'insights-narrow.png', file: 'insights.html', width: 560, height: 1000 },
+    { name: 'habit-new.png', file: 'habit-new.html', width: 900, height: 760 },
+    { name: 'habit-new-dark.png', file: 'habit-new-dark.html', width: 900, height: 760 },
+    { name: 'habit-count.png', file: 'habit-count.html', width: 900, height: 780 },
+    { name: 'habit-week.png', file: 'habit-week.html', width: 900, height: 700 },
+    { name: 'habit-advanced.png', file: 'habit-advanced.html', width: 900, height: 980 },
+    { name: 'habit-edit.png', file: 'habit-edit.html', width: 900, height: 900 }
   ];
   for (const shot of shots) {
     const file = path.join(ROOT, 'preview', shot.name);

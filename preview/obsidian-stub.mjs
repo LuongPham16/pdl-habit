@@ -1,6 +1,7 @@
 /** Stand-in for the `obsidian` module while rendering the preview offline. */
 import fs from 'node:fs';
 import path from 'node:path';
+import { El } from './dom-shim.mjs';
 
 const ICON_DIR = path.resolve('node_modules/lucide-static/icons');
 const cache = new Map();
@@ -32,9 +33,13 @@ export class ItemView {
 }
 
 export class Modal {
-  constructor(app) { this.app = app; this.contentEl = { addClass() {}, empty() {}, createEl() { return {}; } }; this.modalEl = { addClass() {} }; }
+  constructor(app) {
+    this.app = app;
+    this.modalEl = new El('div', { cls: 'modal' });
+    this.contentEl = new El('div', { cls: 'modal-content' });
+  }
   open() {}
-  close() {}
+  close() { this.onClose?.(); }
 }
 
 export class Setting {
