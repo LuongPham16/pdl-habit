@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * Builds the offline preview: bundles preview/render.mjs with `obsidian` replaced
  * by a stub, then screenshots the generated HTML with headless Edge/Chrome.
@@ -63,7 +63,10 @@ if (process.argv.includes('--shot')) {
     { name: 'habit-count.png', file: 'habit-count.html', width: 900, height: 780 },
     { name: 'habit-week.png', file: 'habit-week.html', width: 900, height: 700 },
     { name: 'habit-advanced.png', file: 'habit-advanced.html', width: 900, height: 1080 },
-    { name: 'habit-edit.png', file: 'habit-edit.html', width: 900, height: 900 }
+    { name: 'habit-edit.png', file: 'habit-edit.html', width: 900, height: 900 },
+    { name: 'detail.png', file: 'detail.html', width: 900, height: 1060 },
+    { name: 'detail-dark.png', file: 'detail-dark.html', width: 900, height: 1060 },
+    { name: 'detail-prev.png', file: 'detail-prev.html', width: 900, height: 1000 }
   ];
   for (const shot of shots) {
     const file = path.join(ROOT, 'preview', shot.name);

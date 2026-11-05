@@ -1,4 +1,4 @@
-# PDL Habit v1.6
+# PDL Habit v1.7
 
 PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một note độc lập; check-in được lưu trong frontmatter `history`, vì vậy dữ liệu vẫn đọc được khi plugin không hoạt động.
 
@@ -43,6 +43,21 @@ Cả bốn tab dùng chung một khung: eyebrow nhỏ → tiêu đề lớn → 
 4. **Kế hoạch** — nhóm Morning / Afternoon / Evening / Anytime có icon, `x/y` và dấu ✓ khi xong nhóm. Buổi trống tự ẩn.
 
 Hàng habit gồm vòng check mang màu habit, tên, chip lịch/streak/tiến độ, chấm tiến độ cho habit số lượng và nút ghi chú (hiện khi hover). Bấm vào tên để mở chi tiết.
+
+### Chi tiết habit: lịch tháng
+
+Bấm tên habit (ở Today hoặc Habits) để mở chi tiết. Phần dưới cùng là **lịch một tháng** thay cho dải 28 ngày và danh sách "Recent check-ins" cũ:
+
+- **Điều hướng tháng**: `‹ Today ›` ở góc phải tiêu đề; mỗi lần hiển thị đúng một tháng.
+- **Dòng tóm tắt**: `x/y done · n perfect days` của tháng đang xem.
+- **5 màu trạng thái**, có legend ngay dưới lịch:
+  - **Done** — tô đặc bằng màu habit (đã đạt mục tiêu ngày).
+  - **Partial** — nền nhạt cùng màu habit (làm một phần, ví dụ 1/3 ly).
+  - **Missed** — nền đỏ rất nhạt (có lịch nhưng không làm).
+  - **Rest** — nền xám + viền nét đứt (planned rest, không tính là bỏ).
+  - **Today** — vòng amber quanh ô, độc lập với màu trạng thái.
+- Ngày không có lịch: viền nét đứt rất mờ; ngày tương lai: mờ hơn; ngày của tháng khác: trung tính, không tô màu.
+- Bấm một ngày có lịch để mở sheet check-in của đúng ngày đó (sửa số lượng, ghi chú, planned rest hoặc xoá).
 
 ### Habits
 

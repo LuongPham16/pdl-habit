@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.7.0 — habit detail gets a real month calendar
+
+- **The "Recent check-ins" list is gone.** History is read from the calendar instead
+  of a scrolling list, so the sheet ends at the month grid.
+- **One month at a time, with navigation.** The fixed 28-day strip became a month
+  grid with `‹ Today ›` controls and a summary line (`2/6 done · 2 perfect days`).
+- **Five distinct states, colour-coded:**
+  - *Done* — solid habit colour,
+  - *Partial* — light tint of the habit colour (e.g. 1 of 3 glasses),
+  - *Missed* — faint red,
+  - *Rest* — neutral grey with a dashed border (planned rest),
+  - *Today* — amber ring, drawn independently of the state colour.
+
+  Future days, unscheduled days and neighbouring months stay muted and neutral.
+  A legend sits under the grid.
+- **Click any scheduled day** to open its check-in sheet (amount, note, planned
+  rest, clear) — including days from the past.
+- The old heatmap and history-list styles were deleted rather than left behind.
+
 ## 1.6.1 — form polish
 
 - **Date fields no longer collide with the theme's calendar icon.** Obsidian paints a

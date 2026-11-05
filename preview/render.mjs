@@ -8,6 +8,7 @@ import { installDom, El } from './dom-shim.mjs';
 import { PDLHabitView } from '../src/view.js';
 import { PDLHabitPlugin } from '../src/plugin.js';
 import { HabitModal } from '../src/modals/habit.js';
+import { HabitDetailModal } from '../src/modals/detail.js';
 import { toast } from '../src/ui.js';
 
 const { } = installDom();
@@ -318,3 +319,102 @@ buildHabitFormPage({
   file: 'habit-edit.html',
   habit: { ...habits[1], title: 'Uống nước' }
 });
+
+/* ---------------------------------------------------------- habit detail */
+
+function monthHistory({ target }) {
+  const history = {};
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const key = `${year}-${pad(month + 1)}-${pad(day)}`;
+    if (key > iso(today)) continue;
+    const slot = day % 7;
+    if (slot === 1) { /* missed on purpose */ }
+    else if (slot === 2) history[key] = { value: 1 };
+    else if (slot === 3) history[key] = { value: 0, status: 'skip' };
+    else if (slot === 4) history[key] = { value: Math.max(1, target - 1) };
+    else history[key] = { value: target };
+  }
+  return history;
+}
+
+function buildDetailPage({ file, habit, theme = 'light', monthOffset = 0 }) {
+  const vars = theme === 'dark' ? DARK : LIGHT;
+  const modal = new HabitDetailModal(app, plugin, habit);
+  if (monthOffset) modal.monthDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  modal.onOpen();
+
+  const page = `<!doctype html>
+<html lang="en" class="theme-${theme}">
+<head>
+<meta charset="utf-8">
+<title>PDL Habit — habit detail (${theme})</title>
+<style>
+  :root {
+    ${Object.entries(vars).map(([name, value]) => `${name}: ${value};`).join('\n    ')}
+    --background-primary-alt: var(--background-primary);
+    --background-modifier-hover: rgba(127, 127, 127, .12);
+    --font-interface: -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --text-faint: #9ca3af;
+    color-scheme: ${theme};
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--background-secondary, #f5f6f7);
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .preview-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, ${theme === 'dark' ? '.55' : '.35'});
+  }
+  .preview-modal {
+    width: min(720px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    padding: 20px;
+    border-radius: 12px;
+    background: var(--background-primary);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, ${theme === 'dark' ? '.55' : '.28'});
+  }
+  svg.svg-icon { width: 18px; height: 18px; flex: none; }
+  button { font-family: inherit; }
+${css}
+</style>
+</head>
+<body>
+<div class="preview-backdrop">
+  <div class="preview-modal">
+${modal.contentEl.toHtml('')}
+  </div>
+</div>
+</body>
+</html>
+`;
+
+  fs.writeFileSync(path.join(ROOT, 'preview', file), page);
+  console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
+}
+
+const waterHabit = {
+  ...habits[1],
+  title: 'Uống nước',
+  target: 3,
+  unit: 'ly',
+  period: 'afternoon',
+  history: monthHistory({ target: 3 })
+};
+
+buildDetailPage({ file: 'detail.html', habit: waterHabit });
+buildDetailPage({ file: 'detail-dark.html', habit: waterHabit, theme: 'dark' });
+buildDetailPage({ file: 'detail-prev.html', habit: waterHabit, monthOffset: -1 });

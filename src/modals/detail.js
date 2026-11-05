@@ -1,15 +1,24 @@
 import { Modal, setIcon } from 'obsidian';
-import { PERIODS } from '../constants.js';
-import { addDays, dateRange, isoDate, parseDate } from '../dates.js';
-import { completion, isActiveHabit } from '../habits.js';
+import { PERIODS, WEEKDAYS } from '../constants.js';
+import { addDays, isoDate, parseDate } from '../dates.js';
+import { completion, isActiveHabit, isScheduled, monthSummary } from '../habits.js';
 import { iconButton } from '../dom.js';
 import { CheckinModal } from './checkin.js';
 import { ConfirmModal } from './confirm.js';
 import { HabitModal } from './habit.js';
 
+const LEGEND = [
+  ['is-done', 'Done'],
+  ['is-partial', 'Partial'],
+  ['is-missed', 'Missed'],
+  ['is-rest', 'Rest'],
+  ['is-today', 'Today']
+];
+
 export class HabitDetailModal extends Modal {
   constructor(app, plugin, habit) {
     super(app); this.plugin = plugin; this.habit = habit;
+    this.monthDate = new Date(); this.monthHost = null;
   }
 
   onOpen() {
@@ -78,33 +87,104 @@ export class HabitDetailModal extends Modal {
       }
     }
 
-    el.createEl('h3', { cls: 'pdlh-detail-section-title', text: 'Last 28 days' });
-    const heat = el.createDiv({ cls: 'pdlh-detail-heatmap' });
-    dateRange(addDays(isoDate(), -27), 28).forEach((key) => {
-      const state = completion(habit, key);
-      const button = heat.createEl('button', {
-        cls: `${state.done ? 'is-done' : ''} ${state.skipped ? 'is-skipped' : ''}`.trim(),
-        attr: { title: `${key}: ${state.skipped ? 'planned rest' : `${state.value} ${habit.unit}`}`, 'aria-label': key }
-      });
-      button.style.setProperty('--habit-color', habit.color);
-      button.createSpan({ text: String(parseDate(key).getDate()) });
-      button.onclick = () => { this.close(); new CheckinModal(this.app, this.plugin, habit, key).open(); };
+    this.monthHost = el.createDiv({ cls: 'pdlh-detail-month' });
+    this.monthHost.style.setProperty('--habit-color', habit.color);
+    this.renderMonth();
+  }
+
+  /** One month at a time: navigation on the left, colour-coded days on the right. */
+  renderMonth() {
+    const host = this.monthHost;
+    if (!host) return;
+    host.empty();
+    const habit = this.habit;
+    const date = this.monthDate;
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const summary = monthSummary([habit], year, month);
+
+    const head = host.createDiv({ cls: 'pdlh-detail-month-head' });
+    const title = head.createDiv({ cls: 'pdlh-detail-month-title' });
+    title.createEl('h3', { text: date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) });
+    title.createSpan({
+      cls: 'pdlh-detail-month-meta',
+      text: summary.due
+        ? `${summary.done}/${summary.due} done · ${summary.perfect} perfect ${summary.perfect === 1 ? 'day' : 'days'}`
+        : 'No scheduled days this month'
     });
 
-    el.createEl('h3', { cls: 'pdlh-detail-section-title', text: 'Recent check-ins' });
-    const history = el.createDiv({ cls: 'pdlh-detail-history' });
-    const entries = Object.entries(habit.history).sort(([a], [b]) => b.localeCompare(a)).slice(0, 7);
-    if (!entries.length) history.createEl('p', { cls: 'pdlh-muted', text: 'No check-ins yet.' });
-    entries.forEach(([key, entry]) => {
-      const row = history.createEl('button');
+    const nav = head.createDiv({ cls: 'pdlh-date-nav' });
+    const prev = iconButton(nav, 'chevron-left', 'Previous month');
+    prev.onclick = () => { this.monthDate = new Date(year, month - 1, 1); this.renderMonth(); };
+    const today = nav.createEl('button', { cls: `pdlh-today-btn ${this.isCurrentMonth() ? 'is-current' : ''}`.trim(), text: 'Today', attr: { 'aria-label': 'Jump to this month' } });
+    today.onclick = () => { this.monthDate = new Date(); this.renderMonth(); };
+    const next = iconButton(nav, 'chevron-right', 'Next month');
+    next.onclick = () => { this.monthDate = new Date(year, month + 1, 1); this.renderMonth(); };
+
+    const grid = host.createDiv({ cls: 'pdlh-mini-cal' });
+    const weekStart = this.plugin.settings.weekStartsOn;
+    for (let index = 0; index < 7; index += 1) {
+      grid.createDiv({ cls: 'pdlh-mini-cal-wd', text: WEEKDAYS[(index + weekStart) % 7].slice(0, 2) });
+    }
+
+    const todayKey = isoDate();
+    const first = new Date(year, month, 1);
+    const start = addDays(first, -((first.getDay() - weekStart + 7) % 7));
+    for (let offset = 0; offset < 42; offset += 1) {
+      const key = addDays(start, offset);
+      const day = parseDate(key);
       const state = completion(habit, key);
-      const mark = row.createSpan({ cls: `pdlh-history-mark ${state.done ? 'is-done' : ''}`.trim() });
-      setIcon(mark, state.skipped ? 'minus' : state.done ? 'check' : 'circle');
-      const copy = row.createDiv();
-      copy.createEl('strong', { text: parseDate(key).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) });
-      copy.createSpan({ text: state.skipped ? 'Planned rest' : `${state.value} ${habit.unit}${typeof entry === 'object' && entry.note ? ` · ${entry.note}` : ''}` });
-      row.onclick = () => { this.close(); new CheckinModal(this.app, this.plugin, habit, key).open(); };
+      const scheduled = isScheduled(habit, key);
+      const isFuture = key > todayKey;
+      const inMonth = day.getMonth() === month;
+      const classes = ['pdlh-mini-day'];
+      if (!inMonth) classes.push('is-outside');
+      if (key === todayKey) classes.push('is-today');
+      // Days from the neighbouring months stay neutral; colours are for this month only.
+      if (inMonth) {
+        if (isFuture) classes.push('is-future');
+        if (!scheduled) classes.push('is-off');
+        else if (state.skipped) classes.push('is-rest');
+        else if (state.done) classes.push('is-done');
+        else if (state.ratio > 0) classes.push('is-partial');
+        else if (key < todayKey) classes.push('is-missed');
+      }
+
+      const status = !inMonth
+        ? 'outside this month'
+        : !scheduled
+          ? 'not scheduled'
+          : state.skipped
+            ? 'planned rest'
+            : state.done
+              ? `done${habit.unit && habit.unit !== 'time' ? ` · ${state.value} ${habit.unit}` : ''}`
+              : state.ratio > 0
+                ? `partial · ${state.value}`
+                : isFuture ? 'upcoming' : 'missed';
+
+      const cell = grid.createEl('button', {
+        cls: classes.join(' '),
+        attr: { 'aria-label': `${key}, ${status}`, title: `${key} · ${status}` }
+      });
+      cell.createSpan({ text: String(day.getDate()) });
+      cell.onclick = () => {
+        if (!scheduled) return;
+        this.close();
+        new CheckinModal(this.app, this.plugin, habit, key).open();
+      };
+    }
+
+    const legend = host.createDiv({ cls: 'pdlh-mini-legend' });
+    LEGEND.forEach(([state, label]) => {
+      const item = legend.createSpan();
+      item.createEl('i', { cls: state });
+      item.createSpan({ text: label });
     });
+  }
+
+  isCurrentMonth() {
+    const now = new Date();
+    return this.monthDate.getFullYear() === now.getFullYear() && this.monthDate.getMonth() === now.getMonth();
   }
 
   onClose() { this.contentEl.empty(); }

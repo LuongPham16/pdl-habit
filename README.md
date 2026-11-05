@@ -5,7 +5,7 @@
 Every habit is a plain note; every check-in is a line of frontmatter. Nothing is
 locked inside the plugin.
 
-> **Version 1.6.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
+> **Version 1.7.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
 
 ## Highlights
 
@@ -15,6 +15,9 @@ locked inside the plugin.
 - **Today** — one column that reads top to bottom: page header → week strip →
   progress hero with **Next up** → plan grouped by Morning / Afternoon / Evening /
   Anytime.
+- **Habit detail with a month calendar** — one month at a time with ‹ Today ›
+  navigation, five colour-coded states (done, partial, missed, rest, today) and a
+  legend; click any day to fix that day's check-in.
 - **Undo anything** — every check-in, planned rest and clear raises a toast with
   **Undo** for eight seconds that restores the previous frontmatter entry exactly.
 - **Daily reminder** — one in-app nudge at the time you choose, only when habits are

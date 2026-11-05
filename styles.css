@@ -1,4 +1,4 @@
-﻿/* PDL Habit â€” base shell,
+﻿/* PDL Habit Ã¢â‚¬â€ base shell,
 calendar,
 insights,
 habits,
@@ -493,107 +493,9 @@ button.pdlh-icon-btn:hover {
   flex-direction:column;
   gap:3px;
 }
-.pdlh-detail-section-title {
-  margin:18px 0 9px!important;
-  font-size:14px!important;
-}
-.pdlh-detail-heatmap {
-  display:grid;
-  grid-template-columns:repeat(14,1fr);
-  gap:5px;
-}
-.pdlh-detail-heatmap button {
-  display:grid!important;
-  aspect-ratio:1;
-  margin:0!important;
-  padding:0!important;
-  place-items:center;
-  border:1px solid var(--background-modifier-border)!important;
-  border-radius:5px!important;
-  background:var(--background-secondary)!important;
-  box-shadow:none!important;
-  color:var(--text-muted)!important;
-  font-size:10px!important;
-  cursor:pointer;
-}
-.pdlh-detail-heatmap button:hover {
-  border-color:var(--habit-color)!important;
-}
-.pdlh-detail-heatmap button.is-done {
-  border-color:var(--habit-color)!important;
-  background:var(--habit-color)!important;
-  color:#fff!important;
-}
-.pdlh-detail-heatmap button.is-skipped {
-  border-style:dashed!important;
-  color:var(--habit-color)!important;
-}
-.pdlh-detail-history {
-  overflow:hidden;
-  border:1px solid var(--background-modifier-border);
-  border-radius:7px;
-}
-.pdlh-detail-history>button {
-  display:flex!important;
-  width:100%!important;
-  min-height:48px!important;
-  align-items:center!important;
-  gap:10px!important;
-  margin:0!important;
-  padding:7px 10px!important;
-  border:0!important;
-  border-bottom:1px solid var(--background-modifier-border)!important;
-  border-radius:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  color:var(--text-normal)!important;
-  text-align:left!important;
-  cursor:pointer;
-}
-.pdlh-detail-history>button:last-child {
-  border-bottom:0!important;
-}
-.pdlh-detail-history>button:hover {
-  background:var(--background-modifier-hover)!important;
-}
-.pdlh-history-mark {
-  display:grid;
-  width:28px;
-  height:28px;
-  flex:none;
-  place-items:center;
-  border-radius:50%;
-  color:var(--text-muted);
-}
-.pdlh-history-mark.is-done {
-  background:var(--pdlh-green);
-  color:#fff;
-}
-.pdlh-history-mark svg {
-  width:15px;
-}
-.pdlh-detail-history button>div {
-  display:flex;
-  min-width:0;
-  flex-direction:column;
-  gap:3px;
-}
-.pdlh-detail-history strong {
-  font-size:12px;
-}
-.pdlh-detail-history button div span {
-  overflow:hidden;
-  color:var(--text-muted);
-  font-size:11px;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
 @media(max-width:700px) {
   .pdlh-detail-facts {
     grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-  .pdlh-detail-heatmap {
-    grid-template-columns:repeat(7,1fr);
   }
 }
 .pdlh-detail-icon {
@@ -735,10 +637,6 @@ button.pdlh-icon-btn:hover {
 .pdlh-detail-loop strong {
   font-size:13px;
 }
-.pdlh-detail-heatmap button {
-  min-width:30px;
-  font-size:11px!important;
-}
 @media(max-width:1050px) {
   .pdlh-nav {
     align-items:stretch;
@@ -772,8 +670,8 @@ button.pdlh-icon-btn:hover {
   }
 }
 /* =====================================================================
-   Today Ã¢â‚¬â€ v1.3 redesign
-   A day-first layout: date header Ã¢â€ â€™ week strip Ã¢â€ â€™ progress hero Ã¢â€ â€™ plan.
+   Today ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â v1.3 redesign
+   A day-first layout: date header ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ week strip ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ progress hero ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ plan.
    Every surface is a card on the canvas so the eye follows one column.
    ===================================================================== */
 
@@ -1515,10 +1413,12 @@ button.pdlh-icon-btn:hover {
     transition: none !important;
   }
 }
-
 /* =====================================================================
-   Pages â€” Habits, Calendar, Insights share the frame used by Today:
-   a page header, card surfaces and one block-heading rhythm.
+   Pages Ã¢â‚¬â€ Habits,
+Calendar,
+Insights share the frame used by Today:
+   a page header,
+card surfaces and one block-heading rhythm.
    ===================================================================== */
 
 .pdlh-block-head {
@@ -1529,7 +1429,6 @@ button.pdlh-icon-btn:hover {
   padding: 0 2px;
   margin-bottom: 10px;
 }
-
 .pdlh-block-head h3 {
   margin: 0;
   color: var(--pdlh-muted);
@@ -1538,19 +1437,16 @@ button.pdlh-icon-btn:hover {
   letter-spacing: .1em;
   text-transform: uppercase;
 }
-
 .pdlh-block-count {
   color: var(--pdlh-muted);
   font-size: 12px;
 }
-
 .pdlh-card {
   border: 1px solid var(--pdlh-border);
   border-radius: var(--pdlh-card-radius);
   background: var(--pdlh-surface);
   box-shadow: var(--pdlh-shadow-sm);
 }
-
 /* --------------------------------------------------------- empty states */
 
 .pdlh-empty-state.is-compact {
@@ -1558,28 +1454,23 @@ button.pdlh-icon-btn:hover {
   border: 0;
   background: transparent;
 }
-
 .pdlh-empty-state.is-compact .pdlh-empty-mark {
   width: 38px;
   height: 38px;
   border-radius: 10px;
 }
-
 .pdlh-empty-state.is-compact .pdlh-empty-mark svg {
   width: 18px;
   height: 18px;
 }
-
 .pdlh-empty-state.is-compact h3 {
   font-size: 14px;
 }
-
 /* --------------------------------------------------------- habits list */
 
 .pdlh-list {
   overflow: hidden;
 }
-
 .pdlh-list-head,
 .pdlh-list-row {
   display: grid;
@@ -1588,7 +1479,6 @@ button.pdlh-icon-btn:hover {
   gap: 14px;
   padding: 0 16px;
 }
-
 .pdlh-list-head {
   min-height: 44px;
   border-bottom: 1px solid var(--pdlh-border);
@@ -1599,29 +1489,24 @@ button.pdlh-icon-btn:hover {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-
 .pdlh-list-head .pdlh-list-days > span {
   display: grid;
   place-items: center;
   font-size: 10px;
 }
-
 .pdlh-list-head .pdlh-list-days > .is-today {
   color: var(--pdlh-amber);
 }
-
 .pdlh-list-col.is-streak {
   color: var(--pdlh-muted);
   text-align: right;
 }
-
 .pdlh-list-days {
   display: grid;
   grid-template-columns: repeat(7, 26px);
   gap: 4px;
   justify-content: start;
 }
-
 .pdlh-list-row {
   --habit-color: var(--pdlh-amber);
   min-height: 66px;
@@ -1629,32 +1514,26 @@ button.pdlh-icon-btn:hover {
   cursor: pointer;
   transition: background-color .14s ease;
 }
-
 .pdlh-list-row:last-child {
   border-bottom: 0;
 }
-
 .pdlh-list-row:hover,
 .pdlh-list-row:focus-visible {
   background: color-mix(in srgb, var(--habit-color) 4%, transparent);
 }
-
 .pdlh-list-row:focus-visible {
   outline: 2px solid var(--pdlh-amber);
   outline-offset: -2px;
 }
-
 .pdlh-list-row.is-archived {
   opacity: .62;
 }
-
 .pdlh-list-identity {
   display: flex;
   min-width: 0;
   align-items: center;
   gap: 11px;
 }
-
 .pdlh-list-icon {
   display: grid;
   width: 34px;
@@ -1665,19 +1544,16 @@ button.pdlh-icon-btn:hover {
   background: color-mix(in srgb, var(--habit-color) 13%, transparent);
   color: var(--habit-color);
 }
-
 .pdlh-list-icon svg {
   width: 17px;
   height: 17px;
 }
-
 .pdlh-list-copy {
   display: flex;
   min-width: 0;
   flex-direction: column;
   gap: 3px;
 }
-
 .pdlh-list-copy strong {
   overflow: hidden;
   font-size: 14.5px;
@@ -1685,7 +1561,6 @@ button.pdlh-icon-btn:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .pdlh-list-meta {
   overflow: hidden;
   color: var(--pdlh-muted);
@@ -1693,7 +1568,6 @@ button.pdlh-icon-btn:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .pdlh-list-streak {
   display: flex;
   align-items: center;
@@ -1703,34 +1577,28 @@ button.pdlh-icon-btn:hover {
   font-size: 14px;
   font-weight: 700;
 }
-
 .pdlh-list-streak.is-zero {
   color: var(--pdlh-muted);
   opacity: .55;
 }
-
 .pdlh-list-streak svg {
   width: 14px;
   height: 14px;
 }
-
 .pdlh-list-chevron {
   display: grid;
   place-items: center;
   color: var(--pdlh-muted);
   opacity: .5;
 }
-
 .pdlh-list-chevron svg {
   width: 15px;
   height: 15px;
 }
-
 .pdlh-list-row:hover .pdlh-list-chevron {
   color: var(--habit-color);
   opacity: 1;
 }
-
 .pdlh-list-foot {
   margin: 0;
   padding: 10px 16px;
@@ -1738,7 +1606,6 @@ button.pdlh-icon-btn:hover {
   color: var(--pdlh-muted);
   font-size: 12px;
 }
-
 .pdlh-day-cell {
   display: grid !important;
   width: 26px !important;
@@ -1756,45 +1623,37 @@ button.pdlh-icon-btn:hover {
   font-weight: 650 !important;
   cursor: pointer;
 }
-
 .pdlh-day-cell:hover {
   border-color: color-mix(in srgb, var(--habit-color) 55%, var(--pdlh-border)) !important;
   color: var(--habit-color) !important;
 }
-
 .pdlh-day-cell.is-done {
   border-color: var(--habit-color) !important;
   background: var(--habit-color) !important;
   color: #fff !important;
 }
-
 .pdlh-day-cell.is-skipped {
   border-style: dashed !important;
   color: var(--habit-color) !important;
 }
-
 .pdlh-day-cell.is-off {
   opacity: .26;
   cursor: default;
 }
-
 .pdlh-day-cell.is-today {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--pdlh-amber) 40%, transparent) !important;
 }
-
 /* ------------------------------------------------------------ calendar */
 
 .pdlh-cal {
   overflow: hidden;
 }
-
 .pdlh-cal-week {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   border-bottom: 1px solid var(--pdlh-border);
   background: color-mix(in srgb, var(--pdlh-soft) 55%, var(--pdlh-surface));
 }
-
 .pdlh-cal-week span {
   display: grid;
   min-height: 38px;
@@ -1805,12 +1664,10 @@ button.pdlh-icon-btn:hover {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-
 .pdlh-cal-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
-
 .pdlh-cal-day {
   display: flex !important;
   min-width: 0;
@@ -1829,23 +1686,18 @@ button.pdlh-icon-btn:hover {
   color: var(--pdlh-text) !important;
   cursor: pointer;
 }
-
 .pdlh-cal-day:nth-child(7n) {
   border-right: 0 !important;
 }
-
 .pdlh-cal-day:nth-last-child(-n + 7) {
   border-bottom: 0 !important;
 }
-
 .pdlh-cal-day:hover {
   background: color-mix(in srgb, var(--pdlh-green) 5%, transparent) !important;
 }
-
 .pdlh-cal-day.is-outside {
   opacity: .32;
 }
-
 .pdlh-cal-num {
   display: grid;
   width: 24px;
@@ -1855,34 +1707,27 @@ button.pdlh-icon-btn:hover {
   font-size: 12.5px;
   font-weight: 650;
 }
-
 .pdlh-cal-day.is-today .pdlh-cal-num {
   background: var(--pdlh-amber);
   color: #fff;
 }
-
 .pdlh-cal-day.is-complete .pdlh-cal-num {
   color: var(--pdlh-green);
 }
-
 .pdlh-cal-day.is-empty .pdlh-cal-num {
   color: var(--pdlh-muted);
 }
-
 .pdlh-cal-day.is-future {
   opacity: .5;
 }
-
 .pdlh-cal-day.is-future .pdlh-cal-num {
   color: var(--pdlh-muted);
 }
-
 .pdlh-cal-count {
   margin-top: auto;
   color: var(--pdlh-muted);
   font-size: 11px;
 }
-
 .pdlh-cal-meter {
   width: 100%;
   height: 4px;
@@ -1890,18 +1735,15 @@ button.pdlh-icon-btn:hover {
   border-radius: 2px;
   background: var(--pdlh-border);
 }
-
 .pdlh-cal-fill {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--pdlh-green);
 }
-
 .pdlh-cal-day.is-empty .pdlh-cal-meter {
   opacity: .45;
 }
-
 .pdlh-cal-foot {
   margin: 0;
   padding: 10px 14px;
@@ -1909,7 +1751,6 @@ button.pdlh-icon-btn:hover {
   color: var(--pdlh-muted);
   font-size: 12px;
 }
-
 /* ------------------------------------------------------------ insights */
 
 .pdlh-stats {
@@ -1917,7 +1758,6 @@ button.pdlh-icon-btn:hover {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
-
 .pdlh-stat {
   display: flex;
   align-items: center;
@@ -1928,7 +1768,6 @@ button.pdlh-icon-btn:hover {
   background: var(--pdlh-surface);
   box-shadow: var(--pdlh-shadow-sm);
 }
-
 .pdlh-stat-icon {
   display: grid;
   width: 36px;
@@ -1939,40 +1778,33 @@ button.pdlh-icon-btn:hover {
   background: var(--pdlh-amber-soft);
   color: var(--pdlh-amber);
 }
-
 .pdlh-stat-icon svg {
   width: 17px;
   height: 17px;
 }
-
 .pdlh-stat-body {
   display: flex;
   min-width: 0;
   flex-direction: column;
   gap: 1px;
 }
-
 .pdlh-stat-body strong {
   font-size: 20px;
   font-weight: 750;
   line-height: 1.15;
 }
-
 .pdlh-stat-label {
   font-size: 12px;
   font-weight: 650;
 }
-
 .pdlh-stat-note {
   color: var(--pdlh-muted);
   font-size: 11px;
 }
-
 .pdlh-bars,
 .pdlh-reflections {
   padding: 16px;
 }
-
 .pdlh-bar-row {
   --habit-color: var(--pdlh-amber);
   display: grid;
@@ -1981,14 +1813,12 @@ button.pdlh-icon-btn:hover {
   gap: 14px;
   min-height: 40px;
 }
-
 .pdlh-bar-name {
   display: flex;
   min-width: 0;
   align-items: center;
   gap: 8px;
 }
-
 .pdlh-bar-dot {
   width: 9px;
   height: 9px;
@@ -1996,7 +1826,6 @@ button.pdlh-icon-btn:hover {
   border-radius: 50%;
   background: var(--habit-color);
 }
-
 .pdlh-bar-name strong {
   overflow: hidden;
   font-size: 13px;
@@ -2004,73 +1833,61 @@ button.pdlh-icon-btn:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .pdlh-bar-detail {
   color: var(--pdlh-muted);
   font-size: 11px;
 }
-
 .pdlh-bar-track {
   height: 8px;
   overflow: hidden;
   border-radius: 4px;
   background: var(--pdlh-border);
 }
-
 .pdlh-bar-fill {
   display: block;
   height: 100%;
   border-radius: inherit;
   background: var(--habit-color);
 }
-
 .pdlh-bar-row b {
   font-size: 12px;
   text-align: right;
 }
-
 .pdlh-reflection {
   padding: 10px 0;
   border-top: 1px solid var(--pdlh-border);
 }
-
 .pdlh-block-head + .pdlh-reflection {
   border-top: 0;
   padding-top: 0;
 }
-
 .pdlh-reflection-top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
 }
-
 .pdlh-reflection-top strong {
   font-size: 13px;
   font-weight: 650;
 }
-
 .pdlh-reflection-top span {
   color: var(--pdlh-muted);
   font-size: 11px;
 }
-
 .pdlh-reflection p {
   margin: 4px 0 0;
   color: var(--pdlh-muted);
   font-size: 12px;
   line-height: 1.5;
 }
-
 /* ---------------------------------------------------------- responsive */
 
 @media (max-width: 980px) {
   .pdlh-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  };
 }
-
 @media (max-width: 860px) {
   .pdlh-list-head,
   .pdlh-list-row {
@@ -2078,12 +1895,10 @@ button.pdlh-icon-btn:hover {
     gap: 10px;
     padding: 0 12px;
   }
-
   .pdlh-list-days {
     grid-template-columns: repeat(7, 22px);
     gap: 3px;
   }
-
   .pdlh-day-cell {
     width: 22px !important;
     height: 22px !important;
@@ -2091,66 +1906,54 @@ button.pdlh-icon-btn:hover {
     border-radius: 6px !important;
     font-size: 9.5px !important;
   }
-
   .pdlh-cal-day {
     min-height: 76px;
     padding: 7px !important;
   }
 }
-
 @media (max-width: 700px) {
   .pdlh-bar-row {
     grid-template-columns: minmax(0, 1fr) minmax(80px, 1.4fr) 40px;
     gap: 10px;
   }
-
   .pdlh-cal-day {
     min-height: 66px;
     padding: 6px 5px !important;
     gap: 4px;
   }
-
   .pdlh-cal-num {
     width: 21px;
     height: 21px;
     font-size: 11px;
   }
-
   .pdlh-cal-count {
     font-size: 10px;
   }
-
   .pdlh-cal-week span {
     min-height: 32px;
     font-size: 9px;
   }
 }
-
 @media (max-width: 520px) {
   .pdlh-stats {
     grid-template-columns: 1fr;
   }
-
   .pdlh-list-head .pdlh-list-col.is-streak {
     font-size: 9px;
   }
-
   .pdlh-list-copy strong {
     font-size: 13.5px;
   }
-
   .pdlh-list-meta {
     font-size: 11px;
   }
-
   .pdlh-bars,
   .pdlh-reflections {
     padding: 12px;
   }
 }
-
 /* =====================================================================
-   v1.5 â€” list toolbar (search / category / sort) and the undo toast
+   v1.5 Ã¢â‚¬â€ list toolbar (search / category / sort) and the undo toast
    ===================================================================== */
 
 .pdlh-toolbar {
@@ -2159,7 +1962,6 @@ button.pdlh-icon-btn:hover {
   gap: 10px;
   flex-wrap: wrap;
 }
-
 .pdlh-search {
   position: relative;
   display: flex;
@@ -2174,22 +1976,18 @@ button.pdlh-icon-btn:hover {
   background: var(--pdlh-surface);
   transition: border-color .14s ease;
 }
-
 .pdlh-search:focus-within {
   border-color: var(--pdlh-amber);
 }
-
 .pdlh-search-icon {
   display: grid;
   place-items: center;
   color: var(--pdlh-muted);
 }
-
 .pdlh-search-icon svg {
   width: 14px;
   height: 14px;
 }
-
 .pdlh-search input[type="search"] {
   flex: 1;
   min-width: 0;
@@ -2202,12 +2000,10 @@ button.pdlh-icon-btn:hover {
   color: var(--pdlh-text) !important;
   font-size: 13px !important;
 }
-
 .pdlh-search input[type="search"]:focus-visible {
   outline: none;
   box-shadow: none !important;
 }
-
 .pdlh-search-clear {
   display: grid !important;
   width: 20px !important;
@@ -2223,21 +2019,17 @@ button.pdlh-icon-btn:hover {
   color: var(--pdlh-muted) !important;
   cursor: pointer;
 }
-
 .pdlh-search-clear:hover {
   background: var(--pdlh-soft) !important;
   color: var(--pdlh-text) !important;
 }
-
 .pdlh-search-clear svg {
   width: 12px;
   height: 12px;
 }
-
 .pdlh-search-clear.is-hidden {
   display: none !important;
 }
-
 .pdlh-select {
   height: 34px !important;
   min-height: 34px !important;
@@ -2250,13 +2042,11 @@ button.pdlh-icon-btn:hover {
   color: var(--pdlh-text) !important;
   font-size: 12.5px !important;
 }
-
 .pdlh-results {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .pdlh-list-group {
   display: flex;
   align-items: center;
@@ -2271,11 +2061,9 @@ button.pdlh-icon-btn:hover {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-
 .pdlh-list-group-name {
   color: var(--pdlh-text);
 }
-
 /* ------------------------------------------------------------- toast */
 
 .pdlh-toast-host {
@@ -2289,7 +2077,6 @@ button.pdlh-icon-btn:hover {
   gap: 8px;
   pointer-events: none;
 }
-
 .pdlh-toast {
   display: flex;
   align-items: center;
@@ -2307,25 +2094,21 @@ button.pdlh-icon-btn:hover {
   pointer-events: auto;
   animation: pdlh-toast-in .16s ease-out;
 }
-
 .pdlh-toast-icon {
   display: grid;
   flex: none;
   place-items: center;
   color: #059669;
 }
-
 .pdlh-toast-icon svg {
   width: 15px;
   height: 15px;
 }
-
 .pdlh-toast-text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .pdlh-toast-action {
   flex: none;
   height: 28px !important;
@@ -2340,11 +2123,9 @@ button.pdlh-icon-btn:hover {
   font-weight: 700 !important;
   cursor: pointer;
 }
-
 .pdlh-toast-action:hover {
   background: color-mix(in srgb, #059669 22%, transparent) !important;
 }
-
 .pdlh-toast-close {
   display: grid !important;
   width: 24px !important;
@@ -2360,31 +2141,31 @@ button.pdlh-icon-btn:hover {
   color: var(--text-muted) !important;
   cursor: pointer;
 }
-
 .pdlh-toast-close:hover {
   background: var(--background-modifier-hover) !important;
 }
-
 .pdlh-toast-close svg {
   width: 13px;
   height: 13px;
 }
-
 @keyframes pdlh-toast-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-
 .theme-dark .pdlh-toast {
   box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
 }
-
 @media (prefers-reduced-motion: reduce) {
   .pdlh-toast {
     animation: none;
   }
 }
-
 @media (max-width: 700px) {
   .pdlh-toast-host {
     right: 12px;
@@ -2392,49 +2173,41 @@ button.pdlh-icon-btn:hover {
     left: 12px;
     align-items: stretch;
   }
-
   .pdlh-toast {
     max-width: none;
   }
 }
-
 /* =====================================================================
-   v1.6 â€” compact habit form (name â†’ type â†’ when â†’ look â†’ more)
+   v1.6 Ã¢â‚¬â€ compact habit form (name Ã¢â€ â€™ type Ã¢â€ â€™ when Ã¢â€ â€™ look Ã¢â€ â€™ more)
    ===================================================================== */
 
 .pdlh-habit-shell {
   width: min(560px, calc(100vw - 32px));
 }
-
 .pdlh-habit-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
 .pdlh-form-head h2 {
   margin: 0;
   font-size: 19px;
 }
-
 .pdlh-form-sub {
   margin: 4px 0 0;
   color: var(--text-muted);
   font-size: 12.5px;
 }
-
 .pdlh-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
 .pdlh-field {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
-
 .pdlh-field-label {
   color: var(--text-muted);
   font-size: 10px;
@@ -2442,14 +2215,12 @@ button.pdlh-icon-btn:hover {
   letter-spacing: .08em;
   text-transform: uppercase;
 }
-
 .pdlh-field-hint {
   margin: 0;
   color: var(--text-muted);
   font-size: 11.5px;
   line-height: 1.45;
 }
-
 .pdlh-name-input {
   width: 100%;
   height: 42px !important;
@@ -2462,13 +2233,11 @@ button.pdlh-icon-btn:hover {
   font-size: 15px !important;
   font-weight: 600 !important;
 }
-
 .pdlh-name-input:focus-visible {
   border-color: #d97706 !important;
   outline: none;
   box-shadow: 0 0 0 3px rgba(217, 119, 6, .14) !important;
 }
-
 .pdlh-input,
 .pdlh-number,
 .pdlh-unit,
@@ -2483,7 +2252,6 @@ button.pdlh-icon-btn:hover {
   box-shadow: none !important;
   font-size: 13px !important;
 }
-
 .pdlh-input:focus-visible,
 .pdlh-number:focus-visible,
 .pdlh-unit:focus-visible,
@@ -2491,19 +2259,17 @@ button.pdlh-icon-btn:hover {
   border-color: #d97706 !important;
   outline: none;
 }
-
 .pdlh-textarea {
   height: auto !important;
   min-height: 58px;
   padding: 8px 10px !important;
   resize: vertical;
 }
-
 .pdlh-number {
   width: 84px !important;
 }
-
-/* Dates: Obsidian paints a calendar icon at the start of the field, so keep room
+/* Dates: Obsidian paints a calendar icon at the start of the field,
+so keep room
    for it instead of letting the text run underneath. */
 .pdlh-input[type="date"],
 .pdlh-input[type="time"] {
@@ -2512,19 +2278,15 @@ button.pdlh-icon-btn:hover {
   background-repeat: no-repeat !important;
   background-size: 15px !important;
 }
-
-
 .pdlh-unit {
   flex: 1;
   min-width: 90px;
 }
-
 .pdlh-choice {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
-
 .pdlh-choice button {
   height: 32px !important;
   margin: 0 !important;
@@ -2538,38 +2300,32 @@ button.pdlh-icon-btn:hover {
   font-weight: 600 !important;
   cursor: pointer;
 }
-
 .pdlh-choice button:hover {
   border-color: var(--text-faint) !important;
   color: var(--text-normal) !important;
 }
-
 .pdlh-choice button.is-active {
   border-color: color-mix(in srgb, #d97706 55%, var(--background-modifier-border)) !important;
   background: color-mix(in srgb, #d97706 9%, var(--background-primary)) !important;
   color: var(--text-normal) !important;
   font-weight: 750 !important;
 }
-
 .pdlh-form-inline {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
-
 .pdlh-inline-label {
   min-width: 96px;
   color: var(--text-muted);
   font-size: 12px;
 }
-
 .pdlh-days {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
-
 .pdlh-day-chip {
   display: grid !important;
   width: 32px !important;
@@ -2587,20 +2343,17 @@ button.pdlh-icon-btn:hover {
   font-weight: 700 !important;
   cursor: pointer;
 }
-
 .pdlh-day-chip.is-active {
   border-color: #d97706 !important;
   background: #d97706 !important;
   color: #fff !important;
 }
-
 .pdlh-look-row {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
-
 .pdlh-icon-pick {
   --habit-color: #d97706;
   display: inline-flex !important;
@@ -2616,7 +2369,6 @@ button.pdlh-icon-btn:hover {
   color: var(--text-normal) !important;
   cursor: pointer;
 }
-
 .pdlh-icon-pick-mark {
   display: grid;
   width: 24px;
@@ -2626,24 +2378,20 @@ button.pdlh-icon-btn:hover {
   background: var(--habit-color);
   color: #fff;
 }
-
 .pdlh-icon-pick-mark svg {
   width: 13px;
   height: 13px;
 }
-
 .pdlh-icon-pick-name {
   color: var(--text-muted);
   font-size: 11.5px;
 }
-
 .pdlh-swatches {
   display: flex;
   align-items: center;
   gap: 7px;
   flex-wrap: wrap;
 }
-
 .pdlh-swatch {
   width: 22px !important;
   height: 22px !important;
@@ -2655,27 +2403,22 @@ button.pdlh-icon-btn:hover {
   box-shadow: inset 0 0 0 1px rgba(15, 23, 42, .12) !important;
   cursor: pointer;
 }
-
 .pdlh-swatch.is-active {
   box-shadow: 0 0 0 2px var(--background-primary), 0 0 0 3.5px rgba(15, 23, 42, .45) !important;
 }
-
 .pdlh-more {
   padding-top: 12px;
   border-top: 1px solid var(--background-modifier-border);
 }
-
 .pdlh-more-body {
   display: none;
   flex-direction: column;
   gap: 14px;
   margin-top: 12px;
 }
-
 .pdlh-more.is-open .pdlh-more-body {
   display: flex;
 }
-
 .pdlh-more-toggle {
   display: inline-flex !important;
   height: auto !important;
@@ -2690,26 +2433,21 @@ button.pdlh-icon-btn:hover {
   font-size: 12.5px !important;
   cursor: pointer;
 }
-
 .pdlh-more-toggle:hover {
   color: var(--text-normal) !important;
 }
-
 .pdlh-more-caret {
   display: inline-flex;
 }
-
 .pdlh-more-caret svg {
   width: 14px;
   height: 14px;
 }
-
 .pdlh-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-
 .pdlh-form-foot {
   position: sticky;
   bottom: -20px;
@@ -2724,29 +2462,220 @@ button.pdlh-icon-btn:hover {
   border-top: 1px solid var(--background-modifier-border);
   background: var(--background-primary);
 }
-
 .pdlh-form-actions {
   display: flex;
   gap: 8px;
   margin-left: auto;
 }
-
 .pdlh-form-hint {
   color: var(--text-muted);
   font-size: 11px;
 }
-
 .pdlh-primary[disabled] {
   opacity: .45;
   cursor: not-allowed;
 }
-
 @media (max-width: 520px) {
   .pdlh-form-grid {
     grid-template-columns: 1fr;
   }
-
   .pdlh-form-hint {
     display: none;
+  }
+}
+
+/* =====================================================================
+   v1.7 â€” habit detail month calendar
+   done = habit colour Â· partial = tinted Â· missed = outline Â· rest = dashed
+   today = amber ring, independent of the state colour
+   ===================================================================== */
+
+.pdlh-detail-month {
+  --habit-color: #d97706;
+  margin-top: 18px;
+}
+
+.pdlh-detail-month-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.pdlh-detail-month-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pdlh-detail-month-title h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.pdlh-detail-month-meta {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.pdlh-mini-cal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.pdlh-mini-cal-wd {
+  padding-bottom: 2px;
+  color: var(--text-muted);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pdlh-mini-day {
+  position: relative;
+  display: grid !important;
+  height: 42px !important;
+  min-height: 42px;
+  place-items: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 8px !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  color: var(--text-normal) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: transform .1s ease, background-color .12s ease;
+}
+
+.pdlh-mini-day:hover {
+  transform: translateY(-1px);
+}
+
+.pdlh-mini-day.is-outside {
+  opacity: .32;
+}
+
+.pdlh-mini-day.is-future {
+  opacity: .5;
+  color: var(--text-muted) !important;
+}
+
+.pdlh-mini-day.is-off {
+  border-style: dashed !important;
+  opacity: .3;
+  cursor: default;
+}
+
+.pdlh-mini-day.is-missed {
+  border-color: color-mix(in srgb, #dc2626 24%, var(--background-modifier-border)) !important;
+  background: color-mix(in srgb, #dc2626 5%, var(--background-primary)) !important;
+  color: color-mix(in srgb, #dc2626 62%, var(--text-normal)) !important;
+}
+
+.pdlh-mini-day.is-partial {
+  border-color: color-mix(in srgb, var(--habit-color) 45%, var(--background-modifier-border)) !important;
+  background: color-mix(in srgb, var(--habit-color) 20%, var(--background-primary)) !important;
+  color: var(--text-normal) !important;
+}
+
+.pdlh-mini-day.is-done {
+  border-color: var(--habit-color) !important;
+  background: var(--habit-color) !important;
+  color: #fff !important;
+}
+
+.pdlh-mini-day.is-rest {
+  border-style: dashed !important;
+  border-color: color-mix(in srgb, var(--habit-color) 32%, var(--background-modifier-border)) !important;
+  background: var(--background-secondary) !important;
+  color: var(--text-muted) !important;
+}
+
+.pdlh-mini-day.is-today {
+  box-shadow: 0 0 0 2px var(--background-primary), 0 0 0 3.5px #d97706 !important;
+}
+
+.pdlh-mini-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+
+.pdlh-mini-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pdlh-mini-legend i {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 3px;
+}
+
+.pdlh-mini-legend i.is-done {
+  border-color: var(--habit-color);
+  background: var(--habit-color);
+}
+
+.pdlh-mini-legend i.is-missed {
+  border-color: color-mix(in srgb, #dc2626 30%, var(--background-modifier-border));
+  background: color-mix(in srgb, #dc2626 8%, var(--background-primary));
+}
+
+.pdlh-mini-legend i.is-partial {
+  border-color: color-mix(in srgb, var(--habit-color) 45%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--habit-color) 20%, var(--background-primary));
+}
+
+.pdlh-mini-legend i.is-rest {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--habit-color) 32%, var(--background-modifier-border));
+  background: var(--background-secondary);
+}
+
+.pdlh-mini-legend i.is-today {
+  border: 0;
+  background: var(--background-primary);
+  box-shadow: 0 0 0 2px var(--background-primary), 0 0 0 3px #d97706;
+}
+
+@media (max-width: 520px) {
+  .pdlh-mini-cal {
+    gap: 4px;
+  }
+
+  .pdlh-mini-day {
+    min-height: 28px;
+    border-radius: 6px !important;
+    font-size: 10.5px !important;
+  }
+
+  .pdlh-mini-cal-wd {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdlh-mini-day {
+    transition: none;
+  }
+
+  .pdlh-mini-day:hover {
+    transform: none;
   }
 }
