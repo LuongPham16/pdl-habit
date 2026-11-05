@@ -1,4 +1,4 @@
-# PDL Habit v1.7
+# PDL Habit v1.8
 
 PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một note độc lập; check-in được lưu trong frontmatter `history`, vì vậy dữ liệu vẫn đọc được khi plugin không hoạt động.
 
@@ -30,6 +30,18 @@ Form chỉ còn **4 quyết định**, tất cả trên một màn hình:
 Phím tắt: **Enter** lưu, **Esc** đóng, **⌘/Ctrl + Enter** lưu từ bất kỳ ô nào. Nút *Create habit* bị mờ cho tới khi có tên; footer luôn dính đáy nên không phải cuộn tìm nút.
 
 Với habit "Did it", danh sách Today không còn hiện chip `0/1 time` vô nghĩa — vòng tròn check đã đủ nói. Trang chi tiết hiển thị Target là *Did it (once)*.
+
+## Check-in một ngày (v1.8)
+
+Mở sheet check-in bằng cách bấm nút ghi chú ở hàng habit, bấm một ngày trong lịch tháng ở trang chi tiết, hoặc mở habit có mục tiêu số lượng.
+
+- **Count / Limit**: ô **Amount bắt đầu từ 0**, có nút **− / +** hai bên (0–99, nút − mờ khi đang 0; gõ số trực tiếp hoặc dùng phím ↑ ↓ cũng được). Dưới ô có dòng gợi ý cập nhật ngay:
+  - Count: `0 of 3 ly` → khi đủ: `Goal reached (3 ly)`.
+  - Limit: `Max 2 cái per day — stay under to keep the streak`; vượt hạn thì dòng này chuyển đỏ và báo `… over the limit`.
+- **Did it / Times per week**: không hiện ô số lượng nữa mà là cặp **Done / Not done**. Chọn *Not done* rồi Save nghĩa là xoá check-in của ngày đó.
+- **Clear** chỉ hiện khi ngày đó đã có dữ liệu; **Planned rest** vẫn luôn có.
+- Ô **Note** để ghi lại điều gì giúp hoặc cản trở; **Save** xong vẫn có toast **Undo**.
+- Tiêu đề sheet hiện ngày dễ đọc (`Fri, Nov 6`) thay vì `2026-11-06`.
 
 ## Bốn tab, một kiểu trình bày
 

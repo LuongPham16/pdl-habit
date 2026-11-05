@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {
   isScheduled, completion, streakFor, daySummary, dueHabits, pickFocus,
   weekOverview, weekProgress, weekDone, weekCheckins, isExpired, isActiveHabit,
-  monthSummary, windowStats, filterHabits, sortHabits, groupHabitsByCategory, habitCategories
+  monthSummary, windowStats, filterHabits, sortHabits, groupHabitsByCategory, habitCategories,
+  isBinaryHabit
 } from '../src/habits.js';
 
 const habit = (overrides = {}) => ({
@@ -117,6 +118,13 @@ test('archive helpers treat expired habits as inactive', () => {
   assert.equal(isExpired(habit({ endDate: '2026-01-01' }), '2026-05-04'), true);
   assert.equal(isActiveHabit(habit({ endDate: '2026-01-01' })), false);
   assert.equal(isActiveHabit(habit({ endDate: '2099-01-01' })), true);
+});
+
+test('isBinaryHabit separates yes/no habits from counted ones', () => {
+  assert.equal(isBinaryHabit(habit({ target: 1 })), true);
+  assert.equal(isBinaryHabit(habit({ frequency: 'weekly', target: 3 })), true, 'sessions per week');
+  assert.equal(isBinaryHabit(habit({ target: 3, unit: 'ly' })), false, 'count habits get a stepper');
+  assert.equal(isBinaryHabit(habit({ direction: 'quit', target: 2 })), false, 'limits are counted too');
 });
 
 test('monthSummary ignores days that have not happened yet', () => {

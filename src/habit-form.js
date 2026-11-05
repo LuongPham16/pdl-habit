@@ -117,3 +117,10 @@ export function advancedCount(draft) {
     draft.endDate || ''
   ].filter(Boolean).length;
 }
+
+/** Keep a − / + counter inside its bounds, tolerating empty or junk input. */
+export function clampStepper(value, min = 0, max = 99) {
+  const number = Math.round(Number(value));
+  if (!Number.isFinite(number)) return min;
+  return Math.min(max, Math.max(min, number));
+}

@@ -2679,3 +2679,133 @@ so keep room
     transform: none;
   }
 }
+
+/* =====================================================================
+   v1.8 — check-in sheet: − / + stepper for Count & Limit, switch for binary
+   ===================================================================== */
+
+.pdlh-checkin-shell {
+  width: min(440px, calc(100vw - 32px));
+}
+
+.pdlh-checkin {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pdlh-checkin-head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.pdlh-checkin-date {
+  margin: 3px 0 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.pdlh-checkin-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pdlh-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdlh-stepper-btn {
+  display: grid !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  place-items: center;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 9px !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  color: var(--text-normal) !important;
+  cursor: pointer;
+}
+
+.pdlh-stepper-btn:hover:not(:disabled) {
+  border-color: #d97706 !important;
+  color: #d97706 !important;
+}
+
+.pdlh-stepper-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.pdlh-stepper-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pdlh-stepper-input {
+  width: 84px !important;
+  height: 38px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border: 1px solid var(--background-modifier-border) !important;
+  border-radius: 9px !important;
+  background: var(--background-primary) !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.pdlh-stepper-input:focus-visible {
+  border-color: #d97706 !important;
+  outline: none;
+}
+
+.pdlh-stepper-input::-webkit-outer-spin-button,
+.pdlh-stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pdlh-stepper-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.pdlh-stepper-hint.is-over {
+  color: #dc2626;
+}
+
+.pdlh-checkin-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.pdlh-checkin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 480px) {
+  .pdlh-checkin-actions {
+    width: 100%;
+  }
+
+  .pdlh-checkin-actions > button {
+    flex: 1;
+  }
+}

@@ -9,6 +9,7 @@ import { PDLHabitView } from '../src/view.js';
 import { PDLHabitPlugin } from '../src/plugin.js';
 import { HabitModal } from '../src/modals/habit.js';
 import { HabitDetailModal } from '../src/modals/detail.js';
+import { CheckinModal } from '../src/modals/checkin.js';
 import { toast } from '../src/ui.js';
 
 const { } = installDom();
@@ -418,3 +419,81 @@ const waterHabit = {
 buildDetailPage({ file: 'detail.html', habit: waterHabit });
 buildDetailPage({ file: 'detail-dark.html', habit: waterHabit, theme: 'dark' });
 buildDetailPage({ file: 'detail-prev.html', habit: waterHabit, monthOffset: -1 });
+
+/* ----------------------------------------------------------- check-in sheet */
+
+function buildCheckinPage({ file, habit, theme = 'light' }) {
+  const vars = theme === 'dark' ? DARK : LIGHT;
+  const modal = new CheckinModal(app, plugin, habit, iso(today));
+  modal.onOpen();
+
+  const page = `<!doctype html>
+<html lang="en" class="theme-${theme}">
+<head>
+<meta charset="utf-8">
+<title>PDL Habit — check-in (${theme})</title>
+<style>
+  :root {
+    ${Object.entries(vars).map(([name, value]) => `${name}: ${value};`).join('\n    ')}
+    --background-primary-alt: var(--background-primary);
+    --background-modifier-hover: rgba(127, 127, 127, .12);
+    --font-interface: -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --text-faint: #9ca3af;
+    color-scheme: ${theme};
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--background-secondary, #f5f6f7);
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .preview-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, ${theme === 'dark' ? '.55' : '.35'});
+  }
+  .preview-modal {
+    width: min(440px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    padding: 20px;
+    border-radius: 12px;
+    background: var(--background-primary);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, ${theme === 'dark' ? '.55' : '.28'});
+  }
+  svg.svg-icon { width: 18px; height: 18px; flex: none; }
+  button { font-family: inherit; }
+${css}
+</style>
+</head>
+<body>
+<div class="preview-backdrop">
+  <div class="preview-modal">
+${modal.contentEl.toHtml('')}
+  </div>
+</div>
+</body>
+</html>
+`;
+
+  fs.writeFileSync(path.join(ROOT, 'preview', file), page);
+  console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
+}
+
+const waterToday = { ...habits[1], title: 'Uống nước', target: 3, unit: 'ly', history: {} };
+const sweetsLimit = {
+  ...habits[1], id: 'Sweets', title: 'Đồ ngọt', target: 2, unit: 'cái', direction: 'quit', icon: 'cookie', color: '#db2777', history: {}
+};
+
+buildCheckinPage({ file: 'checkin-count.html', habit: waterToday });
+buildCheckinPage({ file: 'checkin-count-dark.html', habit: waterToday, theme: 'dark' });
+buildCheckinPage({ file: 'checkin-limit.html', habit: sweetsLimit });
+buildCheckinPage({ file: 'checkin-binary.html', habit: { ...habits[0], history: {} } });
+buildCheckinPage({ file: 'checkin-existing.html', habit: waterHabit });

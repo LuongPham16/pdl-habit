@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.8.0 — check-in sheet with a 0-based stepper
+
+- **Count and Limit habits start at 0.** The amount field no longer pre-fills the
+  target, so opening the sheet no longer means "already done"; you build the value
+  up with **− / +** buttons (0–99, − disabled at zero, arrow keys still work).
+- **Live hint under the counter**: `0 of 3 ly` → `Goal reached (3 ly)` for counted
+  habits, and `Max 2 cái per day — stay under to keep the streak` for limits, which
+  turns red and says how far over you are once you pass the cap.
+- **Binary habits get a switch.** *Did it* and *times per week* habits showed a
+  meaningless "Amount" row; they now offer **Done / Not done**, and *Save* is
+  disabled when there is nothing to write.
+- **Clear only appears when there is something to clear**, and the sheet header
+  shows a readable date (`Fri, Nov 6`) instead of `2026-11-06`.
+- The sheet is narrower (440px), keeps *Planned rest* and the note field, autofocuses
+  the amount, and still offers **Undo** after saving.
+- `isBinaryHabit()` and `clampStepper()` are pure helpers with tests.
+
 ## 1.7.0 — habit detail gets a real month calendar
 
 - **The "Recent check-ins" list is gone.** History is read from the calendar instead

@@ -60,6 +60,12 @@ export function streakFor(habit, until = null) {
   return { current: run, best };
 }
 
+/** Habits whose day is a simple yes/no: did it once, or N sessions per week. */
+export function isBinaryHabit(habit) {
+  if (habit.frequency === 'weekly') return true;
+  return habit.direction === 'build' && Math.max(1, Number(habit.target) || 1) <= 1;
+}
+
 /** Check-ins inside the calendar week that contains `key`. */
 export function weekProgress(habit, key, weekStartsOn = 1) {
   const weekStart = isoDate(startOfWeek(parseDate(key), weekStartsOn));

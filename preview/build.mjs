@@ -66,7 +66,12 @@ if (process.argv.includes('--shot')) {
     { name: 'habit-edit.png', file: 'habit-edit.html', width: 900, height: 900 },
     { name: 'detail.png', file: 'detail.html', width: 900, height: 1060 },
     { name: 'detail-dark.png', file: 'detail-dark.html', width: 900, height: 1060 },
-    { name: 'detail-prev.png', file: 'detail-prev.html', width: 900, height: 1000 }
+    { name: 'detail-prev.png', file: 'detail-prev.html', width: 900, height: 1000 },
+    { name: 'checkin-count.png', file: 'checkin-count.html', width: 720, height: 520 },
+    { name: 'checkin-count-dark.png', file: 'checkin-count-dark.html', width: 720, height: 520 },
+    { name: 'checkin-limit.png', file: 'checkin-limit.html', width: 720, height: 520 },
+    { name: 'checkin-binary.png', file: 'checkin-binary.html', width: 720, height: 480 },
+    { name: 'checkin-existing.png', file: 'checkin-existing.html', width: 720, height: 520 }
   ];
   for (const shot of shots) {
     const file = path.join(ROOT, 'preview', shot.name);

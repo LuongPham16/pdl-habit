@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  emptyDraft, draftFromHabit, habitFromDraft, validateDraft, trackingFromHabit, advancedCount
+  emptyDraft, draftFromHabit, habitFromDraft, validateDraft, trackingFromHabit, advancedCount, clampStepper
 } from '../src/habit-form.js';
 
 const habit = (overrides = {}) => ({
@@ -81,4 +81,15 @@ test('advancedCount reports how many optional fields are filled', () => {
   assert.equal(advancedCount(emptyDraft()), 0);
   assert.equal(advancedCount({ ...emptyDraft(), description: 'why' }), 1);
   assert.equal(advancedCount({ ...emptyDraft(), description: 'why', category: 'Health', cue: 'coffee', endDate: '2026-06-01' }), 4);
+});
+
+test('clampStepper keeps the − / + counter sane', () => {
+  assert.equal(clampStepper(0), 0);
+  assert.equal(clampStepper(''), 0);
+  assert.equal(clampStepper('abc'), 0);
+  assert.equal(clampStepper(-4), 0, 'never negative');
+  assert.equal(clampStepper(1.6), 2, 'rounds');
+  assert.equal(clampStepper(1000), 99, 'caps at 99');
+  assert.equal(clampStepper(5, 0, 7), 5);
+  assert.equal(clampStepper(9, 0, 7), 7);
 });
