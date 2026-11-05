@@ -5,23 +5,25 @@
 Every habit is a plain note; every check-in is a line of frontmatter. Nothing is
 locked inside the plugin.
 
-> **Version 1.3.0** · Obsidian **1.5.0+** · desktop and mobile · redesigned Today view
+> **Version 1.4.0** · Obsidian **1.5.0+** · desktop and mobile · four tabs, one design language
 
 ## Highlights
 
-- **Today, rebuilt** — one column that reads top to bottom: date header → week
-  strip → progress hero → plan grouped by Morning / Afternoon / Evening / Anytime.
-- **Week strip** — seven day tiles with completion bars, so you can jump to any day
-  of the week without arrow-clicking.
-- **Next up** — the earliest unfinished habit is surfaced with a one-tap check-in.
-- **Clear rows** — habit colour, schedule, streak, week progress and a dotted
-  progress trail for quantity habits.
+- **Today** — one column that reads top to bottom: page header → week strip →
+  progress hero with **Next up** → plan grouped by Morning / Afternoon / Evening /
+  Anytime.
+- **Habits** — every habit with its last seven days as tappable check-in cells,
+  current streak and 30-day rate. **Active / Archived** is a switch, not a tab.
+- **Calendar** — month grid with per-day completion and a month summary; tap a day
+  to open it in Today.
+- **Insights** — completion, perfect days and planned rests, a per-habit bar list
+  and the notes you left during check-ins.
+- **One shared frame** — the same header, cards, wording and spacing on every tab.
+- **Fewer places to act** — editing, archiving and deleting live in the habit
+  detail sheet, so lists stay quiet.
 - **Flexible schedules** — daily, chosen weekdays or times per week.
 - **Build / limit habits** — grow a behaviour or cap one you want less of.
 - **Planned rest** — a rest day never breaks a streak.
-- **Heatmaps, streaks, insights** — 28-day history per habit, 30-day rates,
-  planned-rest counters and recent reflections.
-- **Archive** — habits expire from `end_date` or move to the archive by hand.
 - **84 Lucide icons**, per-habit colour, dark mode, reduced-motion support.
 
 ## Quick start
@@ -43,11 +45,12 @@ npm run build      # one-off development build into dist/
 npm run build:prod # minified build
 npm run deploy     # build + copy into the vault from .deploy.json
 npm test           # unit tests (scheduling, completion, streaks, aggregates)
+npm run verify     # load the built bundle against a stubbed Obsidian API
 ```
 
-`node preview/build.mjs --shot` renders the Today view offline with mock data
-into `preview/*.png` (light, dark, empty and completed states) — handy for
-reviewing visual changes without opening Obsidian.
+`npm run preview` renders every tab offline with mock data into `preview/*.png`
+(light, dark, empty, narrow) — handy for reviewing visual changes without
+opening Obsidian.
 
 ## Project layout
 
@@ -55,14 +58,15 @@ reviewing visual changes without opening Obsidian.
 src/
   index.js       bundle entry
   plugin.js      plugin lifecycle, note scanning, persistence
-  view.js        dashboard view — Today, Habits, Calendar, Insights, Archive
-  habits.js      scheduling, completion, streaks, day/week aggregates
+  view.js        the four tabs — Today, Habits, Calendar, Insights
+  ui.js          shared page header, segmented control, cards, empty states
+  habits.js      scheduling, completion, streaks, day/week/month aggregates
   dates.js       date and string helpers
   constants.js   ids, palette, icon catalogue
   dom.js         small DOM helpers
   modals/        habit form, icon picker, check-in, detail, confirm
   settings.js    settings tab
-styles.css       base sheets + the Today redesign
+styles.css       base sheets, page frame, tabs and modals
 preview/         offline renderer used for design review
 ```
 

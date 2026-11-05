@@ -138,3 +138,39 @@ export function weekCheckins(habits, key, weekStartsOn = 1) {
   const first = isoDate(startOfWeek(parseDate(key), weekStartsOn));
   return dateRange(first, 7).reduce((sum, dateKey) => sum + daySummary(habits, dateKey).done, 0);
 }
+
+/** Totals for one calendar month, ignoring days that have not happened yet. */
+export function monthSummary(habits, year, month, today = isoDate()) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let due = 0;
+  let done = 0;
+  let logged = 0;
+  let perfect = 0;
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const key = isoDate(new Date(year, month, day));
+    if (key > today) continue;
+    const summary = daySummary(habits, key);
+    due += summary.total;
+    done += summary.done;
+    if (summary.done > 0) logged += 1;
+    if (summary.total && summary.done === summary.total) perfect += 1;
+  }
+  return { due, done, logged, perfect, rate: due ? Math.round((done / due) * 100) : 0 };
+}
+
+/** Rolling window totals behind the Insights header cards. */
+export function windowStats(habits, days = 30, today = isoDate()) {
+  let due = 0;
+  let done = 0;
+  let perfect = 0;
+  let rests = 0;
+  for (let offset = 0; offset < days; offset += 1) {
+    const key = addDays(today, -offset);
+    const summary = daySummary(habits, key);
+    due += summary.total;
+    done += summary.done;
+    rests += summary.skipped;
+    if (summary.total && summary.done === summary.total) perfect += 1;
+  }
+  return { days, due, done, rests, perfect, rate: due ? Math.round((done / due) * 100) : 0 };
+}

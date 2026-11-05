@@ -1,5 +1,5 @@
 import { Plugin, Notice, normalizePath } from 'obsidian';
-import { DEFAULT_SETTINGS, VIEW_TYPE, PERIODS, COLORS, WEEKDAYS } from './constants.js';
+import { DEFAULT_SETTINGS, VIEW_TYPE, VIEW_IDS, PERIODS, COLORS, WEEKDAYS } from './constants.js';
 import { isoDate, addDays, parseDate, startOfWeek, safeName, esc } from './dates.js';
 import { completion, entryValue, isScheduled, normalizeHistory, scheduledKeys, streakFor } from './habits.js';
 import { PDLHabitView } from './view.js';
@@ -10,6 +10,8 @@ import { HabitModalPicker } from './modals/picker.js';
 export class PDLHabitPlugin extends Plugin {
   async onload() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    // Archive is a scope inside Habits now; older settings may still point at it.
+    if (!VIEW_IDS.includes(this.settings.defaultView)) this.settings.defaultView = 'today';
     await this.ensureRoot();
     this.registerView(VIEW_TYPE, (leaf) => new PDLHabitView(leaf, this));
     this.addSettingTab(new PDLHabitSettingTab(this.app, this));

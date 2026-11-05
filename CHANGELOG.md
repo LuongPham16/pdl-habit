@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.4.0 — one design language across the tabs
+
+The other tabs now use the same frame as Today, and the parts that duplicated each
+other are gone.
+
+- **Archive is no longer a tab.** Archived and expired habits live behind an
+  **Active / Archived** switch inside Habits. Saved settings pointing at the old
+  Archive view fall back to Today.
+- **Habits is a list, not a wide table.** The 930px table with a horizontal
+  scrollbar became a responsive list: habit, its last seven days as tappable
+  check-in cells, streak. Rows open the detail sheet.
+- **Row action buttons removed.** Edit, archive and delete now live only in the
+  habit detail sheet — one place to act, no button clutter in the list.
+- **Insights slimmed down.** The "Most consistent" card is gone (the bar list is
+  already sorted by rate), the remaining three cards lead with completion, and the
+  completion rate now aggregates per habit, so a 3×/week habit counts as weeks
+  instead of seven daily dues.
+- **Calendar got a summary and a hint.** The header reports logged / perfect days
+  and the month completion rate; future days no longer render rows of `0/n`; the
+  footer explains that a tap opens the day in Today.
+- **Shared page header everywhere** (eyebrow → title → one-line summary → controls),
+  shared card surface, shared block heading, shared empty state.
+- Softer seven-day cells, calmer list typography, dark-mode and 560px checks for
+  every tab.
+
 ## 1.3.0 — Today redesign
 
 A full rebuild of the Today tab. Same data, same notes, new reading order.

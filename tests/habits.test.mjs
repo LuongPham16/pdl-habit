@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   isScheduled, completion, streakFor, daySummary, dueHabits, pickFocus,
-  weekOverview, weekProgress, weekDone, weekCheckins, isExpired, isActiveHabit
+  weekOverview, weekProgress, weekDone, weekCheckins, isExpired, isActiveHabit,
+  monthSummary, windowStats
 } from '../src/habits.js';
 
 const habit = (overrides = {}) => ({
@@ -116,4 +117,28 @@ test('archive helpers treat expired habits as inactive', () => {
   assert.equal(isExpired(habit({ endDate: '2026-01-01' }), '2026-05-04'), true);
   assert.equal(isActiveHabit(habit({ endDate: '2026-01-01' })), false);
   assert.equal(isActiveHabit(habit({ endDate: '2099-01-01' })), true);
+});
+
+test('monthSummary ignores days that have not happened yet', () => {
+  const tracked = habit({ history: { '2026-05-02': { value: 1 }, '2026-05-03': { value: 1 } } });
+  const may = monthSummary([tracked], 2026, 4, '2026-05-04');
+  assert.equal(may.due, 4);
+  assert.equal(may.done, 2);
+  assert.equal(may.logged, 2);
+  assert.equal(may.perfect, 2);
+  assert.equal(may.rate, 50);
+
+  const future = monthSummary([tracked], 2026, 5, '2026-05-04');
+  assert.deepEqual(future, { due: 0, done: 0, logged: 0, perfect: 0, rate: 0 });
+});
+
+test('windowStats rolls a fixed number of days', () => {
+  const tracked = habit({ history: { '2026-05-02': { value: 1 }, '2026-05-03': { status: 'skip' } } });
+  const window = windowStats([tracked], 3, '2026-05-04');
+  assert.equal(window.days, 3);
+  assert.equal(window.due, 3);
+  assert.equal(window.done, 1);
+  assert.equal(window.rests, 1);
+  assert.equal(window.perfect, 1);
+  assert.equal(window.rate, 33);
 });

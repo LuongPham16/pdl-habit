@@ -65,19 +65,43 @@ assert.equal(plugin.commands.length >= 3, true, 'plugin must register its comman
 const habitCount = (await plugin.scanHabits()).length;
 assert.equal(habitCount, 3, 'scanHabits must read the markdown frontmatter');
 
-const containerEl = new El('div', { cls: 'view-container' });
-containerEl.createDiv({ cls: 'view-header' });
-containerEl.createDiv({ cls: 'view-content' });
-const view = factory({ app, containerEl });
-view.habits = await plugin.scanHabits();
-view.render();
+const EXPECTED = {
+  today: ['Chườm đá', 'Uống nước', 'No Fap', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check'],
+  habits: ['All habits', 'pdlh-list', 'pdlh-day-cell', 'pdlh-list-streak', 'Active', 'Archived'],
+  calendar: ['pdlh-cal', 'pdlh-cal-grid', 'pdlh-cal-day', 'pdlh-cal-foot', 'pdlh-page-head'],
+  insights: ['Last 30 days', 'pdlh-stats', 'pdlh-bar-row', 'pdlh-bar-fill']
+};
 
-const html = containerEl.toHtml('');
-for (const expected of ['Chườm đá', 'Uống nước', 'No Fap', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check']) {
-  assert.equal(html.includes(expected), true, `rendered Today should contain ${expected}`);
-}
-for (const removed of ['pdlh-today-grid', 'pdlh-summary', 'pdlh-habit-row']) {
-  assert.equal(html.includes(removed), false, `legacy Today markup ${removed} must be gone`);
+const rendered = {};
+for (const mode of Object.keys(EXPECTED)) {
+  const containerEl = new El('div', { cls: 'view-container' });
+  containerEl.createDiv({ cls: 'view-header' });
+  containerEl.createDiv({ cls: 'view-content' });
+  const view = factory({ app, containerEl });
+  view.mode = mode;
+  view.habits = await plugin.scanHabits();
+  view.render();
+  const html = containerEl.toHtml('');
+  rendered[mode] = html;
+  for (const expected of EXPECTED[mode]) {
+    assert.equal(html.includes(expected), true, `${mode} view should contain ${expected}`);
+  }
+  for (const removed of ['pdlh-today-grid', 'pdlh-summary', 'pdlh-habit-row', 'pdlh-habits-table', 'pdlh-kpi', 'pdlh-archive-row']) {
+    assert.equal(html.includes(removed), false, `${mode} view must not render legacy markup ${removed}`);
+  }
 }
 
-console.log(`[verify-bundle] OK — ${habitCount} habits, ${(html.length / 1024).toFixed(1)} KB of rendered Today markup`);
+// Archive is no longer a destination: it is a scope inside Habits.
+assert.equal(rendered.today.includes('>Archive<'), false, 'the tab bar must not offer an Archive tab');
+
+const archivedEl = new El('div', { cls: 'view-container' });
+archivedEl.createDiv({ cls: 'view-header' });
+archivedEl.createDiv({ cls: 'view-content' });
+const archivedView = factory({ app, containerEl: archivedEl });
+archivedView.mode = 'habits';
+archivedView.habitScope = 'archived';
+archivedView.habits = await plugin.scanHabits();
+archivedView.render();
+assert.equal(archivedEl.toHtml('').includes('Nothing archived yet'), true, 'archived scope renders its empty state');
+
+console.log(`[verify-bundle] OK — ${habitCount} habits, ${Object.entries(rendered).map(([mode, html]) => `${mode} ${(html.length / 1024).toFixed(1)} KB`).join(', ')}`);

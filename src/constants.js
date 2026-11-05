@@ -6,9 +6,11 @@ export const VIEWS = [
   { id: 'today', label: 'Today', icon: 'sun' },
   { id: 'habits', label: 'Habits', icon: 'list-checks' },
   { id: 'calendar', label: 'Calendar', icon: 'calendar-days' },
-  { id: 'insights', label: 'Insights', icon: 'chart-no-axes-combined' },
-  { id: 'archive', label: 'Archive', icon: 'archive' }
+  { id: 'insights', label: 'Insights', icon: 'chart-no-axes-combined' }
 ];
+
+/** Archive lives inside Habits as a scope, so it is not a destination of its own. */
+export const VIEW_IDS = VIEWS.map((view) => view.id);
 
 export const COLORS = ['#d97706', '#059669', '#2563eb', '#db2777', '#7c3aed', '#dc2626', '#0891b2', '#64748b'];
 
