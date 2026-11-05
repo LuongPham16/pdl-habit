@@ -1,5 +1,6 @@
 import { Modal, Notice, setIcon } from 'obsidian';
-import { COLORS, HABIT_ICONS, WEEKDAYS } from '../constants.js';
+import { HABIT_ICONS, ICON_NAMES, WEEKDAYS } from '../constants.js';
+import { setHabitIcon } from '../dom.js';
 import {
   PERIOD_OPTIONS, SCHEDULE_OPTIONS, TRACKING_OPTIONS,
   advancedCount, draftFromHabit, emptyDraft, habitFromDraft, validateDraft
@@ -155,20 +156,31 @@ export class HabitModal extends Modal {
 
     const picker = row.createEl('button', { cls: 'pdlh-icon-pick', attr: { 'aria-label': 'Choose an icon' } });
     picker.style.setProperty('--habit-color', this.draft.color);
-    setIcon(picker.createSpan({ cls: 'pdlh-icon-pick-mark' }), this.draft.icon || 'sprout');
-    picker.createSpan({ cls: 'pdlh-icon-pick-name', text: this.draft.icon || 'sprout' });
+    const mark = picker.createSpan({ cls: 'pdlh-icon-pick-mark' });
+    setHabitIcon(mark, this.draft.icon);
+    const markName = picker.createSpan({ cls: 'pdlh-icon-pick-name', text: this.draft.icon || 'sprout' });
     picker.onclick = () => new HabitIconModal(this.app, this.draft.icon, this.draft.color, (icon) => {
       this.draft.icon = icon;
-      this.render();
+      setHabitIcon(mark, icon);
+      markName.setText(icon);
     }).open();
 
-    const swatches = row.createDiv({ cls: 'pdlh-swatches', attr: { role: 'group', 'aria-label': 'Colour' } });
-    COLORS.forEach((color) => {
-      const active = this.draft.color === color;
-      const dot = swatches.createEl('button', { cls: `pdlh-swatch ${active ? 'is-active' : ''}`.trim(), attr: { 'aria-label': color, 'aria-pressed': String(active) } });
-      dot.style.background = color;
-      dot.onclick = () => { this.draft.color = color; this.render(); };
+    // A native colour field gives infinite colours without a long swatch row.
+    const color = row.createDiv({ cls: 'pdlh-color-pick' });
+    const input = color.createEl('input', {
+      cls: 'pdlh-color-input',
+      attr: { type: 'color', 'aria-label': 'Habit colour', title: 'Pick any colour' }
     });
+    input.value = this.draft.color;
+    const hex = color.createSpan({ cls: 'pdlh-color-hex', text: String(this.draft.color).toUpperCase() });
+    const apply = (value) => {
+      this.draft.color = value;
+      picker.style.setProperty('--habit-color', value);
+      hex.setText(String(value).toUpperCase());
+      input.value = value;
+    };
+    input.oninput = () => apply(input.value);
+    input.onchange = () => apply(input.value);
   }
 
   renderMore(form) {
@@ -276,7 +288,7 @@ export class HabitIconModal extends Modal {
     const el = this.contentEl;
     el.empty();
     el.createEl('h2', { text: 'Choose an icon' });
-    el.createEl('p', { cls: 'pdlh-modal-copy', text: `${HABIT_ICONS.reduce((sum, [, icons]) => sum + icons.length, 0)} icons organized by purpose.` });
+    el.createEl('p', { cls: 'pdlh-modal-copy', text: `${ICON_NAMES.length} icons organized by purpose.` });
     const search = el.createDiv({ cls: 'pdlh-icon-search' });
     setIcon(search.createSpan(), 'search');
     const input = search.createEl('input', { attr: { type: 'search', placeholder: 'Search icon name', 'aria-label': 'Search icons' } });
@@ -300,7 +312,7 @@ export class HabitIconModal extends Modal {
       matches.forEach((icon) => {
         const button = grid.createEl('button', { cls: icon === this.selected ? 'is-selected' : '', attr: { 'aria-label': icon, title: icon, 'aria-pressed': String(icon === this.selected) } });
         button.style.setProperty('--habit-color', this.color);
-        setIcon(button, icon);
+        setHabitIcon(button, icon);
         button.onclick = () => { this.onSelect(icon); this.close(); };
       });
     });

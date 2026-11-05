@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.0 — any colour, many more icons
+
+- **Colour is now a real picker, not a swatch row.** One round field opens the
+  system colour picker with the hex code next to it, so every habit can have its own
+  colour instead of choosing from eight.
+- **The icon library grew from 84 to 171 icons in 10 groups** — wellness & mood,
+  fitness & movement, food & drink, learning & focus, mind & mindfulness, work,
+  home & life, people & pets, weather & nature, devices — with the same search box.
+- **Missing glyphs fall back to the sprout** instead of an empty square, so an older
+  Obsidian build that lacks a given Lucide icon still renders something sensible.
+- The icon and colour controls update in place; picking an icon no longer re-renders
+  the whole form (your typed name and schedule stay put).
+
 ## 1.8.0 — check-in sheet with a 0-based stepper
 
 - **Count and Limit habits start at 0.** The amount field no longer pre-fills the

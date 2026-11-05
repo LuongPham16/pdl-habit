@@ -71,7 +71,9 @@ if (process.argv.includes('--shot')) {
     { name: 'checkin-count-dark.png', file: 'checkin-count-dark.html', width: 720, height: 520 },
     { name: 'checkin-limit.png', file: 'checkin-limit.html', width: 720, height: 520 },
     { name: 'checkin-binary.png', file: 'checkin-binary.html', width: 720, height: 480 },
-    { name: 'checkin-existing.png', file: 'checkin-existing.html', width: 720, height: 520 }
+    { name: 'checkin-existing.png', file: 'checkin-existing.html', width: 720, height: 520 },
+    { name: 'icons.png', file: 'icons.html', width: 900, height: 1000 },
+    { name: 'icons-dark.png', file: 'icons-dark.html', width: 900, height: 1000 }
   ];
   for (const shot of shots) {
     const file = path.join(ROOT, 'preview', shot.name);

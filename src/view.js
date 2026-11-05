@@ -1,4 +1,4 @@
-import { ItemView, setIcon } from 'obsidian';
+﻿import { ItemView, setIcon } from 'obsidian';
 import { PERIODS, PERIOD_ORDER, PERIOD_ICONS, VIEW_IDS, VIEW_TYPE, VIEWS, WEEKDAYS } from './constants.js';
 import { addDays, isoDate, longDay, parseDate, plural, shortDay } from './dates.js';
 import {
@@ -6,7 +6,7 @@ import {
   habitCategories, isActiveHabit, isExpired, isScheduled, monthSummary, pickFocus, sortHabits,
   SORT_MODES, streakFor, weekCheckins, weekDone, weekOverview, weekProgress, windowStats
 } from './habits.js';
-import { iconButton, metaChip } from './dom.js';
+import { iconButton, metaChip, setHabitIcon } from './dom.js';
 import { blockHead, card, emptyState, pageHead, segmented } from './ui.js';
 import { HabitModal } from './modals/habit.js';
 import { CheckinModal } from './modals/checkin.js';
@@ -93,7 +93,7 @@ export class PDLHabitView extends ItemView {
   openCheckin(habit, key) { new CheckinModal(this.app, this.plugin, habit, key).open(); }
   openHabitForm(habit = null) { new HabitModal(this.app, this.plugin, habit).open(); }
 
-  /** Small ‹ Today › control shared by Today and Calendar. */
+  /** Small â€¹ Today â€º control shared by Today and Calendar. */
   renderDateNav(parent, { isCurrent, onShift, onToday, label }) {
     const nav = parent.createDiv({ cls: 'pdlh-date-nav' });
     const prev = iconButton(nav, 'chevron-left', `Previous ${label}`);
@@ -119,7 +119,7 @@ export class PDLHabitView extends ItemView {
       eyebrow: key === isoDate() ? 'Today' : shortDay(key),
       title: longDay(key),
       sub: day.total
-        ? `${day.done} of ${plural(day.total, 'habit')} done${day.skipped ? ` · ${day.skipped} planned rest` : ''}`
+        ? `${day.done} of ${plural(day.total, 'habit')} done${day.skipped ? ` Â· ${day.skipped} planned rest` : ''}`
         : 'No habits scheduled for this day.',
       tools: (tools) => {
         segmented(tools, FILTERS, this.period, (id) => { this.period = id; this.render(); }, 'Filter by time of day');
@@ -164,7 +164,7 @@ export class PDLHabitView extends ItemView {
         attr: {
           'aria-label': `${longDay(day.key)}, ${day.done} of ${day.total} complete`,
           'aria-pressed': String(day.isSelected),
-          title: `${shortDay(day.key)} · ${day.done}/${day.total}`
+          title: `${shortDay(day.key)} Â· ${day.done}/${day.total}`
         }
       });
       button.createSpan({ cls: 'pdlh-week-wd', text: WEEKDAYS[day.day].slice(0, 2) });
@@ -202,10 +202,10 @@ export class PDLHabitView extends ItemView {
       row.createSpan({ cls: 'pdlh-focus-label', text: 'Next up' });
       const button = row.createEl('button', { cls: 'pdlh-focus-habit', attr: { 'aria-label': `Check in ${focus.title}` } });
       button.style.setProperty('--habit-color', focus.color);
-      setIcon(button.createSpan({ cls: 'pdlh-focus-icon' }), focus.icon || 'sprout');
+      setHabitIcon(button.createSpan({ cls: 'pdlh-focus-icon' }), focus.icon);
       const text = button.createSpan({ cls: 'pdlh-focus-text' });
       text.createEl('strong', { text: focus.title });
-      text.createSpan({ text: `${PERIODS[focus.period]} · ${this.plugin.scheduleLabel(focus)}` });
+      text.createSpan({ text: `${PERIODS[focus.period]} Â· ${this.plugin.scheduleLabel(focus)}` });
       button.createSpan({ cls: 'pdlh-focus-cta', text: 'Check in' });
       button.onclick = () => this.quickCheck(focus, key);
     }
@@ -277,7 +277,7 @@ export class PDLHabitView extends ItemView {
         'aria-pressed': String(state.done)
       }
     });
-    setIcon(check, state.skipped ? 'minus' : state.done ? 'check' : habit.icon || 'sprout');
+    setHabitIcon(check, state.skipped ? 'minus' : state.done ? 'check' : habit.icon);
     check.onclick = () => this.quickCheck(habit, key, state);
 
     const body = row.createEl('button', { cls: 'pdlh-row-body', attr: { 'aria-label': `Open ${habit.title} details` } });
@@ -331,7 +331,7 @@ export class PDLHabitView extends ItemView {
       sub: [
         plural(active.length, 'active habit'),
         archived.length ? `${archived.length} archived` : ''
-      ].filter(Boolean).join(' · '),
+      ].filter(Boolean).join(' Â· '),
       tools: (tools) => segmented(tools, SCOPES, scope, (id) => { this.habitScope = id; this.render(); }, 'Habit scope')
     });
 
@@ -481,14 +481,14 @@ export class PDLHabitView extends ItemView {
     };
 
     const identity = row.createDiv({ cls: 'pdlh-list-identity' });
-    setIcon(identity.createSpan({ cls: 'pdlh-list-icon' }), habit.icon || 'sprout');
+    setHabitIcon(identity.createSpan({ cls: 'pdlh-list-icon' }), habit.icon);
     const copy = identity.createDiv({ cls: 'pdlh-list-copy' });
     copy.createEl('strong', { text: habit.title });
     copy.createSpan({
       cls: 'pdlh-list-meta',
       text: scope === 'archived'
-        ? `${isExpired(habit) ? `Expired ${habit.endDate}` : 'Archived by hand'} · ${stats.rate}% in 30 days`
-        : `${this.plugin.scheduleLabel(habit)} · ${PERIODS[habit.period]} · ${stats.rate}% in 30 days`
+        ? `${isExpired(habit) ? `Expired ${habit.endDate}` : 'Archived by hand'} Â· ${stats.rate}% in 30 days`
+        : `${this.plugin.scheduleLabel(habit)} Â· ${PERIODS[habit.period]} Â· ${stats.rate}% in 30 days`
     });
 
     const days = row.createDiv({ cls: 'pdlh-list-days' });
@@ -505,7 +505,7 @@ export class PDLHabitView extends ItemView {
         ].filter(Boolean).join(' '),
         attr: {
           'aria-label': `${habit.title}, ${key}`,
-          title: `${shortDay(key)} · ${!scheduled ? 'not scheduled' : state.skipped ? 'Planned rest' : state.done ? `done (${state.value} ${habit.unit})` : 'not done yet'}`
+          title: `${shortDay(key)} Â· ${!scheduled ? 'not scheduled' : state.skipped ? 'Planned rest' : state.done ? `done (${state.value} ${habit.unit})` : 'not done yet'}`
         }
       });
       button.createSpan({ cls: 'pdlh-day-num', text: String(parseDate(key).getDate()) });
@@ -536,7 +536,7 @@ export class PDLHabitView extends ItemView {
       eyebrow: 'Calendar',
       title: date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
       sub: summary.due
-        ? `${plural(summary.logged, 'day')} logged · ${summary.perfect} perfect · ${summary.rate}% complete`
+        ? `${plural(summary.logged, 'day')} logged Â· ${summary.perfect} perfect Â· ${summary.rate}% complete`
         : 'Nothing checked in yet this month.',
       tools: (tools) => this.renderDateNav(tools, {
         isCurrent: year === new Date().getFullYear() && month === new Date().getMonth(),
@@ -622,7 +622,7 @@ export class PDLHabitView extends ItemView {
       emptyState(bars, {
         icon: 'chart-no-axes-combined',
         title: 'No habit data yet',
-        body: 'Add a habit and check in for a few days — the trend shows up here.',
+        body: 'Add a habit and check in for a few days â€” the trend shows up here.',
         compact: true
       });
     } else {

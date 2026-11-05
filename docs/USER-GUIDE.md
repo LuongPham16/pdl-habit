@@ -1,4 +1,4 @@
-# PDL Habit v1.8
+# PDL Habit v1.9
 
 PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một note độc lập; check-in được lưu trong frontmatter `history`, vì vậy dữ liệu vẫn đọc được khi plugin không hoạt động.
 
@@ -23,7 +23,9 @@ Form chỉ còn **4 quyết định**, tất cả trên một màn hình:
 3. **When** — buổi trong ngày (Morning/Afternoon/Evening/Anytime) và lịch:
    - **Every day**, **Selected days** (hiện hàng chữ M/T/W/T/F/S/S để chọn), hoặc
    - **Times per week** — thay ô số lượng bằng `Times per week`; habit kiểu này tính theo **buổi/tuần**, không có "số lượng mỗi ngày".
-4. **Look** — icon + 8 màu.
+4. **Look** — icon + màu:
+   - Bấm **pill icon** để mở thư viện **171 icon** (10 nhóm: Wellness & mood, Fitness & movement, Food & drink, Learning & focus, Mind & mindfulness, Work, Home & life, People & pets, Weather & nature, Devices) có ô tìm kiếm.
+   - Bấm **ô màu tròn** để mở bảng chọn màu của hệ điều hành — **màu nào cũng được**, mã hex hiện ngay bên cạnh; không còn dãy 8 swatch cố định.
 
 **More options** (mặc định đóng) chứa: Description, Category, Cue, Reward, Starts, Ends. Nút này ghi rõ số field đang dùng (ví dụ `More options · 2 set`) và **tự mở** khi bạn sửa một habit đã có dữ liệu trong đó.
 
