@@ -1,7 +1,7 @@
 {
   "id": "pdl-habit",
   "name": "PDL Habit",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "minAppVersion": "1.5.0",
   "description": "A mindful, Markdown-first habit tracker with flexible schedules, streaks, heatmaps, notes and insights.",
   "author": "PDL Ecosystem",

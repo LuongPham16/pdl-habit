@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Loads the *built* bundle (dist/main.js) with a stubbed Obsidian API, feeds it a
- * fake vault and renders every tab â€” a last check that the shipped artifact works,
+ * fake vault and renders every tab — a last check that the shipped artifact works,
  * not just the source modules.
  *
  * Usage: node scripts/verify-bundle.mjs
@@ -37,9 +37,9 @@ function todayKey() {
 }
 
 const notes = [
-  { path: '03 - Area/Habits/ChÆ°á»m Ä‘Ã¡.md', frontmatter: { type: 'habit', title: 'ChÆ°á»m Ä‘Ã¡', period: 'morning', frequency: 'daily', target: 1, unit: 'láº§n', icon: 'snowflake', color: '#059669', history: { [todayKey()]: { value: 1 } } } },
-  { path: '03 - Area/Habits/Uá»‘ng nÆ°á»›c.md', frontmatter: { type: 'habit', title: 'Uá»‘ng nÆ°á»›c', period: 'afternoon', frequency: 'daily', target: 3, unit: 'ly', icon: 'glass-water', color: '#0891b2', history: {} } },
-  { path: '03 - Area/Habits/No Fap.md', frontmatter: { type: 'habit', title: 'No Fap', period: 'anytime', frequency: 'weekly', target: 3, unit: 'láº§n', icon: 'shield', color: '#db2777', history: {} } }
+  { path: '03 - Area/Habits/Chườm đá.md', frontmatter: { type: 'habit', title: 'Chườm đá', period: 'morning', frequency: 'daily', target: 1, unit: 'lần', icon: 'snowflake', color: '#059669', history: { [todayKey()]: { value: 1 } } } },
+  { path: '03 - Area/Habits/Uống nước.md', frontmatter: { type: 'habit', title: 'Uống nước', period: 'afternoon', frequency: 'daily', target: 3, unit: 'ly', icon: 'glass-water', color: '#0891b2', history: {} } },
+  { path: '03 - Area/Habits/No Fap.md', frontmatter: { type: 'habit', title: 'No Fap', period: 'anytime', frequency: 'weekly', target: 3, unit: 'lần', icon: 'shield', color: '#db2777', history: {} } }
 ];
 
 const files = notes.map((note) => ({ path: note.path, basename: path.basename(note.path, '.md') }));
@@ -73,7 +73,7 @@ assert.equal(habitCount, 3, 'scanHabits must read the markdown frontmatter');
 const scanned = await plugin.scanHabits();
 
 const EXPECTED = {
-  today: ['ChÆ°á»m Ä‘Ã¡', 'Uá»‘ng nÆ°á»›c', 'No Fap', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check'],
+  today: ['Chườm đá', 'Uống nước', 'No Fap', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check'],
   habits: ['All habits', 'pdlh-list', 'pdlh-day-cell', 'pdlh-list-streak', 'Active', 'Archived', 'pdlh-toolbar', 'pdlh-search', 'pdlh-select'],
   calendar: ['pdlh-cal', 'pdlh-cal-grid', 'pdlh-cal-day', 'pdlh-cal-foot', 'pdlh-page-head'],
   insights: ['Last 30 days', 'pdlh-stats', 'pdlh-bar-row', 'pdlh-bar-fill']
@@ -111,7 +111,7 @@ habitsScreen.view.habitQuery = 'Fap';
 habitsScreen.view.renderHabitResults();
 const searched = habitsScreen.containerEl.toHtml('');
 assert.equal(searched.includes('No Fap'), true, 'search keeps the matching habit');
-assert.equal(searched.includes('ChÆ°á»m Ä‘Ã¡'), false, 'search hides non-matching habits');
+assert.equal(searched.includes('Chườm đá'), false, 'search hides non-matching habits');
 assert.equal(searched.includes('1 of 3 habits'), true, 'the block head reports the filtered count');
 
 // Sorting by category groups the rows under category headers.
@@ -136,4 +136,4 @@ archivedView.habits = scanned;
 archivedView.render();
 assert.equal(archivedEl.toHtml('').includes('Nothing archived yet'), true, 'archived scope renders its empty state');
 
-console.log(`[verify-bundle] OK â€” ${habitCount} habits, ${Object.entries(rendered).map(([mode, html]) => `${mode} ${(html.length / 1024).toFixed(1)} KB`).join(', ')}`);
+console.log(`[verify-bundle] OK — ${habitCount} habits, ${Object.entries(rendered).map(([mode, html]) => `${mode} ${(html.length / 1024).toFixed(1)} KB`).join(', ')}`);

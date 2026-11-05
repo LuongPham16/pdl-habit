@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.1 — text encoding repair
+
+- **Fixed a stray accent in the interface.** Several source files had been saved
+  through a Windows-PowerShell pipe that decoded UTF-8 as cp1252 and wrote it back as
+  UTF-8, so the middot separator came out with a spurious accent character in front
+  of it, and Vietnamese text became mojibake. All affected files were repaired,
+  byte-order marks removed, and the stylesheet's decorative comments normalised to
+  plain ASCII.
+- **A guard test now fails the build if that corruption comes back** — it scans
+  `src/`, `docs/`, `tests/`, `scripts/`, `styles.css` and the root markdown files for
+  double-encoded sequences and byte-order marks.
+- No behaviour change: same UI, same data.
+
 ## 1.9.0 — any colour, many more icons
 
 - **Colour is now a real picker, not a swatch row.** One round field opens the

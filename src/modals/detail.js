@@ -1,4 +1,4 @@
-﻿import { Modal, setIcon } from 'obsidian';
+import { Modal, setIcon } from 'obsidian';
 import { PERIODS, WEEKDAYS } from '../constants.js';
 import { addDays, isoDate, parseDate } from '../dates.js';
 import { completion, isActiveHabit, isScheduled, monthSummary } from '../habits.js';
@@ -45,7 +45,7 @@ export class HabitDetailModal extends Modal {
     const remove = iconButton(actions, 'trash-2', 'Delete habit', 'is-danger');
     remove.onclick = () => {
       this.close();
-      new ConfirmModal(this.app, 'Delete habit?', `â€œ${habit.title}â€ and its check-in history will be moved to Trash.`, () => this.plugin.deleteHabit(habit)).open();
+      new ConfirmModal(this.app, 'Delete habit?', `“${habit.title}” and its check-in history will be moved to Trash.`, () => this.plugin.deleteHabit(habit)).open();
     };
 
     const metrics = el.createDiv({ cls: 'pdlh-detail-metrics' });
@@ -109,7 +109,7 @@ export class HabitDetailModal extends Modal {
     title.createSpan({
       cls: 'pdlh-detail-month-meta',
       text: summary.due
-        ? `${summary.done}/${summary.due} done Â· ${summary.perfect} perfect ${summary.perfect === 1 ? 'day' : 'days'}`
+        ? `${summary.done}/${summary.due} done · ${summary.perfect} perfect ${summary.perfect === 1 ? 'day' : 'days'}`
         : 'No scheduled days this month'
     });
 
@@ -157,14 +157,14 @@ export class HabitDetailModal extends Modal {
           : state.skipped
             ? 'planned rest'
             : state.done
-              ? `done${habit.unit && habit.unit !== 'time' ? ` Â· ${state.value} ${habit.unit}` : ''}`
+              ? `done${habit.unit && habit.unit !== 'time' ? ` · ${state.value} ${habit.unit}` : ''}`
               : state.ratio > 0
-                ? `partial Â· ${state.value}`
+                ? `partial · ${state.value}`
                 : isFuture ? 'upcoming' : 'missed';
 
       const cell = grid.createEl('button', {
         cls: classes.join(' '),
-        attr: { 'aria-label': `${key}, ${status}`, title: `${key} Â· ${status}` }
+        attr: { 'aria-label': `${key}, ${status}`, title: `${key} · ${status}` }
       });
       cell.createSpan({ text: String(day.getDate()) });
       cell.onclick = () => {

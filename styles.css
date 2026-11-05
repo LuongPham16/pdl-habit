@@ -1,8 +1,4 @@
-﻿/* PDL Habit Ã¢â‚¬â€ base shell,
-calendar,
-insights,
-habits,
-modals. */
+/* PDL Habit - base shell, calendar, insights, habits, modals. */
 .workspace-leaf-content[data-type="pdl-habit-dashboard"] .view-content {
   padding:0!important;
   overflow:hidden;
@@ -670,9 +666,8 @@ button.pdlh-icon-btn:hover {
   }
 }
 /* =====================================================================
-   Today ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â v1.3 redesign
-   A day-first layout: date header ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ week strip ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ progress hero ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ plan.
-   Every surface is a card on the canvas so the eye follows one column.
+   Today - a day-first layout: page header -> week strip -> hero -> plan.
+   Every surface is a card on the canvas, so the eye follows one column.
    ===================================================================== */
 
 .pdlh-view,
@@ -1414,11 +1409,8 @@ button.pdlh-icon-btn:hover {
   }
 }
 /* =====================================================================
-   Pages Ã¢â‚¬â€ Habits,
-Calendar,
-Insights share the frame used by Today:
-   a page header,
-card surfaces and one block-heading rhythm.
+   Pages - Habits, Calendar and Insights share the frame used by Today:
+   one page header, card surfaces and a single block-heading rhythm.
    ===================================================================== */
 
 .pdlh-block-head {
@@ -1953,7 +1945,7 @@ card surfaces and one block-heading rhythm.
   }
 }
 /* =====================================================================
-   v1.5 Ã¢â‚¬â€ list toolbar (search / category / sort) and the undo toast
+   v1.5 - list toolbar (search / category / sort) and the undo toast
    ===================================================================== */
 
 .pdlh-toolbar {
@@ -2178,7 +2170,7 @@ card surfaces and one block-heading rhythm.
   }
 }
 /* =====================================================================
-   v1.6 Ã¢â‚¬â€ compact habit form (name Ã¢â€ â€™ type Ã¢â€ â€™ when Ã¢â€ â€™ look Ã¢â€ â€™ more)
+   v1.6 - compact habit form (name -> type -> when -> look -> more)
    ===================================================================== */
 
 .pdlh-habit-shell {
@@ -2269,8 +2261,7 @@ card surfaces and one block-heading rhythm.
   width: 84px !important;
 }
 /* Dates: Obsidian paints a calendar icon at the start of the field,
-so keep room
-   for it instead of letting the text run underneath. */
+   so keep room for it instead of letting the text run underneath. */
 .pdlh-input[type="date"],
 .pdlh-input[type="time"] {
   padding-left: 28px !important;
@@ -2504,8 +2495,8 @@ so keep room
 }
 
 /* =====================================================================
-   v1.7 â€” habit detail month calendar
-   done = habit colour Â· partial = tinted Â· missed = outline Â· rest = dashed
+   v1.7 - habit detail month calendar
+   done = habit colour | partial = tinted | missed = outline | rest = dashed
    today = amber ring, independent of the state colour
    ===================================================================== */
 
@@ -2700,7 +2691,8 @@ so keep room
 }
 
 /* =====================================================================
-   v1.8 — check-in sheet: − / + stepper for Count & Limit, switch for binary
+   v1.8 - check-in sheet: minus/plus stepper for Count & Limit,
+   Done / Not done switch for binary habits
    ===================================================================== */
 
 .pdlh-checkin-shell {
