@@ -61,6 +61,7 @@ export class Plugin {
   registerView(type, factory) { this.views.set(type, factory); }
   addSettingTab(tab) { this.tabs.push(tab); }
   addRibbonIcon() { return {}; }
+  registerInterval(id) { return id; }
   addCommand(command) { this.commands.push(command); return command; }
   registerEvent() {}
   async loadData() { return {}; }

@@ -1,7 +1,9 @@
 import { Plugin, Notice, normalizePath } from 'obsidian';
 import { DEFAULT_SETTINGS, VIEW_TYPE, VIEW_IDS, PERIODS, COLORS, WEEKDAYS } from './constants.js';
 import { isoDate, addDays, parseDate, startOfWeek, safeName, esc } from './dates.js';
-import { completion, entryValue, isScheduled, normalizeHistory, scheduledKeys, streakFor } from './habits.js';
+import { completion, daySummary, entryValue, isActiveHabit, isScheduled, normalizeHistory, scheduledKeys, streakFor } from './habits.js';
+import { DEFAULT_REMINDERS, reminderDue, reminderText } from './reminders.js';
+import { toast } from './ui.js';
 import { PDLHabitView } from './view.js';
 import { PDLHabitSettingTab } from './settings.js';
 import { HabitModal } from './modals/habit.js';
@@ -12,6 +14,7 @@ export class PDLHabitPlugin extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     // Archive is a scope inside Habits now; older settings may still point at it.
     if (!VIEW_IDS.includes(this.settings.defaultView)) this.settings.defaultView = 'today';
+    this.settings.reminders = { ...DEFAULT_REMINDERS, ...(this.settings.reminders || {}) };
     await this.ensureRoot();
     this.registerView(VIEW_TYPE, (leaf) => new PDLHabitView(leaf, this));
     this.addSettingTab(new PDLHabitSettingTab(this.app, this));
@@ -27,6 +30,7 @@ export class PDLHabitPlugin extends Plugin {
         new HabitModalPicker(this.app, this, habits).open();
       }
     });
+    this.registerReminders();
     const refresh = (file, oldPath = '') => { if (this.isHabitPath(file?.path) || this.isHabitPath(oldPath)) this.scheduleRefresh(); };
     this.registerEvent(this.app.metadataCache.on('changed', refresh));
     this.registerEvent(this.app.vault.on('create', refresh));
@@ -37,6 +41,64 @@ export class PDLHabitPlugin extends Plugin {
   onunload() { if (this.refreshTimer) clearTimeout(this.refreshTimer); }
 
   async saveSettings() { await this.saveData(this.settings); }
+
+  /* ----------------------------------------------------------- reminders */
+
+  /**
+   * Obsidian has no background push, so the reminder is a minute-tick that only
+   * fires while the app is open, once a day, inside a three-hour window.
+   */
+  registerReminders() {
+    const timer = setInterval(() => { this.checkReminder().catch((error) => console.error('[PDL Habit] reminder failed', error)); }, 60 * 1000);
+    timer?.unref?.();
+    this.registerInterval(timer);
+    const kickoff = setTimeout(() => { this.checkReminder().catch(() => {}); }, 4000);
+    kickoff?.unref?.();
+  }
+
+  async checkReminder() {
+    const now = new Date();
+    const reminders = this.settings.reminders || DEFAULT_REMINDERS;
+    if (!reminderDue(reminders, now)) return false;
+    const today = isoDate(now);
+    // Claim the day first so a slow scan can never double-post.
+    this.settings.lastReminder = today;
+    await this.saveSettings();
+    const habits = (await this.scanHabits()).filter(isActiveHabit);
+    const summary = daySummary(habits, today);
+    if (!summary.total || summary.remaining <= 0) return false;
+    toast({
+      icon: 'bell',
+      message: reminderText(summary),
+      actionLabel: 'Open today',
+      onAction: () => this.openDay(today),
+      timeout: 12000
+    });
+    return true;
+  }
+
+  /** Show the reminder right now, bypassing the schedule (settings button). */
+  async previewReminder() {
+    const habits = (await this.scanHabits()).filter(isActiveHabit);
+    const summary = daySummary(habits, isoDate());
+    toast({
+      icon: 'bell',
+      message: summary.remaining > 0 ? reminderText(summary) : 'Sample reminder: 3 habits left today.',
+      actionLabel: 'Open today',
+      onAction: () => this.openDay(),
+      timeout: 12000
+    });
+  }
+
+  async openDay(key = isoDate()) {
+    await this.activateView();
+    const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE)[0];
+    if (!leaf?.view) return;
+    leaf.view.mode = 'today';
+    leaf.view.selectedDate = key;
+    leaf.view.render();
+  }
+
 
   async ensureRoot() {
     const path = normalizePath(this.settings.rootFolder);
@@ -193,13 +255,43 @@ export class PDLHabitPlugin extends Plugin {
     await this.refreshViews();
   }
 
+  /** Snapshot of the raw frontmatter entry, used by undo. */
+  snapshotCheckin(habit, key) {
+    const entry = habit.history?.[key];
+    if (entry === undefined || entry === null) return null;
+    return JSON.parse(JSON.stringify(entry));
+  }
+
+  /** Put a previous check-in back (or remove it when `previous` is null). */
+  async restoreCheckin(habit, key, previous) {
+    await this.app.fileManager.processFrontMatter(habit.file, (fm) => {
+      fm.history = normalizeHistory(fm.history);
+      if (previous === null || previous === undefined) delete fm.history[key];
+      else fm.history[key] = previous;
+    });
+    await this.refreshViews();
+  }
+
+  /** Toast with an Undo button; resolves the check-in state captured before the write. */
+  offerUndo({ message, habit, key, previous, icon = 'check' }) {
+    toast({
+      icon,
+      message,
+      actionLabel: 'Undo',
+      timeout: 8000,
+      onAction: async () => {
+        await this.restoreCheckin(habit, key, previous);
+        new Notice('Check-in restored.');
+      }
+    });
+  }
+
   async clearCheckin(habit, key) {
     await this.app.fileManager.processFrontMatter(habit.file, (fm) => {
       fm.history = normalizeHistory(fm.history);
       delete fm.history[key];
     });
     await this.refreshViews();
-    new Notice('Check-in cleared.');
   }
 
   async setArchived(habit, archived) {

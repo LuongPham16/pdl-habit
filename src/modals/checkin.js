@@ -5,8 +5,16 @@ export class CheckinModal extends Modal {
   constructor(app, plugin, habit, key) {
     super(app); this.plugin = plugin; this.habit = habit; this.key = key;
     const existing = habit.history[key];
+    this.previous = existing === undefined ? null : JSON.parse(JSON.stringify(existing));
     this.value = entryValue(existing) || (habit.frequency === 'weekly' ? 1 : habit.target);
     this.note = typeof existing === 'object' ? existing.note || '' : '';
+  }
+
+  /** Apply the change, then offer Undo with the state captured when the sheet opened. */
+  async apply(message, action) {
+    await action();
+    this.plugin.offerUndo({ message, habit: this.habit, key: this.key, previous: this.previous });
+    this.close();
   }
 
   onOpen() {
@@ -20,18 +28,18 @@ export class CheckinModal extends Modal {
     });
     new Setting(el).setName('Note').addTextArea((c) => c.setPlaceholder('What helped or got in the way?').setValue(this.note).onChange((v) => this.note = v));
     const actions = new Setting(el);
-    actions.addButton((c) => c.setButtonText('Planned rest').onClick(async () => {
-      await this.plugin.checkIn(this.habit, this.key, 0, this.note, 'skip');
-      this.close();
-    }));
-    actions.addButton((c) => c.setButtonText('Clear').onClick(async () => {
-      await this.plugin.clearCheckin(this.habit, this.key);
-      this.close();
-    }));
-    actions.addButton((c) => c.setCta().setButtonText('Save').onClick(async () => {
-      await this.plugin.checkIn(this.habit, this.key, this.value, this.note);
-      this.close();
-    }));
+    actions.addButton((c) => c.setButtonText('Planned rest').onClick(() => this.apply(
+      `Planned rest saved for ${this.habit.title}`,
+      () => this.plugin.checkIn(this.habit, this.key, 0, this.note, 'skip')
+    )));
+    actions.addButton((c) => c.setButtonText('Clear').onClick(() => this.apply(
+      `Check-in cleared for ${this.habit.title}`,
+      () => this.plugin.clearCheckin(this.habit, this.key)
+    )));
+    actions.addButton((c) => c.setCta().setButtonText('Save').onClick(() => this.apply(
+      `${this.habit.title} saved`,
+      () => this.plugin.checkIn(this.habit, this.key, this.value, this.note)
+    )));
   }
 
   onClose() { this.contentEl.empty(); }

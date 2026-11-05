@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.5.0 — undo, reminders, and a searchable habit list
+
+- **Undo on every check-in.** One-tap check-ins, sheet saves, planned rests and
+  clears now raise a small toast with **Undo** for eight seconds; undo restores the
+  exact frontmatter entry that was there before (including notes and `skip` state).
+- **Daily reminder.** Settings → Reminders: one in-app nudge a day at a chosen time,
+  only when habits are still open, sent at most once per day and only within three
+  hours of the chosen time. It arrives as a toast with an **Open today** action.
+  A **Preview** button shows it immediately. Obsidian has no background push, so the
+  reminder runs while the app is open.
+- **Search, category filter and sort in Habits.** A toolbar above the list with a
+  search box (title, category, description, unit), an "All categories" filter built
+  from your own categories, and sorting by title, streak, 30-day rate or category.
+  Choosing *Category* groups the rows under category headers, so the long-dormant
+  `category` field finally does something.
+- The list re-renders on its own while you type, so the search box keeps focus and
+  caret; the header reports `3 of 12 habits`; an empty result offers *Clear filters*.
+- Reminder maths and the list utilities live in pure modules (`src/reminders.js`,
+  `src/habits.js`) and are covered by tests.
+
 ## 1.4.0 — one design language across the tabs
 
 The other tabs now use the same frame as Today, and the parts that duplicated each

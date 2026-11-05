@@ -2,8 +2,9 @@ import { ItemView, setIcon } from 'obsidian';
 import { PERIODS, PERIOD_ORDER, PERIOD_ICONS, VIEW_IDS, VIEW_TYPE, VIEWS, WEEKDAYS } from './constants.js';
 import { addDays, isoDate, longDay, parseDate, plural, shortDay } from './dates.js';
 import {
-  bestCurrentStreak, completion, daySummary, dueHabits, isActiveHabit, isExpired, isScheduled,
-  monthSummary, pickFocus, streakFor, weekCheckins, weekDone, weekOverview, weekProgress, windowStats
+  bestCurrentStreak, completion, daySummary, dueHabits, filterHabits, groupHabitsByCategory,
+  habitCategories, isActiveHabit, isExpired, isScheduled, monthSummary, pickFocus, sortHabits,
+  SORT_MODES, streakFor, weekCheckins, weekDone, weekOverview, weekProgress, windowStats
 } from './habits.js';
 import { iconButton, metaChip } from './dom.js';
 import { blockHead, card, emptyState, pageHead, segmented } from './ui.js';
@@ -21,6 +22,10 @@ export class PDLHabitView extends ItemView {
     this.mode = VIEW_IDS.includes(plugin.settings.defaultView) ? plugin.settings.defaultView : 'today';
     this.period = 'all';
     this.habitScope = 'active';
+    this.habitQuery = '';
+    this.habitCategory = 'all';
+    this.habitSort = 'title';
+    this.habitResults = null;
     this.selectedDate = isoDate();
     this.calendarDate = new Date();
   }
@@ -39,6 +44,7 @@ export class PDLHabitView extends ItemView {
     const container = this.containerEl.children[1];
     container.empty();
     container.addClass('pdlh-view');
+    this.habitResults = null;
     const root = container.createDiv({ cls: 'pdlh-shell' });
     this.renderHeader(root);
     this.renderNav(root);
@@ -298,7 +304,12 @@ export class PDLHabitView extends ItemView {
     const current = state || completion(habit, key);
     if (current.done || current.skipped) return this.openCheckin(habit, key);
     const single = habit.target === 1 && habit.frequency !== 'weekly';
-    if (single && habit.direction === 'build') return this.plugin.checkIn(habit, key, 1, '');
+    if (single && habit.direction === 'build') {
+      const previous = this.plugin.snapshotCheckin(habit, key);
+      await this.plugin.checkIn(habit, key, 1, '');
+      this.plugin.offerUndo({ message: `${habit.title} checked in`, habit, key, previous });
+      return;
+    }
     return this.openCheckin(habit, key);
   }
 
@@ -308,7 +319,7 @@ export class PDLHabitView extends ItemView {
     const active = this.activeHabits();
     const archived = this.archivedHabits();
     const scope = this.habitScope;
-    const rows = scope === 'archived' ? archived : active;
+    const pool = scope === 'archived' ? archived : active;
     const page = parent.createDiv({ cls: 'pdlh-page' });
 
     pageHead(page, {
@@ -321,7 +332,7 @@ export class PDLHabitView extends ItemView {
       tools: (tools) => segmented(tools, SCOPES, scope, (id) => { this.habitScope = id; this.render(); }, 'Habit scope')
     });
 
-    if (!rows.length) {
+    if (!pool.length) {
       if (scope === 'archived') {
         emptyState(page, {
           icon: 'archive',
@@ -340,9 +351,90 @@ export class PDLHabitView extends ItemView {
       return;
     }
 
-    const keys = lastSevenDays();
-    const list = card(page, 'pdlh-list');
+    this.renderHabitToolbar(page, pool);
+    this.habitResults = page.createDiv({ cls: 'pdlh-results' });
+    this.renderHabitResults();
+  }
 
+  /** Search + category filter + sort. Lives above the list and survives re-renders. */
+  renderHabitToolbar(page, pool) {
+    const toolbar = page.createDiv({ cls: 'pdlh-toolbar' });
+
+    const search = toolbar.createDiv({ cls: 'pdlh-search' });
+    setIcon(search.createSpan({ cls: 'pdlh-search-icon' }), 'search');
+    const input = search.createEl('input', {
+      attr: { type: 'search', placeholder: 'Search habits', 'aria-label': 'Search habits', spellcheck: 'false' }
+    });
+    input.value = this.habitQuery;
+    const clear = search.createEl('button', { cls: `pdlh-search-clear ${this.habitQuery ? '' : 'is-hidden'}`.trim(), attr: { 'aria-label': 'Clear search' } });
+    setIcon(clear, 'x');
+    clear.onclick = () => {
+      this.habitQuery = '';
+      input.value = '';
+      clear.addClass('is-hidden');
+      this.renderHabitResults();
+      input.focus();
+    };
+    input.oninput = () => {
+      this.habitQuery = input.value;
+      if (this.habitQuery) clear.removeClass('is-hidden');
+      else clear.addClass('is-hidden');
+      this.renderHabitResults();
+    };
+
+    const categories = habitCategories(pool);
+    const categorySelect = toolbar.createEl('select', { cls: 'pdlh-select', attr: { 'aria-label': 'Filter by category' } });
+    categorySelect.createEl('option', { value: 'all', text: 'All categories', attr: this.habitCategory === 'all' ? { selected: 'selected' } : {} });
+    categories.forEach((category) => categorySelect.createEl('option', {
+      value: category,
+      text: category,
+      attr: this.habitCategory === category ? { selected: 'selected' } : {}
+    }));
+    if (this.habitCategory !== 'all' && !categories.includes(this.habitCategory)) this.habitCategory = 'all';
+    categorySelect.value = this.habitCategory;
+    categorySelect.onchange = () => { this.habitCategory = categorySelect.value; this.renderHabitResults(); };
+
+    const sortSelect = toolbar.createEl('select', { cls: 'pdlh-select', attr: { 'aria-label': 'Sort habits' } });
+    SORT_MODES.forEach(([value, label]) => sortSelect.createEl('option', {
+      value,
+      text: label,
+      attr: this.habitSort === value ? { selected: 'selected' } : {}
+    }));
+    sortSelect.value = this.habitSort;
+    // Grouping changes the card structure, so this one does a full render.
+    sortSelect.onchange = () => { this.habitSort = sortSelect.value; this.render(); };
+  }
+
+  /** Renders the list body only, so typing in the search box never loses focus. */
+  renderHabitResults() {
+    const host = this.habitResults;
+    if (!host) return;
+    host.empty();
+
+    const scope = this.habitScope;
+    const pool = scope === 'archived' ? this.archivedHabits() : this.activeHabits();
+    const filtered = filterHabits(pool, { query: this.habitQuery, category: this.habitCategory });
+    const sorted = sortHabits(filtered, this.habitSort, (habit) => this.plugin.statsFor(habit, 30));
+    const keys = lastSevenDays();
+
+    blockHead(
+      host,
+      scope === 'archived' ? 'Archived' : 'All habits',
+      filtered.length === pool.length ? plural(pool.length, 'habit') : `${filtered.length} of ${plural(pool.length, 'habit')}`
+    );
+
+    if (!sorted.length) {
+      emptyState(host, {
+        icon: 'search',
+        title: 'No habits match',
+        body: 'Try another word, or clear the filters to see everything again.',
+        compact: true,
+        actions: [{ label: 'Clear filters', onClick: () => { this.habitQuery = ''; this.habitCategory = 'all'; this.render(); } }]
+      });
+      return;
+    }
+
+    const list = card(host, 'pdlh-list');
     const head = list.createDiv({ cls: 'pdlh-list-head' });
     head.createSpan({ cls: 'pdlh-list-col', text: 'Habit' });
     const headDays = head.createSpan({ cls: 'pdlh-list-days' });
@@ -353,7 +445,16 @@ export class PDLHabitView extends ItemView {
     head.createSpan({ cls: 'pdlh-list-col is-streak', text: 'Streak' });
     head.createSpan({ cls: 'pdlh-list-chevron', attr: { 'aria-hidden': 'true' } });
 
-    rows.forEach((habit) => this.renderHabitListRow(list, habit, keys, scope));
+    if (this.habitSort === 'category') {
+      groupHabitsByCategory(sorted).forEach((group) => {
+        const groupHead = list.createDiv({ cls: 'pdlh-list-group' });
+        groupHead.createSpan({ cls: 'pdlh-list-group-name', text: group.category });
+        groupHead.createSpan({ cls: 'pdlh-list-group-count', text: String(group.habits.length) });
+        group.habits.forEach((habit) => this.renderHabitListRow(list, habit, keys, scope));
+      });
+    } else {
+      sorted.forEach((habit) => this.renderHabitListRow(list, habit, keys, scope));
+    }
 
     list.createEl('p', {
       cls: 'pdlh-list-foot',

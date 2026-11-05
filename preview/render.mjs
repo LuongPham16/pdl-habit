@@ -7,8 +7,9 @@ import path from 'node:path';
 import { installDom, El } from './dom-shim.mjs';
 import { PDLHabitView } from '../src/view.js';
 import { PDLHabitPlugin } from '../src/plugin.js';
+import { toast } from '../src/ui.js';
 
-installDom();
+const { } = installDom();
 
 const ROOT = path.resolve('.');
 const today = new Date();
@@ -112,7 +113,7 @@ const DARK = {
 
 const css = fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf8');
 
-function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'active', emptyMonth = false }) {
+function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'active', emptyMonth = false, sort = 'title', query = '', category = 'all', toastMessage = '' }) {
   const vars = theme === 'dark' ? DARK : LIGHT;
   const leaf = { app, containerEl: new El('div', { cls: 'workspace-leaf-content' }) };
   leaf.containerEl.setAttribute('data-type', 'pdlh-habit-dashboard');
@@ -123,9 +124,13 @@ function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'a
   view.mode = mode;
   view.habits = habitList;
   view.habitScope = scope;
+  view.habitSort = sort;
+  view.habitQuery = query;
+  view.habitCategory = category;
   view.selectedDate = iso(today);
   view.calendarDate = emptyMonth ? new Date(today.getFullYear(), today.getMonth() + 2, 1) : new Date(today);
   view.render();
+  if (toastMessage) toast({ message: toastMessage, actionLabel: 'Undo', onAction: () => {}, timeout: 0 });
 
   const page = `<!doctype html>
 <html lang="en" class="theme-${theme}">
@@ -157,17 +162,21 @@ function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'a
   .view-content { flex: 1; display: flex; flex-direction: column; }
   svg.svg-icon { width: 18px; height: 18px; flex: none; }
   button { font-family: inherit; }
+  /* Screenshots are taken instantly; skip the entrance animation so the toast is fully opaque. */
+  .pdlh-toast { animation: none !important; }
 ${css}
 </style>
 </head>
 <body>
 ${leaf.containerEl.toHtml('')}
+${document.body.children.map((child) => child.toHtml('')).join('\n')}
 </body>
 </html>
 `;
 
   fs.writeFileSync(path.join(ROOT, 'preview', file), page);
   console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
+  if (document.body.children.length) document.body.empty();
 }
 
 const active = habits.filter((habit) => !habit.archived && !(habit.endDate && habit.endDate < iso(today)));
@@ -175,6 +184,7 @@ const active = habits.filter((habit) => !habit.archived && !(habit.endDate && ha
 buildPage({ mode: 'today', file: 'today.html' });
 buildPage({ mode: 'today', theme: 'dark', file: 'today-dark.html' });
 buildPage({ mode: 'today', file: 'today-empty.html', habitList: [] });
+buildPage({ mode: 'today', file: 'today-undo.html', toastMessage: 'Chườm đá checked in' });
 buildPage({
   mode: 'today',
   file: 'today-complete.html',
@@ -185,6 +195,10 @@ buildPage({ mode: 'habits', file: 'habits.html' });
 buildPage({ mode: 'habits', theme: 'dark', file: 'habits-dark.html' });
 buildPage({ mode: 'habits', file: 'habits-archived.html', scope: 'archived' });
 buildPage({ mode: 'habits', file: 'habits-empty.html', habitList: [] });
+buildPage({ mode: 'habits', file: 'habits-filtered.html', query: 'uống' });
+buildPage({ mode: 'habits', file: 'habits-grouped.html', sort: 'category' });
+buildPage({ mode: 'habits', file: 'habits-sorted.html', sort: 'streak' });
+buildPage({ mode: 'habits', file: 'habits-reminder.html', toastMessage: '3 habits left today. Still time for a small win.' });
 
 buildPage({ mode: 'calendar', file: 'calendar.html' });
 buildPage({ mode: 'calendar', theme: 'dark', file: 'calendar-dark.html' });

@@ -1,6 +1,7 @@
 /**
  * Shared building blocks so every tab reads the same: one page header, one card
- * surface, one segmented control, one empty state.
+ * surface, one segmented control, one empty state — and the toast used for
+ * undo and reminders.
  */
 import { setIcon } from 'obsidian';
 
@@ -63,4 +64,59 @@ export function emptyState(parent, { icon = 'sprout', title, body = '', compact 
     });
   }
   return empty;
+}
+
+/* ---------------------------------------------------------------- toast */
+
+let toastHost = null;
+
+/**
+ * Small transient message in the corner of the window, with one optional action
+ * (that is how undo works). Lives inside `document.body` and uses Obsidian's
+ * global variables, so it also works while no dashboard view is open.
+ */
+export function toast({ message, actionLabel = '', onAction = null, icon = 'check', timeout = 6000 }) {
+  const doc = typeof document === 'undefined' ? null : document;
+  if (!doc?.body) return null;
+
+  if (!toastHost || toastHost.parentElement !== doc.body) {
+    toastHost = doc.body.createDiv({ cls: 'pdlh-toast-host', attr: { 'aria-live': 'polite' } });
+  }
+
+  const el = toastHost.createDiv({ cls: 'pdlh-toast', attr: { role: 'status' } });
+  setIcon(el.createSpan({ cls: 'pdlh-toast-icon' }), icon);
+  el.createSpan({ cls: 'pdlh-toast-text', text: message });
+
+  let timer = null;
+  const dismiss = () => {
+    if (timer) clearTimeout(timer);
+    if (typeof el.remove === 'function') el.remove();
+  };
+
+  if (actionLabel && typeof onAction === 'function') {
+    const action = el.createEl('button', { cls: 'pdlh-toast-action', text: actionLabel });
+    action.onclick = async () => {
+      dismiss();
+      try {
+        await onAction();
+      } catch (error) {
+        console.error('[PDL Habit] toast action failed', error);
+      }
+    };
+  }
+
+  const close = el.createEl('button', { cls: 'pdlh-toast-close', attr: { 'aria-label': 'Dismiss' } });
+  setIcon(close, 'x');
+  close.onclick = dismiss;
+
+  if (timeout > 0) timer = setTimeout(dismiss, timeout);
+
+  // Keep the stack short: never more than three messages at once.
+  while (toastHost.children.length > 3 && toastHost.children[0]) {
+    const oldest = toastHost.children[0];
+    if (typeof oldest.remove === 'function') oldest.remove();
+    else break;
+  }
+
+  return { dismiss };
 }

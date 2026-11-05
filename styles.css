@@ -2144,3 +2144,252 @@ button.pdlh-icon-btn:hover {
     padding: 12px;
   }
 }
+
+/* =====================================================================
+   v1.5 — list toolbar (search / category / sort) and the undo toast
+   ===================================================================== */
+
+.pdlh-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pdlh-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1 1 240px;
+  max-width: 360px;
+  height: 34px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--pdlh-border);
+  border-radius: 8px;
+  background: var(--pdlh-surface);
+  transition: border-color .14s ease;
+}
+
+.pdlh-search:focus-within {
+  border-color: var(--pdlh-amber);
+}
+
+.pdlh-search-icon {
+  display: grid;
+  place-items: center;
+  color: var(--pdlh-muted);
+}
+
+.pdlh-search-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pdlh-search input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--pdlh-text) !important;
+  font-size: 13px !important;
+}
+
+.pdlh-search input[type="search"]:focus-visible {
+  outline: none;
+  box-shadow: none !important;
+}
+
+.pdlh-search-clear {
+  display: grid !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  place-items: center;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--pdlh-muted) !important;
+  cursor: pointer;
+}
+
+.pdlh-search-clear:hover {
+  background: var(--pdlh-soft) !important;
+  color: var(--pdlh-text) !important;
+}
+
+.pdlh-search-clear svg {
+  width: 12px;
+  height: 12px;
+}
+
+.pdlh-search-clear.is-hidden {
+  display: none !important;
+}
+
+.pdlh-select {
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border: 1px solid var(--pdlh-border) !important;
+  border-radius: 8px !important;
+  background: var(--pdlh-surface) !important;
+  box-shadow: none !important;
+  color: var(--pdlh-text) !important;
+  font-size: 12.5px !important;
+}
+
+.pdlh-results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pdlh-list-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--pdlh-border);
+  background: color-mix(in srgb, var(--pdlh-soft) 45%, var(--pdlh-surface));
+  color: var(--pdlh-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pdlh-list-group-name {
+  color: var(--pdlh-text);
+}
+
+/* ------------------------------------------------------------- toast */
+
+.pdlh-toast-host {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.pdlh-toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  max-width: min(420px, calc(100vw - 44px));
+  padding: 7px 8px 7px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-primary);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .18);
+  color: var(--text-normal);
+  font-family: var(--font-interface);
+  font-size: 13px;
+  pointer-events: auto;
+  animation: pdlh-toast-in .16s ease-out;
+}
+
+.pdlh-toast-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  color: #059669;
+}
+
+.pdlh-toast-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.pdlh-toast-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pdlh-toast-action {
+  flex: none;
+  height: 28px !important;
+  margin: 0 0 0 2px !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: color-mix(in srgb, #059669 13%, transparent) !important;
+  box-shadow: none !important;
+  color: #059669 !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+}
+
+.pdlh-toast-action:hover {
+  background: color-mix(in srgb, #059669 22%, transparent) !important;
+}
+
+.pdlh-toast-close {
+  display: grid !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  place-items: center;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  cursor: pointer;
+}
+
+.pdlh-toast-close:hover {
+  background: var(--background-modifier-hover) !important;
+}
+
+.pdlh-toast-close svg {
+  width: 13px;
+  height: 13px;
+}
+
+@keyframes pdlh-toast-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.theme-dark .pdlh-toast {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdlh-toast {
+    animation: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .pdlh-toast-host {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    align-items: stretch;
+  }
+
+  .pdlh-toast {
+    max-width: none;
+  }
+}

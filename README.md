@@ -5,15 +5,20 @@
 Every habit is a plain note; every check-in is a line of frontmatter. Nothing is
 locked inside the plugin.
 
-> **Version 1.4.0** · Obsidian **1.5.0+** · desktop and mobile · four tabs, one design language
+> **Version 1.5.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
 
 ## Highlights
 
 - **Today** — one column that reads top to bottom: page header → week strip →
   progress hero with **Next up** → plan grouped by Morning / Afternoon / Evening /
   Anytime.
-- **Habits** — every habit with its last seven days as tappable check-in cells,
-  current streak and 30-day rate. **Active / Archived** is a switch, not a tab.
+- **Undo anything** — every check-in, planned rest and clear raises a toast with
+  **Undo** for eight seconds that restores the previous frontmatter entry exactly.
+- **Daily reminder** — one in-app nudge at the time you choose, only when habits are
+  still open (settings → Reminders, with a Preview button).
+- **Habits** — search, category filter and sort (title, streak, 30-day rate,
+  category) over a list of tappable seven-day check-in cells. **Active / Archived**
+  is a switch, not a tab.
 - **Calendar** — month grid with per-day completion and a month summary; tap a day
   to open it in Today.
 - **Insights** — completion, perfect days and planned rests, a per-habit bar list
@@ -57,16 +62,17 @@ opening Obsidian.
 ```
 src/
   index.js       bundle entry
-  plugin.js      plugin lifecycle, note scanning, persistence
+  plugin.js      plugin lifecycle, note scanning, persistence, reminders, undo
   view.js        the four tabs — Today, Habits, Calendar, Insights
-  ui.js          shared page header, segmented control, cards, empty states
-  habits.js      scheduling, completion, streaks, day/week/month aggregates
+  ui.js          shared page header, segmented control, cards, empty states, toast
+  habits.js      scheduling, completion, streaks, aggregates, search/sort helpers
+  reminders.js   reminder window + message (pure, testable)
   dates.js       date and string helpers
   constants.js   ids, palette, icon catalogue
   dom.js         small DOM helpers
   modals/        habit form, icon picker, check-in, detail, confirm
-  settings.js    settings tab
-styles.css       base sheets, page frame, tabs and modals
+  settings.js    settings tab (folder, week start, default view, reminders)
+styles.css       base sheets, page frame, tabs, toolbar, toast and modals
 preview/         offline renderer used for design review
 ```
 

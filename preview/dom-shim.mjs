@@ -65,13 +65,26 @@ class El {
   setText(value) { this.textContent = String(value); }
   focus() { this.attrs['data-focused'] = 'true'; }
 
+  /** `input.value = …` should end up in the markup, like a real element. */
+  get value() { return this.attrs.value ?? ''; }
+  set value(next) { this.attrs.value = String(next); }
+
   appendChild(child) {
     child.parentElement = this;
     this.children.push(child);
     return child;
   }
 
+  remove() {
+    if (!this.parentElement) return;
+    const siblings = this.parentElement.children;
+    const index = siblings.indexOf(this);
+    if (index >= 0) siblings.splice(index, 1);
+    this.parentElement = null;
+  }
+
   empty() {
+    this.children.forEach((child) => { child.parentElement = null; });
     this.children = [];
     this.textContent = '';
     this.innerHTML = '';
@@ -113,6 +126,7 @@ class El {
 
 export function installDom() {
   const document = {
+    body: new El('body'),
     createElement(tag) { return new El(tag); },
     createDocumentFragment() { return new El('fragment'); }
   };

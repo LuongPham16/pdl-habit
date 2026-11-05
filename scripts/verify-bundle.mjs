@@ -67,12 +67,13 @@ assert.equal(habitCount, 3, 'scanHabits must read the markdown frontmatter');
 
 const EXPECTED = {
   today: ['Chườm đá', 'Uống nước', 'No Fap', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check'],
-  habits: ['All habits', 'pdlh-list', 'pdlh-day-cell', 'pdlh-list-streak', 'Active', 'Archived'],
+  habits: ['All habits', 'pdlh-list', 'pdlh-day-cell', 'pdlh-list-streak', 'Active', 'Archived', 'pdlh-toolbar', 'pdlh-search', 'pdlh-select'],
   calendar: ['pdlh-cal', 'pdlh-cal-grid', 'pdlh-cal-day', 'pdlh-cal-foot', 'pdlh-page-head'],
   insights: ['Last 30 days', 'pdlh-stats', 'pdlh-bar-row', 'pdlh-bar-fill']
 };
 
 const rendered = {};
+const views = {};
 for (const mode of Object.keys(EXPECTED)) {
   const containerEl = new El('div', { cls: 'view-container' });
   containerEl.createDiv({ cls: 'view-header' });
@@ -81,6 +82,7 @@ for (const mode of Object.keys(EXPECTED)) {
   view.mode = mode;
   view.habits = await plugin.scanHabits();
   view.render();
+  views[mode] = { view, containerEl };
   const html = containerEl.toHtml('');
   rendered[mode] = html;
   for (const expected of EXPECTED[mode]) {
@@ -91,8 +93,26 @@ for (const mode of Object.keys(EXPECTED)) {
   }
 }
 
+// Search re-renders only the list body, so the input keeps its focus and value.
+const habitsScreen = views.habits;
+habitsScreen.view.habitQuery = 'Fap';
+habitsScreen.view.renderHabitResults();
+const searched = habitsScreen.containerEl.toHtml('');
+assert.equal(searched.includes('No Fap'), true, 'search keeps the matching habit');
+assert.equal(searched.includes('Chườm đá'), false, 'search hides non-matching habits');
+assert.equal(searched.includes('1 of 3 habits'), true, 'the block head reports the filtered count');
+
+// Sorting by category groups the rows under category headers.
+habitsScreen.view.habitQuery = '';
+habitsScreen.view.habitSort = 'category';
+habitsScreen.view.renderHabitResults();
+assert.equal(habitsScreen.containerEl.toHtml('').includes('pdlh-list-group'), true, 'category sorting renders group headers');
+habitsScreen.view.habitSort = 'title';
+
 // Archive is no longer a destination: it is a scope inside Habits.
 assert.equal(rendered.today.includes('>Archive<'), false, 'the tab bar must not offer an Archive tab');
+const tabCount = (rendered.today.match(/pdlh-tabs[\s\S]*?<\/div>/)?.[0].match(/<button/g) || []).length;
+assert.equal(tabCount, 4, 'four tabs remain');
 
 const archivedEl = new El('div', { cls: 'view-container' });
 archivedEl.createDiv({ cls: 'view-header' });

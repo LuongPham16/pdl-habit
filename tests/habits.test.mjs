@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   isScheduled, completion, streakFor, daySummary, dueHabits, pickFocus,
   weekOverview, weekProgress, weekDone, weekCheckins, isExpired, isActiveHabit,
-  monthSummary, windowStats
+  monthSummary, windowStats, filterHabits, sortHabits, groupHabitsByCategory, habitCategories
 } from '../src/habits.js';
 
 const habit = (overrides = {}) => ({
@@ -141,4 +141,57 @@ test('windowStats rolls a fixed number of days', () => {
   assert.equal(window.rests, 1);
   assert.equal(window.perfect, 1);
   assert.equal(window.rate, 33);
+});
+
+/* --------------------------------------------------- list: search / sort */
+
+const list = () => [
+  habit({ id: 'water', title: 'Uống nước', category: 'Health', description: 'Ba ly trước bữa trưa', unit: 'ly' }),
+  habit({ id: 'pill', title: 'Uống thuốc', category: 'Health', unit: 'viên' }),
+  habit({ id: 'fap', title: 'No Fap', category: 'Personal' }),
+  habit({ id: 'loose', title: 'Đi bộ', category: '' })
+];
+
+test('filterHabits searches title, category, description and unit', () => {
+  assert.equal(filterHabits(list(), { query: 'uống' }).length, 2);
+  assert.equal(filterHabits(list(), { query: 'UỐNG' }).length, 2);
+  assert.equal(filterHabits(list(), { query: 'ly' }).length, 1);
+  assert.equal(filterHabits(list(), { query: 'personal' }).length, 1);
+  assert.equal(filterHabits(list(), { query: 'không có gì' }).length, 0);
+  assert.equal(filterHabits(list(), {}).length, 4);
+  assert.equal(filterHabits(list(), { query: '   ' }).length, 4);
+});
+
+test('filterHabits narrows by category on top of the search', () => {
+  assert.equal(filterHabits(list(), { category: 'Health' }).length, 2);
+  assert.equal(filterHabits(list(), { category: 'Health', query: 'thuốc' }).length, 1);
+  assert.equal(filterHabits(list(), { category: 'all', query: 'thuốc' }).length, 1);
+  assert.equal(filterHabits(list(), { category: 'Nope' }).length, 0);
+  assert.deepEqual(habitCategories(list()), ['Health', 'Personal']);
+});
+
+test('sortHabits orders by title, rate or streak without mutating the input', () => {
+  const input = list();
+  const snapshot = input.map((item) => item.id);
+
+  assert.deepEqual(sortHabits(input, 'title').map((item) => item.id), ['loose', 'fap', 'water', 'pill']);
+  assert.deepEqual(input.map((item) => item.id), snapshot);
+
+  const rates = { water: 90, pill: 30, fap: 60, loose: 10 };
+  const streaks = { water: 1, pill: 9, fap: 2, loose: 3 };
+  const statsFor = (item) => ({ rate: rates[item.id], streak: { current: streaks[item.id] } });
+  assert.deepEqual(sortHabits(input, 'rate', statsFor).map((item) => item.id), ['water', 'fap', 'pill', 'loose']);
+  assert.deepEqual(sortHabits(input, 'streak', statsFor).map((item) => item.id), ['pill', 'loose', 'fap', 'water']);
+  // Without stats, numeric sorts fall back to title order.
+  assert.deepEqual(sortHabits(input, 'streak').map((item) => item.id), ['loose', 'fap', 'water', 'pill']);
+});
+
+test('sortHabits by category groups equal categories together', () => {
+  const sorted = sortHabits(list(), 'category');
+  assert.deepEqual(sorted.map((item) => item.category), ['', 'Health', 'Health', 'Personal']);
+  const groups = groupHabitsByCategory(sorted);
+  assert.equal(groups.length, 3);
+  assert.equal(groups[0].category, 'Uncategorised');
+  assert.equal(groups[1].category, 'Health');
+  assert.equal(groups[1].habits.length, 2);
 });

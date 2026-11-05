@@ -174,3 +174,64 @@ export function windowStats(habits, days = 30, today = isoDate()) {
   }
   return { days, due, done, rests, perfect, rate: due ? Math.round((done / due) * 100) : 0 };
 }
+
+/* ------------------------------------------------------- list utilities */
+
+export const SORT_MODES = [
+  ['title', 'Title A–Z'],
+  ['streak', 'Streak'],
+  ['rate', '30-day rate'],
+  ['category', 'Category']
+];
+
+/** Case-insensitive search over the fields a user can actually recognise. */
+export function filterHabits(habits, { query = '', category = 'all' } = {}) {
+  const needle = String(query || '').trim().toLowerCase();
+  return habits.filter((habit) => {
+    if (category !== 'all' && habit.category !== category) return false;
+    if (!needle) return true;
+    const haystack = [habit.title, habit.category, habit.description, habit.unit, habit.cue]
+      .filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(needle);
+  });
+}
+
+/** Categories present in a list, alphabetical — used to build the filter menu. */
+export function habitCategories(habits) {
+  return [...new Set(habits.map((habit) => habit.category).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+}
+
+/**
+ * Order a habit list. `statsFor` is only called for the modes that need numbers,
+ * and only once per habit.
+ */
+export function sortHabits(habits, mode = 'title', statsFor = null) {
+  const byTitle = (a, b) => a.title.localeCompare(b.title);
+  const byCategory = (a, b) => String(a.category || '').localeCompare(String(b.category || '')) || byTitle(a, b);
+
+  if (mode === 'category') return [...habits].sort(byCategory);
+  if ((mode === 'streak' || mode === 'rate') && typeof statsFor === 'function') {
+    const decorated = habits.map((habit) => {
+      const stats = statsFor(habit) || {};
+      const value = mode === 'streak' ? Number(stats?.streak?.current) || 0 : Number(stats?.rate) || 0;
+      return { habit, value };
+    });
+    return decorated
+      .sort((a, b) => b.value - a.value || byTitle(a.habit, b.habit))
+      .map((entry) => entry.habit);
+  }
+  return [...habits].sort(byTitle);
+}
+
+/** Split an already sorted list into category groups (insertion order preserved). */
+export function groupHabitsByCategory(habits) {
+  const groups = [];
+  habits.forEach((habit) => {
+    const category = habit.category || 'Uncategorised';
+    const last = groups[groups.length - 1];
+    if (last && last.category === category) last.habits.push(habit);
+    else groups.push({ category, habits: [habit] });
+  });
+  return groups;
+}
