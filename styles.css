@@ -2478,7 +2478,8 @@ button.pdlh-icon-btn:hover {
   padding: 0 10px !important;
   border: 1px solid var(--background-modifier-border) !important;
   border-radius: 8px !important;
-  background: var(--background-primary) !important;
+  /* background-color, not the shorthand: themes paint a calendar icon on date fields. */
+  background-color: var(--background-primary) !important;
   box-shadow: none !important;
   font-size: 13px !important;
 }
@@ -2501,6 +2502,17 @@ button.pdlh-icon-btn:hover {
 .pdlh-number {
   width: 84px !important;
 }
+
+/* Dates: Obsidian paints a calendar icon at the start of the field, so keep room
+   for it instead of letting the text run underneath. */
+.pdlh-input[type="date"],
+.pdlh-input[type="time"] {
+  padding-left: 28px !important;
+  background-position: 8px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 15px !important;
+}
+
 
 .pdlh-unit {
   flex: 1;

@@ -128,7 +128,9 @@ export class PDLHabitPlugin extends Plugin {
   scheduleLabel(habit) {
     if (habit.frequency === 'daily') return 'Every day';
     if (habit.frequency === 'weekly') return `${habit.target} / week`;
-    return habit.days.map((day) => WEEKDAYS[day]).join(', ');
+    const days = Array.isArray(habit.days) ? habit.days : [];
+    if (!days.length) return 'Selected days';
+    return [...days].sort((a, b) => a - b).map((day) => WEEKDAYS[day]).join(', ');
   }
 
   async scanHabits() {

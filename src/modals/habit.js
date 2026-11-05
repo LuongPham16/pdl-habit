@@ -17,6 +17,7 @@ export class HabitModal extends Modal {
     this.draft = habit ? draftFromHabit(habit) : emptyDraft();
     this.moreOpen = Boolean(habit) && advancedCount(this.draft) > 0;
     this.submitButton = null;
+    this.saving = false;
   }
 
   onOpen() {
@@ -73,8 +74,13 @@ export class HabitModal extends Modal {
   renderTracking(form) {
     const field = form.createDiv({ cls: 'pdlh-field' });
     field.createEl('span', { cls: 'pdlh-field-label', text: 'Type' });
+    // Weekly habits are sessions, so "Count" has no meaning there.
+    if (this.draft.schedule === 'week' && this.draft.tracking === 'count') this.draft.tracking = 'check';
+    const options = this.draft.schedule === 'week'
+      ? TRACKING_OPTIONS.filter(([id]) => id !== 'count')
+      : TRACKING_OPTIONS;
     const group = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': 'Habit type' } });
-    TRACKING_OPTIONS.forEach(([id, label]) => {
+    options.forEach(([id, label]) => {
       const active = this.draft.tracking === id;
       const button = group.createEl('button', { cls: active ? 'is-active' : '', text: label, attr: { 'aria-pressed': String(active) } });
       button.onclick = () => { this.draft.tracking = id; this.render(); };
@@ -184,33 +190,33 @@ export class HabitModal extends Modal {
 
     const category = body.createDiv({ cls: 'pdlh-field' });
     category.createEl('span', { cls: 'pdlh-field-label', text: 'Category' });
-    const categoryInput = category.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'Health, Learning, Mindfulness' } });
+    const categoryInput = category.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'Health, Learning, Mindfulness', 'aria-label': 'Category' } });
     categoryInput.value = this.draft.category;
     categoryInput.oninput = () => { this.draft.category = categoryInput.value; };
 
     const loop = body.createDiv({ cls: 'pdlh-form-grid' });
     const cue = loop.createDiv({ cls: 'pdlh-field' });
     cue.createEl('span', { cls: 'pdlh-field-label', text: 'Cue' });
-    const cueInput = cue.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'After morning coffee' } });
+    const cueInput = cue.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'After morning coffee', 'aria-label': 'Cue' } });
     cueInput.value = this.draft.cue;
     cueInput.oninput = () => { this.draft.cue = cueInput.value; };
 
     const reward = loop.createDiv({ cls: 'pdlh-field' });
     reward.createEl('span', { cls: 'pdlh-field-label', text: 'Reward' });
-    const rewardInput = reward.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'A favourite song' } });
+    const rewardInput = reward.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'A favourite song', 'aria-label': 'Reward' } });
     rewardInput.value = this.draft.reward;
     rewardInput.oninput = () => { this.draft.reward = rewardInput.value; };
 
     const dates = body.createDiv({ cls: 'pdlh-form-grid' });
     const start = dates.createDiv({ cls: 'pdlh-field' });
     start.createEl('span', { cls: 'pdlh-field-label', text: 'Starts' });
-    const startInput = start.createEl('input', { cls: 'pdlh-input', attr: { type: 'date' } });
+    const startInput = start.createEl('input', { cls: 'pdlh-input', attr: { type: 'date', 'aria-label': 'Start date' } });
     startInput.value = this.draft.startDate;
     startInput.oninput = () => { this.draft.startDate = startInput.value; };
 
     const end = dates.createDiv({ cls: 'pdlh-field' });
     end.createEl('span', { cls: 'pdlh-field-label', text: 'Ends (optional)' });
-    const endInput = end.createEl('input', { cls: 'pdlh-input', attr: { type: 'date' } });
+    const endInput = end.createEl('input', { cls: 'pdlh-input', attr: { type: 'date', 'aria-label': 'End date' } });
     endInput.value = this.draft.endDate;
     endInput.oninput = () => { this.draft.endDate = endInput.value; };
   }
@@ -237,10 +243,20 @@ export class HabitModal extends Modal {
   }
 
   async submit() {
+    if (this.saving) return;
     const error = validateDraft(this.draft);
     if (error) return new Notice(error);
-    await this.plugin.saveHabit(habitFromDraft(this.draft), this.habit);
-    this.close();
+    this.saving = true;
+    if (this.submitButton) {
+      this.submitButton.disabled = true;
+      this.submitButton.setText?.(this.habit ? 'Saving…' : 'Creating…');
+    }
+    try {
+      await this.plugin.saveHabit(habitFromDraft(this.draft), this.habit);
+      this.close();
+    } finally {
+      this.saving = false;
+    }
   }
 }
 

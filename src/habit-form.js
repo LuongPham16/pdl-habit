@@ -85,8 +85,8 @@ export function validateDraft(draft) {
 /** Draft → the object `plugin.saveHabit` expects. */
 export function habitFromDraft(draft) {
   const frequency = draft.schedule === 'week' ? 'weekly' : draft.schedule === 'days' ? 'weekdays' : 'daily';
-  const amount = Math.max(1, Math.round(Number(draft.target) || 1));
-  const perWeek = Math.max(1, Math.round(Number(draft.perWeek) || 1));
+  const amount = Math.min(999, Math.max(1, Math.round(Number(draft.target) || 1)));
+  const perWeek = Math.min(7, Math.max(1, Math.round(Number(draft.perWeek) || 1)));
   const check = draft.tracking === 'check';
   return {
     title: String(draft.name || '').trim(),

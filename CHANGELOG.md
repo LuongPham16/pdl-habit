@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.6.1 — form polish
+
+- **Date fields no longer collide with the theme's calendar icon.** Obsidian paints a
+  calendar glyph at the start of `input[type="date"]` and pads the field for it; our
+  compact inputs overrode that padding, so the text ran underneath the icon. The
+  date/time fields now keep room for it and the icon is aligned.
+- **No double submit.** Create/Save disables itself and reads *Creating…* / *Saving…*
+  while the note is being written, so a double click can't create two habits.
+- **Weekly habits hide *Count*.** A times-per-week habit has no per-day amount, so
+  the meaningless option is gone and an existing Count draft falls back to *Did it*.
+- **No blank schedule chip.** Habits saved with *Selected days* but no days left now
+  read "Selected days" instead of rendering an empty chip.
+- **The unit `time` is no longer printed.** Quantity rows show `1/3 ly`, binary rows
+  show nothing, and the detail sheet says *max 2 per day* instead of *max 2 time*.
+- Accessibility pass on the optional fields (category, cue, reward and both dates got
+  aria-labels), and the number fields clamp to sane ranges (1–7 per week, 1–999 amount).
+
 ## 1.6.0 — a habit form you can finish in one screen
 
 - **Four decisions, one screen.** The form went from 13 stacked rows to

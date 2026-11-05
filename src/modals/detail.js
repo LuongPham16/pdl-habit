@@ -112,8 +112,9 @@ export class HabitDetailModal extends Modal {
 
 /** Human label for the "Target" fact: binary habits have no amount. */
 function targetLabel(habit) {
+  const unit = habit.unit && habit.unit !== 'time' ? ` ${habit.unit}` : '';
   if (habit.frequency === 'weekly') return `${habit.target} times per week`;
-  if (habit.direction === 'quit') return `max ${habit.target} ${habit.unit} per day`;
+  if (habit.direction === 'quit') return `max ${habit.target}${unit} per day`;
   if (Number(habit.target) === 1) return 'Did it (once)';
-  return `${habit.target} ${habit.unit}`;
+  return `${habit.target}${unit} per day`;
 }
