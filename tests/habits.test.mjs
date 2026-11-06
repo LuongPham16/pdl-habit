@@ -4,7 +4,7 @@ import {
   isScheduled, completion, streakFor, daySummary, dueHabits, pickFocus,
   weekOverview, weekProgress, weekDone, weekCheckins, isExpired, isActiveHabit,
   monthSummary, windowStats, filterHabits, sortHabits, groupHabitsByCategory, habitCategories,
-  isBinaryHabit
+  isBinaryHabit, monthProgress
 } from '../src/habits.js';
 
 const habit = (overrides = {}) => ({
@@ -202,4 +202,26 @@ test('sortHabits by category groups equal categories together', () => {
   assert.equal(groups[0].category, 'Uncategorised');
   assert.equal(groups[1].category, 'Health');
   assert.equal(groups[1].habits.length, 2);
+});
+
+test('interval habits are due every N days from their start date', () => {
+  const everyThree = habit({ frequency: 'interval', intervalDays: 3, startDate: '2026-05-01' });
+  assert.equal(isScheduled(everyThree, '2026-05-01'), true);
+  assert.equal(isScheduled(everyThree, '2026-05-02'), false);
+  assert.equal(isScheduled(everyThree, '2026-05-04'), true);
+  assert.equal(isScheduled(everyThree, '2026-05-07'), true);
+  assert.equal(isScheduled({ ...everyThree, intervalDays: 0 }, '2026-05-02'), true, 'falls back to daily');
+});
+
+test('monthly habits count sessions, not amounts', () => {
+  const monthly = habit({ frequency: 'monthly', target: 4, history: { '2026-05-02': { value: 1 } } });
+  assert.equal(completion(monthly, '2026-05-02').done, true, 'one check-in completes the day');
+  assert.equal(isBinaryHabit(monthly), true);
+  const progress = monthProgress(monthly, '2026-05-15');
+  assert.deepEqual(progress, { count: 1, target: 4 });
+});
+
+test('monthProgress counts every check-in inside the month', () => {
+  const tracked = habit({ frequency: 'monthly', target: 4, history: { '2026-05-02': { value: 1 }, '2026-05-20': { value: 1 }, '2026-06-01': { value: 1 } } });
+  assert.equal(monthProgress(tracked, '2026-05-10').count, 2);
 });

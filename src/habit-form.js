@@ -1,10 +1,11 @@
 /**
  * Draft model behind the habit form: the UI speaks in three simple types
- * (did it / count / limit) and three schedules, then maps back onto the
- * frontmatter fields the plugin has always used.
+ * (did it / count / limit) and five schedules, then maps back onto the
+ * frontmatter fields the plugin uses.
  */
 import { COLORS, PERIODS } from './constants.js';
 import { isoDate } from './dates.js';
+import { t } from './i18n.js';
 
 export const TRACKING_OPTIONS = [
   ['check', 'Did it'],
@@ -15,7 +16,9 @@ export const TRACKING_OPTIONS = [
 export const SCHEDULE_OPTIONS = [
   ['daily', 'Every day'],
   ['days', 'Selected days'],
-  ['week', 'Times per week']
+  ['week', 'Times per week'],
+  ['month', 'Times per month'],
+  ['interval', 'Every N days']
 ];
 
 export const PERIOD_OPTIONS = Object.entries(PERIODS);
@@ -28,9 +31,12 @@ export function emptyDraft() {
     target: 1,
     unit: 'time',
     period: 'anytime',
+    time: '',
     schedule: 'daily',
     days: [1, 2, 3, 4, 5],
     perWeek: 3,
+    perMonth: 4,
+    intervalDays: 3,
     icon: 'sprout',
     color: COLORS[0],
     description: '',
@@ -45,22 +51,28 @@ export function emptyDraft() {
 /** Which of the three simple types best describes an existing habit. */
 export function trackingFromHabit(habit) {
   if (habit.direction === 'quit') return 'limit';
-  if (habit.frequency !== 'weekly' && Number(habit.target) > 1) return 'count';
+  const session = habit.frequency === 'weekly' || habit.frequency === 'monthly';
+  if (!session && Number(habit.target) > 1) return 'count';
   return 'check';
 }
 
 /** Existing habit → editable draft. */
 export function draftFromHabit(habit) {
   const weekly = habit.frequency === 'weekly';
+  const monthly = habit.frequency === 'monthly';
+  const interval = habit.frequency === 'interval';
   return {
     name: habit.title || '',
     tracking: trackingFromHabit(habit),
-    target: weekly ? 1 : Math.max(1, Number(habit.target) || 1),
+    target: weekly || monthly ? 1 : Math.max(1, Number(habit.target) || 1),
     unit: habit.unit || 'time',
     period: habit.period || 'anytime',
-    schedule: weekly ? 'week' : habit.frequency === 'weekdays' ? 'days' : 'daily',
+    time: habit.time || '',
+    schedule: weekly ? 'week' : monthly ? 'month' : interval ? 'interval' : habit.frequency === 'weekdays' ? 'days' : 'daily',
     days: Array.isArray(habit.days) && habit.days.length ? [...habit.days] : [1, 2, 3, 4, 5],
     perWeek: weekly ? Math.max(1, Number(habit.target) || 1) : 3,
+    perMonth: monthly ? Math.max(1, Number(habit.target) || 1) : 4,
+    intervalDays: interval ? Math.max(1, Number(habit.intervalDays) || 1) : 3,
     icon: habit.icon || 'sprout',
     color: habit.color || COLORS[0],
     description: habit.description || '',
@@ -74,29 +86,44 @@ export function draftFromHabit(habit) {
 
 /** Returns an error message, or '' when the draft can be saved. */
 export function validateDraft(draft) {
-  if (!String(draft.name || '').trim()) return 'Give the habit a name.';
-  if (draft.schedule === 'days' && !draft.days.length) return 'Pick at least one day.';
-  if (draft.endDate && draft.endDate < (draft.startDate || isoDate())) return 'End date must be after the start date.';
-  if (draft.schedule === 'week' && !(Number(draft.perWeek) >= 1)) return 'Times per week must be at least 1.';
-  if (draft.tracking !== 'check' && draft.schedule !== 'week' && !(Number(draft.target) >= 1)) return 'The amount must be at least 1.';
+  if (!String(draft.name || '').trim()) return t('Give the habit a name.');
+  if (draft.schedule === 'days' && !draft.days.length) return t('Pick at least one day.');
+  if (draft.endDate && draft.endDate < (draft.startDate || isoDate())) return t('End date must be after the start date.');
+  if (draft.schedule === 'week' && !(Number(draft.perWeek) >= 1)) return t('Times per week must be at least 1.');
+  if (draft.schedule === 'month' && !(Number(draft.perMonth) >= 1)) return t('Times per month must be at least 1.');
+  if (draft.schedule === 'interval' && !(Number(draft.intervalDays) >= 1)) return t('The interval must be at least 1 day.');
+  if (draft.tracking !== 'check' && !['week', 'month'].includes(draft.schedule) && !(Number(draft.target) >= 1)) return t('The amount must be at least 1.');
   return '';
 }
 
 /** Draft → the object `plugin.saveHabit` expects. */
 export function habitFromDraft(draft) {
-  const frequency = draft.schedule === 'week' ? 'weekly' : draft.schedule === 'days' ? 'weekdays' : 'daily';
+  const frequency = draft.schedule === 'week'
+    ? 'weekly'
+    : draft.schedule === 'month'
+      ? 'monthly'
+      : draft.schedule === 'interval'
+        ? 'interval'
+        : draft.schedule === 'days'
+          ? 'weekdays'
+          : 'daily';
   const amount = Math.min(999, Math.max(1, Math.round(Number(draft.target) || 1)));
   const perWeek = Math.min(7, Math.max(1, Math.round(Number(draft.perWeek) || 1)));
+  const perMonth = Math.min(31, Math.max(1, Math.round(Number(draft.perMonth) || 1)));
+  const intervalDays = Math.min(365, Math.max(1, Math.round(Number(draft.intervalDays) || 1)));
   const check = draft.tracking === 'check';
+  const session = frequency === 'weekly' || frequency === 'monthly';
   return {
     title: String(draft.name || '').trim(),
     description: String(draft.description || '').trim(),
     category: String(draft.category || '').trim() || 'Personal',
     period: draft.period || 'anytime',
+    time: String(draft.time || '').trim(),
     direction: draft.tracking === 'limit' ? 'quit' : 'build',
     frequency,
     days: frequency === 'weekdays' ? [...draft.days].sort((a, b) => a - b) : [],
-    target: frequency === 'weekly' ? perWeek : check ? 1 : amount,
+    target: session ? (frequency === 'weekly' ? perWeek : perMonth) : check ? 1 : amount,
+    intervalDays: frequency === 'interval' ? intervalDays : 0,
     unit: check ? 'time' : String(draft.unit || '').trim() || 'time',
     icon: draft.icon || 'sprout',
     color: draft.color || COLORS[0],
@@ -114,7 +141,8 @@ export function advancedCount(draft) {
     draft.category && draft.category !== 'Personal' ? draft.category : '',
     String(draft.cue || '').trim(),
     String(draft.reward || '').trim(),
-    draft.endDate || ''
+    draft.endDate || '',
+    draft.time || ''
   ].filter(Boolean).length;
 }
 

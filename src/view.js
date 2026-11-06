@@ -1,10 +1,11 @@
 import { ItemView, setIcon } from 'obsidian';
-import { PERIODS, PERIOD_ORDER, PERIOD_ICONS, VIEW_IDS, VIEW_TYPE, VIEWS, WEEKDAYS } from './constants.js';
+import { t, weekdayLabel, weekdayShort } from './i18n.js';
+import { PERIODS, PERIOD_ORDER, PERIOD_ICONS, VIEW_IDS, VIEW_TYPE, VIEWS } from './constants.js';
 import { addDays, isoDate, longDay, parseDate, plural, shortDay } from './dates.js';
 import {
   bestCurrentStreak, completion, daySummary, dueHabits, filterHabits, groupHabitsByCategory,
   habitCategories, isActiveHabit, isExpired, isScheduled, monthSummary, pickFocus, sortHabits,
-  SORT_MODES, streakFor, weekCheckins, weekDone, weekOverview, weekProgress, windowStats
+  SORT_MODES, monthProgress, streakFor, weekCheckins, weekDone, weekOverview, weekProgress, windowStats
 } from './habits.js';
 import { iconButton, metaChip, setHabitIcon } from './dom.js';
 import { blockHead, card, emptyState, pageHead, segmented } from './ui.js';
@@ -12,8 +13,9 @@ import { HabitModal } from './modals/habit.js';
 import { CheckinModal } from './modals/checkin.js';
 import { HabitDetailModal } from './modals/detail.js';
 
-const FILTERS = [['all', 'All'], ...Object.entries(PERIODS)];
-const SCOPES = [['active', 'Active'], ['archived', 'Archived']];
+/** Built per render so the labels follow the current language. */
+const filterOptions = () => [['all', t('All')], ...Object.entries(PERIODS).map(([id, label]) => [id, t(label)])];
+const scopeOptions = () => [['active', t('Active')], ['archived', t('Archived')]];
 
 export class PDLHabitView extends ItemView {
   constructor(leaf, plugin) {
@@ -64,11 +66,11 @@ export class PDLHabitView extends ItemView {
     setIcon(identity.createSpan({ cls: 'pdlh-mark' }), 'sprout');
     const text = identity.createDiv();
     text.createEl('h1', { text: 'PDL Habit' });
-    text.createSpan({ text: 'Small actions, visible progress' });
+    text.createSpan({ text: t('Small actions, visible progress') });
     const actions = header.createDiv({ cls: 'pdlh-header-actions' });
     const add = actions.createEl('button', { cls: 'pdlh-primary' });
     setIcon(add.createSpan(), 'plus');
-    add.createSpan({ text: 'New habit' });
+    add.createSpan({ text: t('New habit') });
     add.onclick = () => this.openHabitForm();
   }
 
@@ -79,7 +81,7 @@ export class PDLHabitView extends ItemView {
       const active = this.mode === view.id;
       const button = tabs.createEl('button', { cls: active ? 'is-active' : '', attr: active ? { 'aria-current': 'page' } : {} });
       setIcon(button.createSpan(), view.icon);
-      button.createSpan({ text: view.label });
+      button.createSpan({ text: t(view.label) });
       button.onclick = () => { this.mode = view.id; this.render(); };
     });
   }
@@ -96,15 +98,15 @@ export class PDLHabitView extends ItemView {
   /** Small ‹ Today › control shared by Today and Calendar. */
   renderDateNav(parent, { isCurrent, onShift, onToday, label }) {
     const nav = parent.createDiv({ cls: 'pdlh-date-nav' });
-    const prev = iconButton(nav, 'chevron-left', `Previous ${label}`);
+    const prev = iconButton(nav, 'chevron-left', t('Previous {label}', { label }));
     prev.onclick = () => onShift(-1);
     const today = nav.createEl('button', {
       cls: `pdlh-today-btn ${isCurrent ? 'is-current' : ''}`.trim(),
-      text: 'Today',
-      attr: { 'aria-label': 'Jump to today' }
+      text: t('Today'),
+      attr: { 'aria-label': t('Jump to today') }
     });
     today.onclick = onToday;
-    const next = iconButton(nav, 'chevron-right', `Next ${label}`);
+    const next = iconButton(nav, 'chevron-right', t('Next {label}', { label }));
     next.onclick = () => onShift(1);
     return nav;
   }
@@ -116,16 +118,16 @@ export class PDLHabitView extends ItemView {
     const day = daySummary(this.activeHabits(), key);
     const page = parent.createDiv({ cls: 'pdlh-page' });
     pageHead(page, {
-      eyebrow: key === isoDate() ? 'Today' : shortDay(key),
+      eyebrow: key === isoDate() ? t('Today') : shortDay(key),
       title: longDay(key),
       sub: day.total
-        ? `${day.done} of ${plural(day.total, 'habit')} done${day.skipped ? ` · ${day.skipped} planned rest` : ''}`
-        : 'No habits scheduled for this day.',
+        ? [t('{done} of {n} done', { done: day.done, n: plural(day.total, 'habit') }), day.skipped ? t('{n} planned rest', { n: day.skipped }) : ''].filter(Boolean).join(' · ')
+        : t('No habits scheduled for this day.'),
       tools: (tools) => {
-        segmented(tools, FILTERS, this.period, (id) => { this.period = id; this.render(); }, 'Filter by time of day');
+        segmented(tools, filterOptions(), this.period, (id) => { this.period = id; this.render(); }, t('Filter by time of day'));
         this.renderDateNav(tools, {
           isCurrent: key === isoDate(),
-          label: 'day',
+          label: t('day'),
           onShift: (amount) => { this.selectedDate = addDays(key, amount); this.render(); },
           onToday: () => { this.selectedDate = isoDate(); this.render(); }
         });
@@ -136,11 +138,11 @@ export class PDLHabitView extends ItemView {
     if (!day.total) {
       emptyState(page, {
         icon: 'calendar-check',
-        title: key === isoDate() ? 'A clear day' : 'Nothing scheduled',
-        body: 'No habits are due here. Add one, or review another day while the day stays light.',
+        title: key === isoDate() ? t('A clear day') : t('Nothing scheduled'),
+        body: t('No habits are due here. Add one, or review another day while the day stays light.'),
         actions: [
-          { label: 'New habit', icon: 'plus', primary: true, onClick: () => this.openHabitForm() },
-          ...(key === isoDate() ? [] : [{ label: 'Back to today', onClick: () => { this.selectedDate = isoDate(); this.render(); } }])
+          { label: t('New habit'), icon: 'plus', primary: true, onClick: () => this.openHabitForm() },
+          ...(key === isoDate() ? [] : [{ label: t('Back to today'), onClick: () => { this.selectedDate = isoDate(); this.render(); } }])
         ]
       });
       return;
@@ -151,7 +153,7 @@ export class PDLHabitView extends ItemView {
 
   renderWeekStrip(page, key) {
     const week = weekOverview(this.activeHabits(), key, this.plugin.settings.weekStartsOn);
-    const strip = page.createDiv({ cls: 'pdlh-week', attr: { role: 'group', 'aria-label': 'This week' } });
+    const strip = page.createDiv({ cls: 'pdlh-week', attr: { role: 'group', 'aria-label': t('This week') } });
     week.forEach((day) => {
       const button = strip.createEl('button', {
         cls: [
@@ -167,7 +169,7 @@ export class PDLHabitView extends ItemView {
           title: `${shortDay(day.key)} · ${day.done}/${day.total}`
         }
       });
-      button.createSpan({ cls: 'pdlh-week-wd', text: WEEKDAYS[day.day].slice(0, 2) });
+      button.createSpan({ cls: 'pdlh-week-wd', text: weekdayShort(day.day) });
       button.createSpan({ cls: 'pdlh-week-num', text: String(day.date) });
       const bar = button.createSpan({ cls: 'pdlh-week-bar' });
       bar.createSpan({ cls: 'pdlh-week-fill' }).style.width = `${Math.round(day.ratio * 100)}%`;
@@ -181,17 +183,17 @@ export class PDLHabitView extends ItemView {
     const ring = hero.createDiv({ cls: 'pdlh-hero-ring', attr: { role: 'img', 'aria-label': `${day.percent} percent complete` } });
     ring.style.setProperty('--progress', `${day.percent}%`);
     ring.createEl('strong', { text: `${day.done}/${day.total}` });
-    ring.createSpan({ text: day.done === day.total ? 'complete' : 'done' });
+    ring.createSpan({ text: day.done === day.total ? t('complete') : t('done') });
 
     const copy = hero.createDiv({ cls: 'pdlh-hero-copy' });
-    let headline = 'Start with one small win';
-    let line = `${plural(day.total, 'habit')} planned. Progress matters more than perfection.`;
+    let headline = t('Start with one small win');
+    let line = t('{n} planned. Progress matters more than perfection.', { n: plural(day.total, 'habit') });
     if (day.done === day.total) {
-      headline = 'Day complete';
-      line = `All ${plural(day.total, 'habit')} checked off. Rest is part of the plan.`;
+      headline = t('Day complete');
+      line = t('All {n} checked off. Rest is part of the plan.', { n: plural(day.total, 'habit') });
     } else if (day.done > 0) {
-      headline = 'Keep the rhythm';
-      line = `${plural(day.remaining, 'habit')} left today. You are already ${day.percent}% through.`;
+      headline = t('Keep the rhythm');
+      line = t('{n} left today. You are already {percent}% through.', { n: plural(day.remaining, 'habit'), percent: day.percent });
     }
     copy.createEl('h3', { text: headline });
     copy.createEl('p', { text: line });
@@ -199,14 +201,14 @@ export class PDLHabitView extends ItemView {
     const focus = pickFocus(this.activeHabits(), key);
     if (focus) {
       const row = copy.createDiv({ cls: 'pdlh-focus' });
-      row.createSpan({ cls: 'pdlh-focus-label', text: 'Next up' });
+      row.createSpan({ cls: 'pdlh-focus-label', text: t('Next up') });
       const button = row.createEl('button', { cls: 'pdlh-focus-habit', attr: { 'aria-label': `Check in ${focus.title}` } });
       button.style.setProperty('--habit-color', focus.color);
       setHabitIcon(button.createSpan({ cls: 'pdlh-focus-icon' }), focus.icon);
       const text = button.createSpan({ cls: 'pdlh-focus-text' });
       text.createEl('strong', { text: focus.title });
-      text.createSpan({ text: `${PERIODS[focus.period]} · ${this.plugin.scheduleLabel(focus)}` });
-      button.createSpan({ cls: 'pdlh-focus-cta', text: 'Check in' });
+      text.createSpan({ text: `${t(PERIODS[focus.period])} · ${this.plugin.scheduleLabel(focus)}` });
+      button.createSpan({ cls: 'pdlh-focus-cta', text: t('Check in') });
       button.onclick = () => this.quickCheck(focus, key);
     }
 
@@ -215,9 +217,9 @@ export class PDLHabitView extends ItemView {
     const perfect = weekDone(this.activeHabits(), key, this.plugin.settings.weekStartsOn);
     const checkins = weekCheckins(this.activeHabits(), key, this.plugin.settings.weekStartsOn);
     [
-      [String(streak), 'day streak'],
-      [`${perfect}/7`, 'perfect days'],
-      [String(checkins), 'this week']
+      [String(streak), t('day streak')],
+      [`${perfect}/7`, t('perfect days')],
+      [String(checkins), t('this week')]
     ].forEach(([value, label]) => {
       const cell = stats.createDiv();
       cell.createEl('strong', { text: value });
@@ -229,12 +231,12 @@ export class PDLHabitView extends ItemView {
     const due = this.dueHabits(key);
     const filtered = this.period === 'all' ? due : due.filter((habit) => habit.period === this.period);
     const plan = page.createDiv({ cls: 'pdlh-plan' });
-    blockHead(plan, 'Plan', this.period === 'all' ? plural(due.length, 'habit') : `${filtered.length} of ${plural(due.length, 'habit')}`);
+    blockHead(plan, t('Plan'), this.period === 'all' ? plural(due.length, 'habit') : `${filtered.length}/${due.length}`);
 
     if (!filtered.length) {
       const empty = plan.createDiv({ cls: 'pdlh-plan-empty' });
-      empty.createEl('p', { text: `Nothing scheduled in the ${PERIODS[this.period]?.toLowerCase() || 'selected'} block today.` });
-      const showAll = empty.createEl('button', { cls: 'pdlh-link-btn', text: 'Show the whole day' });
+      empty.createEl('p', { text: t('Nothing scheduled in the {period} block today.', { period: t(PERIODS[this.period] || 'all').toLowerCase() }) });
+      const showAll = empty.createEl('button', { cls: 'pdlh-link-btn', text: t('Show the whole day') });
       showAll.onclick = () => { this.period = 'all'; this.render(); };
       return;
     }
@@ -251,11 +253,12 @@ export class PDLHabitView extends ItemView {
     const group = plan.createDiv({ cls: 'pdlh-group' });
     const head = group.createDiv({ cls: `pdlh-group-head ${done === items.length ? 'is-complete' : ''}`.trim() });
     setIcon(head.createSpan({ cls: 'pdlh-group-icon' }), PERIOD_ICONS[period] || 'circle');
-    head.createEl('h4', { text: PERIODS[period] });
+    head.createEl('h4', { text: t(PERIODS[period]) });
     const count = head.createSpan({ cls: 'pdlh-group-count' });
     if (done === items.length) setIcon(count.createSpan({ cls: 'pdlh-group-check' }), 'check');
     count.createSpan({ text: `${done}/${items.length}` });
-    items.forEach((habit) => this.renderHabitRow(group, habit, key));
+    [...items].sort((a, b) => String(a.time || '99:99').localeCompare(String(b.time || '99:99')))
+      .forEach((habit) => this.renderHabitRow(group, habit, key));
   }
 
   renderHabitRow(group, habit, key) {
@@ -288,9 +291,16 @@ export class PDLHabitView extends ItemView {
     // "Did it" habits are binary: the check circle already tells the story.
     const binary = habit.direction === 'build' && habit.frequency !== 'weekly' && target === 1;
     const unit = habit.unit && habit.unit !== 'time' ? ` ${habit.unit}` : '';
-    if (state.skipped) metaChip(meta, 'bed', 'Planned rest', 'is-rest');
+    if (state.skipped) metaChip(meta, 'bed', t('Planned rest'), 'is-rest');
     else if (habit.direction === 'quit') metaChip(meta, 'gauge', `Limit ${target}${unit || ' time'}`);
-    else if (!binary) metaChip(meta, 'target', habit.frequency === 'weekly' ? `${value}/${target} this week` : `${value}/${target}${unit}`);
+    else if (!binary) {
+      const monthly = monthProgress(habit, key);
+      metaChip(meta, 'target', habit.frequency === 'weekly'
+        ? t('{value}/{target} this week', { value, target })
+        : habit.frequency === 'monthly'
+          ? t('{value}/{target} this month', { value: monthly.count, target: monthly.target })
+          : `${value}/${target}${unit}`);
+    }
     body.onclick = () => this.openDetail(habit);
 
     const trail = row.createDiv({ cls: 'pdlh-row-trail' });
@@ -326,29 +336,29 @@ export class PDLHabitView extends ItemView {
     const page = parent.createDiv({ cls: 'pdlh-page' });
 
     pageHead(page, {
-      eyebrow: 'Habits',
-      title: scope === 'archived' ? 'Archive' : 'All habits',
+      eyebrow: t('Habits'),
+      title: scope === 'archived' ? t('Archive') : t('All habits'),
       sub: [
         plural(active.length, 'active habit'),
         archived.length ? `${archived.length} archived` : ''
       ].filter(Boolean).join(' · '),
-      tools: (tools) => segmented(tools, SCOPES, scope, (id) => { this.habitScope = id; this.render(); }, 'Habit scope')
+      tools: (tools) => segmented(tools, scopeOptions(), scope, (id) => { this.habitScope = id; this.render(); }, t('Habit scope'))
     });
 
     if (!pool.length) {
       if (scope === 'archived') {
         emptyState(page, {
           icon: 'archive',
-          title: 'Nothing archived yet',
-          body: 'Habits past their end date, or archived by hand, wait here. Restoring keeps their history.',
+          title: t('Nothing archived yet'),
+          body: t('Habits past their end date, or archived by hand, wait here. Restoring keeps their history.'),
           compact: true
         });
       } else {
         emptyState(page, {
           icon: 'sprout',
-          title: 'No habits yet',
-          body: 'Start with one small action you can repeat tomorrow.',
-          actions: [{ label: 'New habit', icon: 'plus', primary: true, onClick: () => this.openHabitForm() }]
+          title: t('No habits yet'),
+          body: t('Start with one small action you can repeat tomorrow.'),
+          actions: [{ label: t('New habit'), icon: 'plus', primary: true, onClick: () => this.openHabitForm() }]
         });
       }
       return;
@@ -366,7 +376,7 @@ export class PDLHabitView extends ItemView {
     const search = toolbar.createDiv({ cls: 'pdlh-search' });
     setIcon(search.createSpan({ cls: 'pdlh-search-icon' }), 'search');
     const input = search.createEl('input', {
-      attr: { type: 'search', placeholder: 'Search habits', 'aria-label': 'Search habits', spellcheck: 'false' }
+      attr: { type: 'search', placeholder: t('Search habits'), 'aria-label': t('Search habits'), spellcheck: 'false' }
     });
     input.value = this.habitQuery;
     const clear = search.createEl('button', { cls: `pdlh-search-clear ${this.habitQuery ? '' : 'is-hidden'}`.trim(), attr: { 'aria-label': 'Clear search' } });
@@ -387,7 +397,7 @@ export class PDLHabitView extends ItemView {
 
     const categories = habitCategories(pool);
     const categorySelect = toolbar.createEl('select', { cls: 'pdlh-select', attr: { 'aria-label': 'Filter by category' } });
-    categorySelect.createEl('option', { value: 'all', text: 'All categories', attr: this.habitCategory === 'all' ? { selected: 'selected' } : {} });
+    categorySelect.createEl('option', { value: 'all', text: t('All categories'), attr: this.habitCategory === 'all' ? { selected: 'selected' } : {} });
     categories.forEach((category) => categorySelect.createEl('option', {
       value: category,
       text: category,
@@ -422,30 +432,30 @@ export class PDLHabitView extends ItemView {
 
     blockHead(
       host,
-      scope === 'archived' ? 'Archived' : 'All habits',
-      filtered.length === pool.length ? plural(pool.length, 'habit') : `${filtered.length} of ${plural(pool.length, 'habit')}`
+      scope === 'archived' ? t('Archived') : t('All habits'),
+      filtered.length === pool.length ? plural(pool.length, 'habit') : `${filtered.length}/${pool.length}`
     );
 
     if (!sorted.length) {
       emptyState(host, {
         icon: 'search',
-        title: 'No habits match',
+        title: t('No habits match'),
         body: 'Try another word, or clear the filters to see everything again.',
         compact: true,
-        actions: [{ label: 'Clear filters', onClick: () => { this.habitQuery = ''; this.habitCategory = 'all'; this.render(); } }]
+        actions: [{ label: t('Clear filters'), onClick: () => { this.habitQuery = ''; this.habitCategory = 'all'; this.render(); } }]
       });
       return;
     }
 
     const list = card(host, 'pdlh-list');
     const head = list.createDiv({ cls: 'pdlh-list-head' });
-    head.createSpan({ cls: 'pdlh-list-col', text: 'Habit' });
+    head.createSpan({ cls: 'pdlh-list-col', text: t('Habit') });
     const headDays = head.createSpan({ cls: 'pdlh-list-days' });
     keys.forEach((key) => headDays.createSpan({
       cls: key === isoDate() ? 'is-today' : '',
-      text: WEEKDAYS[parseDate(key).getDay()].slice(0, 2)
+      text: weekdayShort(parseDate(key).getDay())
     }));
-    head.createSpan({ cls: 'pdlh-list-col is-streak', text: 'Streak' });
+    head.createSpan({ cls: 'pdlh-list-col is-streak', text: t('Streak') });
     head.createSpan({ cls: 'pdlh-list-chevron', attr: { 'aria-hidden': 'true' } });
 
     if (this.habitSort === 'category') {
@@ -462,8 +472,8 @@ export class PDLHabitView extends ItemView {
     list.createEl('p', {
       cls: 'pdlh-list-foot',
       text: scope === 'archived'
-        ? 'Open a habit to restore it, or delete it for good.'
-        : 'Open a habit to edit it, archive it or see its history.'
+        ? t('Open a habit to restore it, or delete it for good.')
+        : t('Open a habit to edit it, archive it or see its history.')
     });
   }
 
@@ -487,8 +497,12 @@ export class PDLHabitView extends ItemView {
     copy.createSpan({
       cls: 'pdlh-list-meta',
       text: scope === 'archived'
-        ? `${isExpired(habit) ? `Expired ${habit.endDate}` : 'Archived by hand'} · ${stats.rate}% in 30 days`
-        : `${this.plugin.scheduleLabel(habit)} · ${PERIODS[habit.period]} · ${stats.rate}% in 30 days`
+        ? t(isExpired(habit) ? 'Expired {date}' : 'Archived by hand', { date: habit.endDate })
+        : t('{schedule} · {period} · {rate}% in 30 days', {
+          schedule: this.plugin.scheduleLabel(habit),
+          period: t(PERIODS[habit.period]),
+          rate: stats.rate
+        })
     });
 
     const days = row.createDiv({ cls: 'pdlh-list-days' });
@@ -505,7 +519,7 @@ export class PDLHabitView extends ItemView {
         ].filter(Boolean).join(' '),
         attr: {
           'aria-label': `${habit.title}, ${key}`,
-          title: `${shortDay(key)} · ${!scheduled ? 'not scheduled' : state.skipped ? 'Planned rest' : state.done ? `done (${state.value} ${habit.unit})` : 'not done yet'}`
+          title: `${shortDay(key)} · ${!scheduled ? t('not scheduled') : state.skipped ? t('Planned rest') : state.done ? `done (${state.value} ${habit.unit})` : 'not done yet'}`
         }
       });
       button.createSpan({ cls: 'pdlh-day-num', text: String(parseDate(key).getDate()) });
@@ -533,11 +547,11 @@ export class PDLHabitView extends ItemView {
     const page = parent.createDiv({ cls: 'pdlh-page' });
 
     pageHead(page, {
-      eyebrow: 'Calendar',
+      eyebrow: t('Calendar'),
       title: date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
       sub: summary.due
-        ? `${plural(summary.logged, 'day')} logged · ${summary.perfect} perfect · ${summary.rate}% complete`
-        : 'Nothing checked in yet this month.',
+        ? t('{days} logged · {perfect} perfect · {rate}% complete', { days: plural(summary.logged, 'day'), perfect: summary.perfect, rate: summary.rate })
+        : t('Nothing checked in yet this month.'),
       tools: (tools) => this.renderDateNav(tools, {
         isCurrent: year === new Date().getFullYear() && month === new Date().getMonth(),
         label: 'month',
@@ -550,7 +564,7 @@ export class PDLHabitView extends ItemView {
     const weekStart = this.plugin.settings.weekStartsOn;
     const weekHead = cal.createDiv({ cls: 'pdlh-cal-week' });
     for (let index = 0; index < 7; index += 1) {
-      weekHead.createSpan({ text: WEEKDAYS[(index + weekStart) % 7].slice(0, 2) });
+      weekHead.createSpan({ text: weekdayShort((index + weekStart) % 7) });
     }
 
     const grid = cal.createDiv({ cls: 'pdlh-cal-grid' });
@@ -571,7 +585,7 @@ export class PDLHabitView extends ItemView {
           due.length && done === due.length ? 'is-complete' : '',
           due.length ? '' : 'is-empty'
         ].filter(Boolean).join(' '),
-        attr: { 'aria-label': `${longDay(key)}, ${isFuture ? 'upcoming' : `${done} of ${due.length} complete`}` }
+        attr: { 'aria-label': `${longDay(key)}, ${isFuture ? t('upcoming') : `${done} of ${due.length} complete`}` }
       });
       cell.createSpan({ cls: 'pdlh-cal-num', text: String(day.getDate()) });
       if (due.length && !isFuture) {
@@ -582,7 +596,7 @@ export class PDLHabitView extends ItemView {
       cell.onclick = () => { this.selectedDate = key; this.mode = 'today'; this.render(); };
     });
 
-    cal.createEl('p', { cls: 'pdlh-cal-foot', text: 'Tap a day to open it in Today.' });
+    cal.createEl('p', { cls: 'pdlh-cal-foot', text: t('Tap a day to open it in Today.') });
   }
 
   /* -------------------------------------------------------------- Insights */
@@ -594,9 +608,9 @@ export class PDLHabitView extends ItemView {
     const page = parent.createDiv({ cls: 'pdlh-page' });
 
     pageHead(page, {
-      eyebrow: 'Insights',
-      title: 'Last 30 days',
-      sub: 'Consistency, not a scorecard of worth.'
+      eyebrow: t('Insights'),
+      title: t('Last 30 days'),
+      sub: t('Consistency, not a scorecard of worth.')
     });
 
     const statsRow = page.createDiv({ cls: 'pdlh-stats' });
@@ -604,9 +618,9 @@ export class PDLHabitView extends ItemView {
     const totals = stats.reduce((sum, item) => ({ due: sum.due + item.due, done: sum.done + item.done }), { due: 0, done: 0 });
     const rate = totals.due ? Math.round((totals.done / totals.due) * 100) : 0;
     [
-      [`${rate}%`, 'Completion', 'circle-check-big', `${totals.done}/${totals.due} check-ins`],
-      [String(window.perfect), 'Perfect days', 'sparkles', `of ${window.days} days`],
-      [String(window.rests), 'Planned rest', 'bed', 'streaks kept alive']
+      [`${rate}%`, t('Completion'), 'circle-check-big', t('{done}/{total} check-ins', { done: totals.done, total: totals.due })],
+      [String(window.perfect), t('Perfect days'), 'sparkles', t('of {n} days', { n: window.days })],
+      [String(window.rests), t('Planned rest'), 'bed', t('streaks kept alive')]
     ].forEach(([value, label, icon, note]) => {
       const tile = statsRow.createDiv({ cls: 'pdlh-stat' });
       setIcon(tile.createSpan({ cls: 'pdlh-stat-icon' }), icon);
@@ -617,12 +631,12 @@ export class PDLHabitView extends ItemView {
     });
 
     const bars = card(page, 'pdlh-bars');
-    blockHead(bars, 'Per habit', plural(habits.length, 'habit'));
+    blockHead(bars, t('Per habit'), plural(habits.length, 'habit'));
     if (!habits.length) {
       emptyState(bars, {
         icon: 'chart-no-axes-combined',
-        title: 'No habit data yet',
-        body: 'Add a habit and check in for a few days — the trend shows up here.',
+        title: t('No habit data yet'),
+        body: t('Add a habit and check in for a few days — the trend shows up here.'),
         compact: true
       });
     } else {
@@ -646,7 +660,7 @@ export class PDLHabitView extends ItemView {
         .map(([key, entry]) => ({ habit, key, note: entry.note })))
       .sort((a, b) => b.key.localeCompare(a.key))
       .slice(0, 8);
-    blockHead(reflections, 'Recent reflections', entries.length ? plural(entries.length, 'note') : '');
+    blockHead(reflections, t('Recent reflections'), entries.length ? plural(entries.length, 'note') : '');
     if (!entries.length) {
       reflections.createEl('p', { cls: 'pdlh-muted', text: 'Notes you add during a check-in show up here.' });
     } else {

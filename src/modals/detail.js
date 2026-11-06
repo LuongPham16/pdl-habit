@@ -1,4 +1,5 @@
 import { Modal, setIcon } from 'obsidian';
+import { t } from '../i18n.js';
 import { PERIODS, WEEKDAYS } from '../constants.js';
 import { addDays, isoDate, parseDate } from '../dates.js';
 import { completion, isActiveHabit, isScheduled, monthSummary } from '../habits.js';
@@ -8,11 +9,11 @@ import { ConfirmModal } from './confirm.js';
 import { HabitModal } from './habit.js';
 
 const LEGEND = [
-  ['is-done', 'Done'],
+  ['is-done', t('Done')],
   ['is-partial', 'Partial'],
   ['is-missed', 'Missed'],
   ['is-rest', 'Rest'],
-  ['is-today', 'Today']
+  ['is-today', t('Today')]
 ];
 
 export class HabitDetailModal extends Modal {
@@ -38,18 +39,18 @@ export class HabitDetailModal extends Modal {
     text.createEl('p', { text: habit.description || 'No description yet.' });
 
     const actions = head.createDiv({ cls: 'pdlh-detail-actions' });
-    const edit = iconButton(actions, 'pencil', 'Edit habit');
+    const edit = iconButton(actions, 'pencil', t('Edit habit'));
     edit.onclick = () => { this.close(); new HabitModal(this.app, this.plugin, habit).open(); };
     const archive = iconButton(actions, isActiveHabit(habit) ? 'archive' : 'archive-restore', isActiveHabit(habit) ? 'Archive habit' : 'Restore habit');
     archive.onclick = async () => { await this.plugin.setArchived(habit, isActiveHabit(habit)); this.close(); };
     const remove = iconButton(actions, 'trash-2', 'Delete habit', 'is-danger');
     remove.onclick = () => {
       this.close();
-      new ConfirmModal(this.app, 'Delete habit?', `“${habit.title}” and its check-in history will be moved to Trash.`, () => this.plugin.deleteHabit(habit)).open();
+      new ConfirmModal(this.app, t('Delete habit?'), `“${habit.title}” and its check-in history will be moved to Trash.`, () => this.plugin.deleteHabit(habit)).open();
     };
 
     const metrics = el.createDiv({ cls: 'pdlh-detail-metrics' });
-    [[stats.streak.current, 'Current streak'], [stats.streak.best, 'Best streak'], [`${stats.rate}%`, 'Last 30 days']].forEach(([value, label]) => {
+    [[stats.streak.current, t('Current streak')], [stats.streak.best, t('Best streak')], [`${stats.rate}%`, t('Last 30 days')]].forEach(([value, label]) => {
       const item = metrics.createDiv();
       item.createEl('strong', { text: String(value) });
       item.createSpan({ text: label });
@@ -57,12 +58,12 @@ export class HabitDetailModal extends Modal {
 
     const facts = el.createDiv({ cls: 'pdlh-detail-facts' });
     [
-      ['Category', habit.category],
-      ['Time', PERIODS[habit.period]],
-      ['Schedule', this.plugin.scheduleLabel(habit)],
-      ['Target', targetLabel(habit)],
-      ['Direction', habit.direction === 'quit' ? 'Limit behavior' : 'Build habit'],
-      ['Started', habit.startDate]
+      [t('Category'), habit.category],
+      [t('Time'), habit.time ? `${t(PERIODS[habit.period])} · ${habit.time}` : t(PERIODS[habit.period])],
+      [t('Schedule'), this.plugin.scheduleLabel(habit)],
+      [t('Target'), targetLabel(habit)],
+      [t('Direction'), habit.direction === 'quit' ? t('Limit behavior') : t('Build habit')],
+      [t('Started'), habit.startDate]
     ].forEach(([label, value]) => {
       const item = facts.createDiv();
       item.createSpan({ text: label });
@@ -75,14 +76,14 @@ export class HabitDetailModal extends Modal {
         const item = loop.createDiv();
         setIcon(item.createSpan(), 'bell-ring');
         const copy = item.createDiv();
-        copy.createSpan({ text: 'Cue' });
+        copy.createSpan({ text: t('Cue') });
         copy.createEl('strong', { text: habit.cue });
       }
       if (habit.reward) {
         const item = loop.createDiv();
         setIcon(item.createSpan(), 'gift');
         const copy = item.createDiv();
-        copy.createSpan({ text: 'Reward' });
+        copy.createSpan({ text: t('Reward') });
         copy.createEl('strong', { text: habit.reward });
       }
     }
@@ -109,14 +110,14 @@ export class HabitDetailModal extends Modal {
     title.createSpan({
       cls: 'pdlh-detail-month-meta',
       text: summary.due
-        ? `${summary.done}/${summary.due} done · ${summary.perfect} perfect ${summary.perfect === 1 ? 'day' : 'days'}`
-        : 'No scheduled days this month'
+        ? `${summary.done}/${summary.due} done · ${summary.perfect} perfect ${summary.perfect === 1 ? t('day') : t('days')}`
+        : t('No scheduled days this month')
     });
 
     const nav = head.createDiv({ cls: 'pdlh-date-nav' });
     const prev = iconButton(nav, 'chevron-left', 'Previous month');
     prev.onclick = () => { this.monthDate = new Date(year, month - 1, 1); this.renderMonth(); };
-    const today = nav.createEl('button', { cls: `pdlh-today-btn ${this.isCurrentMonth() ? 'is-current' : ''}`.trim(), text: 'Today', attr: { 'aria-label': 'Jump to this month' } });
+    const today = nav.createEl('button', { cls: `pdlh-today-btn ${this.isCurrentMonth() ? 'is-current' : ''}`.trim(), text: t('Today'), attr: { 'aria-label': 'Jump to this month' } });
     today.onclick = () => { this.monthDate = new Date(); this.renderMonth(); };
     const next = iconButton(nav, 'chevron-right', 'Next month');
     next.onclick = () => { this.monthDate = new Date(year, month + 1, 1); this.renderMonth(); };
@@ -151,16 +152,16 @@ export class HabitDetailModal extends Modal {
       }
 
       const status = !inMonth
-        ? 'outside this month'
+        ? t('outside this month')
         : !scheduled
-          ? 'not scheduled'
+          ? t('not scheduled')
           : state.skipped
-            ? 'planned rest'
+            ? t('planned rest')
             : state.done
               ? `done${habit.unit && habit.unit !== 'time' ? ` · ${state.value} ${habit.unit}` : ''}`
               : state.ratio > 0
                 ? `partial · ${state.value}`
-                : isFuture ? 'upcoming' : 'missed';
+                : isFuture ? t('upcoming') : t('missed');
 
       const cell = grid.createEl('button', {
         cls: classes.join(' '),
@@ -193,8 +194,10 @@ export class HabitDetailModal extends Modal {
 /** Human label for the "Target" fact: binary habits have no amount. */
 function targetLabel(habit) {
   const unit = habit.unit && habit.unit !== 'time' ? ` ${habit.unit}` : '';
-  if (habit.frequency === 'weekly') return `${habit.target} times per week`;
+  if (habit.frequency === 'weekly') return t('{n} times per week', { n: habit.target });
+  if (habit.frequency === 'monthly') return t('{n} times per month', { n: habit.target });
+  if (habit.frequency === 'interval') return t('Every {n} days', { n: habit.intervalDays || 1 });
   if (habit.direction === 'quit') return `max ${habit.target}${unit} per day`;
-  if (Number(habit.target) === 1) return 'Did it (once)';
+  if (Number(habit.target) === 1) return t('Did it (once)');
   return `${habit.target}${unit} per day`;
 }

@@ -11,6 +11,7 @@ import { HabitModal, HabitIconModal } from '../src/modals/habit.js';
 import { HabitDetailModal } from '../src/modals/detail.js';
 import { CheckinModal } from '../src/modals/checkin.js';
 import { toast } from '../src/ui.js';
+import { setLanguage } from '../src/i18n.js';
 
 const { } = installDom();
 
@@ -116,7 +117,8 @@ const DARK = {
 
 const css = fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf8');
 
-function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'active', emptyMonth = false, sort = 'title', query = '', category = 'all', toastMessage = '' }) {
+function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'active', emptyMonth = false, sort = 'title', query = '', category = 'all', toastMessage = '', lang = 'en' }) {
+  setLanguage(lang);
   const vars = theme === 'dark' ? DARK : LIGHT;
   const leaf = { app, containerEl: new El('div', { cls: 'workspace-leaf-content' }) };
   leaf.containerEl.setAttribute('data-type', 'pdlh-habit-dashboard');
@@ -212,7 +214,8 @@ buildPage({ mode: 'insights', file: 'insights-empty.html', habitList: [] });
 
 /* ------------------------------------------------------------ habit form */
 
-function buildHabitFormPage({ file, theme = 'light', patch = {}, moreOpen = false, habit = null }) {
+function buildHabitFormPage({ file, theme = 'light', patch = {}, moreOpen = false, habit = null, lang = 'en' }) {
+  setLanguage(lang);
   const vars = theme === 'dark' ? DARK : LIGHT;
   const modal = new HabitModal(app, plugin, habit);
   Object.assign(modal.draft, patch);
@@ -341,7 +344,8 @@ function monthHistory({ target }) {
   return history;
 }
 
-function buildDetailPage({ file, habit, theme = 'light', monthOffset = 0 }) {
+function buildDetailPage({ file, habit, theme = 'light', monthOffset = 0, lang = 'en' }) {
+  setLanguage(lang);
   const vars = theme === 'dark' ? DARK : LIGHT;
   const modal = new HabitDetailModal(app, plugin, habit);
   if (monthOffset) modal.monthDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
@@ -564,6 +568,14 @@ ${modal.contentEl.toHtml('')}
   fs.writeFileSync(path.join(ROOT, 'preview', file), page);
   console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
 }
+
+buildPage({ mode: 'today', file: 'today-vi.html', lang: 'vi' });
+buildPage({ mode: 'habits', file: 'habits-vi.html', lang: 'vi' });
+buildPage({ mode: 'calendar', file: 'calendar-vi.html', lang: 'vi' });
+buildPage({ mode: 'insights', file: 'insights-vi.html', lang: 'vi' });
+buildHabitFormPage({ file: 'habit-new-vi.html', lang: 'vi' });
+buildHabitFormPage({ file: 'habit-month-vi.html', lang: 'vi', patch: { name: 'Đọc sách', tracking: 'check', schedule: 'month', perMonth: 4, period: 'evening', icon: 'book-open', color: '#0891b2' } });
+buildDetailPage({ file: 'detail-vi.html', habit: waterHabit, lang: 'vi' });
 
 buildIconPickerPage({ file: 'icons.html' });
 buildIconPickerPage({ file: 'icons-dark.html', theme: 'dark' });

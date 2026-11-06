@@ -4,6 +4,7 @@
  * undo and reminders.
  */
 import { setIcon } from 'obsidian';
+import { t } from './i18n.js';
 
 /**
  * Page header: eyebrow, title, one-line summary, optional controls on the right.
@@ -105,7 +106,7 @@ export function toast({ message, actionLabel = '', onAction = null, icon = 'chec
     };
   }
 
-  const close = el.createEl('button', { cls: 'pdlh-toast-close', attr: { 'aria-label': 'Dismiss' } });
+  const close = el.createEl('button', { cls: 'pdlh-toast-close', attr: { 'aria-label': t('Dismiss') } });
   setIcon(close, 'x');
   close.onclick = dismiss;
 

@@ -17,6 +17,13 @@ export function isScheduled(habit, key) {
   if (habit.frequency === 'daily') return true;
   if (habit.frequency === 'weekdays') return habit.days.includes(date.getDay());
   if (habit.frequency === 'weekly') return true;
+  if (habit.frequency === 'monthly') return true;
+  if (habit.frequency === 'interval') {
+    const gap = Math.max(1, Number(habit.intervalDays) || 1);
+    const start = parseDate(habit.startDate) || date;
+    const days = Math.round((date - start) / 86400000);
+    return days >= 0 && days % gap === 0;
+  }
   return false;
 }
 
@@ -28,7 +35,8 @@ export function completion(habit, key) {
   const entry = habit.history[key];
   if (entryStatus(entry) === 'skip') return { ratio: 0, done: false, skipped: true, value: 0 };
   const value = entryValue(entry);
-  const target = habit.frequency === 'weekly' ? 1 : Math.max(1, habit.target);
+  const session = habit.frequency === 'weekly' || habit.frequency === 'monthly';
+  const target = session ? 1 : Math.max(1, habit.target);
   const ratio = clamp(value / target, 0, 1);
   return {
     ratio,
@@ -62,8 +70,17 @@ export function streakFor(habit, until = null) {
 
 /** Habits whose day is a simple yes/no: did it once, or N sessions per week. */
 export function isBinaryHabit(habit) {
-  if (habit.frequency === 'weekly') return true;
+  if (habit.frequency === 'weekly' || habit.frequency === 'monthly') return true;
   return habit.direction === 'build' && Math.max(1, Number(habit.target) || 1) <= 1;
+}
+
+/** Check-ins inside the calendar month that contains `key`. */
+export function monthProgress(habit, key) {
+  const date = parseDate(key);
+  const first = isoDate(new Date(date.getFullYear(), date.getMonth(), 1));
+  const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const count = dateRange(first, daysInMonth).filter((dateKey) => entryValue(habit.history[dateKey]) > 0).length;
+  return { count, target: Math.max(1, Number(habit.target) || 1) };
 }
 
 /** Check-ins inside the calendar week that contains `key`. */

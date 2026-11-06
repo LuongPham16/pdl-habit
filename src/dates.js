@@ -1,4 +1,5 @@
 /** Small date/string helpers shared by the view, the modals and the store. */
+import { currentLanguage, tp } from './i18n.js';
 
 export const pad = (value) => String(value).padStart(2, '0');
 
@@ -17,7 +18,10 @@ export const addDays = (value, amount) => {
 
 export const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value) || 0));
 
-export const plural = (value, one, many = `${one}s`) => `${value} ${value === 1 ? one : many}`;
+/** Pluralised count that also follows the interface language. */
+export const plural = (value, one, many = `${one}s`) => tp(value, one, many);
+
+const locale = () => (currentLanguage() === 'vi' ? 'vi-VN' : undefined);
 
 export const startOfWeek = (date, weekStartsOn) => {
   const result = new Date(date);
@@ -32,10 +36,10 @@ export const safeName = (value) => String(value || '').trim().replace(/[\\/:*?"<
 
 export const esc = (value) => String(value || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 
-export const longDay = (key) => parseDate(key)?.toLocaleDateString(undefined, {
+export const longDay = (key) => parseDate(key)?.toLocaleDateString(locale(), {
   weekday: 'long', month: 'long', day: 'numeric'
 }) || key;
 
-export const shortDay = (key) => parseDate(key)?.toLocaleDateString(undefined, {
+export const shortDay = (key) => parseDate(key)?.toLocaleDateString(locale(), {
   weekday: 'short', month: 'short', day: 'numeric'
 }) || key;

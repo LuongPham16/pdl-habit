@@ -1,7 +1,8 @@
 import { Modal, Setting } from 'obsidian';
+import { t } from '../i18n.js';
 
 export class ConfirmModal extends Modal {
-  constructor(app, title, message, confirm, label = 'Move to Trash') {
+  constructor(app, title, message, confirm, label = t('Move to Trash')) {
     super(app); this.title = title; this.message = message; this.confirm = confirm; this.label = label;
   }
 

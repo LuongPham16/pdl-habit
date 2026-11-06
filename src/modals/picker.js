@@ -1,4 +1,5 @@
 import { Modal } from 'obsidian';
+import { t } from '../i18n.js';
 import { isoDate } from '../dates.js';
 import { CheckinModal } from './checkin.js';
 
@@ -9,7 +10,7 @@ export class HabitModalPicker extends Modal {
 
   onOpen() {
     this.contentEl.addClass('pdlh-modal');
-    this.contentEl.createEl('h2', { text: 'Check in a habit' });
+    this.contentEl.createEl('h2', { text: t('Check in a habit') });
     const list = this.contentEl.createDiv({ cls: 'pdlh-picker' });
     this.habits.forEach((habit) => {
       const button = list.createEl('button');

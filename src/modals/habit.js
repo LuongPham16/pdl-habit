@@ -1,4 +1,5 @@
 import { Modal, Notice, setIcon } from 'obsidian';
+import { t } from '../i18n.js';
 import { HABIT_ICONS, ICON_NAMES, WEEKDAYS } from '../constants.js';
 import { setHabitIcon } from '../dom.js';
 import {
@@ -44,10 +45,10 @@ export class HabitModal extends Modal {
     const editing = Boolean(this.habit);
 
     const head = el.createDiv({ cls: 'pdlh-form-head' });
-    head.createEl('h2', { text: editing ? 'Edit habit' : 'New habit' });
+    head.createEl('h2', { text: editing ? t('Edit habit') : t('New habit') });
     head.createEl('p', {
       cls: 'pdlh-form-sub',
-      text: editing ? 'Change what you repeat, or how it is measured.' : 'Name it, choose how it counts, and you are done.'
+      text: editing ? t('Change what you repeat, or how it is measured.') : t('Name it, choose how it counts, and you are done.')
     });
 
     const form = el.createDiv({ cls: 'pdlh-form' });
@@ -61,10 +62,10 @@ export class HabitModal extends Modal {
 
   renderName(form) {
     const field = form.createDiv({ cls: 'pdlh-field' });
-    field.createEl('span', { cls: 'pdlh-field-label', text: 'Name' });
+    field.createEl('span', { cls: 'pdlh-field-label', text: t('Name') });
     const input = field.createEl('input', {
       cls: 'pdlh-name-input',
-      attr: { type: 'text', placeholder: 'e.g. Read 20 pages', 'aria-label': 'Habit name', spellcheck: 'false' }
+      attr: { type: 'text', placeholder: t('e.g. Read 20 pages'), 'aria-label': t('Habit name'), spellcheck: 'false' }
     });
     input.value = this.draft.name;
     input.oninput = () => { this.draft.name = input.value; this.syncSubmit(); };
@@ -74,56 +75,57 @@ export class HabitModal extends Modal {
 
   renderTracking(form) {
     const field = form.createDiv({ cls: 'pdlh-field' });
-    field.createEl('span', { cls: 'pdlh-field-label', text: 'Type' });
+    field.createEl('span', { cls: 'pdlh-field-label', text: t('Type') });
     // Weekly habits are sessions, so "Count" has no meaning there.
-    if (this.draft.schedule === 'week' && this.draft.tracking === 'count') this.draft.tracking = 'check';
-    const options = this.draft.schedule === 'week'
+    const session = this.draft.schedule === 'week' || this.draft.schedule === 'month';
+    if (session && this.draft.tracking === 'count') this.draft.tracking = 'check';
+    const options = session
       ? TRACKING_OPTIONS.filter(([id]) => id !== 'count')
       : TRACKING_OPTIONS;
     const group = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': 'Habit type' } });
     options.forEach(([id, label]) => {
       const active = this.draft.tracking === id;
-      const button = group.createEl('button', { cls: active ? 'is-active' : '', text: label, attr: { 'aria-pressed': String(active) } });
+      const button = group.createEl('button', { cls: active ? 'is-active' : '', text: t(label), attr: { 'aria-pressed': String(active) } });
       button.onclick = () => { this.draft.tracking = id; this.render(); };
     });
 
-    if (this.draft.schedule === 'week') {
-      field.createEl('p', { cls: 'pdlh-field-hint', text: 'Times-per-week habits are tracked as sessions, not amounts.' });
+    if (session) {
+      field.createEl('p', { cls: 'pdlh-field-hint', text: t('Session-based habits are counted as check-ins, not amounts.') });
       return;
     }
     if (this.draft.tracking === 'check') {
-      field.createEl('p', { cls: 'pdlh-field-hint', text: 'One tap marks it done — no amount needed.' });
+      field.createEl('p', { cls: 'pdlh-field-hint', text: t('One tap marks it done — no amount needed.') });
       return;
     }
 
     const row = field.createDiv({ cls: 'pdlh-form-inline' });
-    row.createEl('span', { cls: 'pdlh-inline-label', text: this.draft.tracking === 'limit' ? 'Max per day' : 'Amount per day' });
-    const amount = row.createEl('input', { cls: 'pdlh-number', attr: { type: 'number', min: '1', step: '1', 'aria-label': 'Amount' } });
+    row.createEl('span', { cls: 'pdlh-inline-label', text: this.draft.tracking === 'limit' ? t('Max per day') : t('Amount per day') });
+    const amount = row.createEl('input', { cls: 'pdlh-number', attr: { type: 'number', min: '1', step: '1', 'aria-label': t('Amount') } });
     amount.value = String(this.draft.target);
     amount.oninput = () => { this.draft.target = Math.max(1, Math.round(Number(amount.value) || 1)); };
-    const unit = row.createEl('input', { cls: 'pdlh-unit', attr: { type: 'text', placeholder: 'unit — pages, ly, phút', 'aria-label': 'Unit' } });
+    const unit = row.createEl('input', { cls: 'pdlh-unit', attr: { type: 'text', placeholder: t('unit — pages, ly, phút'), 'aria-label': 'Unit' } });
     unit.value = this.draft.unit === 'time' ? '' : this.draft.unit;
     unit.oninput = () => { this.draft.unit = unit.value; };
   }
 
   renderWhen(form) {
     const field = form.createDiv({ cls: 'pdlh-field' });
-    field.createEl('span', { cls: 'pdlh-field-label', text: 'When' });
+    field.createEl('span', { cls: 'pdlh-field-label', text: t('When') });
 
     const periods = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': 'Time of day' } });
     PERIOD_OPTIONS.forEach(([id, label]) => {
       const active = this.draft.period === id;
-      const button = periods.createEl('button', { cls: active ? 'is-active' : '', text: label, attr: { 'aria-pressed': String(active) } });
+      const button = periods.createEl('button', { cls: active ? 'is-active' : '', text: t(label), attr: { 'aria-pressed': String(active) } });
       button.onclick = () => { this.draft.period = id; this.render(); };
     });
 
-    const schedules = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': 'Schedule' } });
+    const schedules = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': t('Schedule') } });
     SCHEDULE_OPTIONS.forEach(([id, label]) => {
       const active = this.draft.schedule === id;
-      const button = schedules.createEl('button', { cls: active ? 'is-active' : '', text: label, attr: { 'aria-pressed': String(active) } });
+      const button = schedules.createEl('button', { cls: active ? 'is-active' : '', text: t(label), attr: { 'aria-pressed': String(active) } });
       button.onclick = () => {
         this.draft.schedule = id;
-        if (id === 'week' && this.draft.tracking === 'count') this.draft.tracking = 'check';
+        if ((id === 'week' || id === 'month') && this.draft.tracking === 'count') this.draft.tracking = 'check';
         this.render();
       };
     });
@@ -140,21 +142,31 @@ export class HabitModal extends Modal {
       });
     }
 
-    if (this.draft.schedule === 'week') {
+    const countRow = (label, value, min, max, apply) => {
       const row = field.createDiv({ cls: 'pdlh-form-inline' });
-      row.createEl('span', { cls: 'pdlh-inline-label', text: 'Times per week' });
-      const count = row.createEl('input', { cls: 'pdlh-number', attr: { type: 'number', min: '1', max: '7', step: '1', 'aria-label': 'Times per week' } });
-      count.value = String(this.draft.perWeek);
-      count.oninput = () => { this.draft.perWeek = Math.min(7, Math.max(1, Math.round(Number(count.value) || 1))); };
-    }
+      row.createEl('span', { cls: 'pdlh-inline-label', text: label });
+      const input = row.createEl('input', { cls: 'pdlh-number', attr: { type: 'number', min: String(min), max: String(max), step: '1', 'aria-label': label } });
+      input.value = String(value);
+      input.oninput = () => apply(Math.min(max, Math.max(min, Math.round(Number(input.value) || min))));
+    };
+
+    if (this.draft.schedule === 'week') countRow(t('Times per week'), this.draft.perWeek, 1, 7, (n) => { this.draft.perWeek = n; });
+    if (this.draft.schedule === 'month') countRow(t('Times per month'), this.draft.perMonth, 1, 31, (n) => { this.draft.perMonth = n; });
+    if (this.draft.schedule === 'interval') countRow(t('Every N days'), this.draft.intervalDays, 1, 365, (n) => { this.draft.intervalDays = n; });
+
+    const timeRow = field.createDiv({ cls: 'pdlh-form-inline' });
+    timeRow.createEl('span', { cls: 'pdlh-inline-label', text: t('at (optional)') });
+    const time = timeRow.createEl('input', { cls: 'pdlh-input pdlh-time', attr: { type: 'time', 'aria-label': t('at (optional)') } });
+    time.value = this.draft.time || '';
+    time.oninput = () => { this.draft.time = time.value; };
   }
 
   renderLook(form) {
     const field = form.createDiv({ cls: 'pdlh-field' });
-    field.createEl('span', { cls: 'pdlh-field-label', text: 'Look' });
+    field.createEl('span', { cls: 'pdlh-field-label', text: t('Look') });
     const row = field.createDiv({ cls: 'pdlh-look-row' });
 
-    const picker = row.createEl('button', { cls: 'pdlh-icon-pick', attr: { 'aria-label': 'Choose an icon' } });
+    const picker = row.createEl('button', { cls: 'pdlh-icon-pick', attr: { 'aria-label': t('Choose an icon') } });
     picker.style.setProperty('--habit-color', this.draft.color);
     const mark = picker.createSpan({ cls: 'pdlh-icon-pick-mark' });
     setHabitIcon(mark, this.draft.icon);
@@ -169,7 +181,7 @@ export class HabitModal extends Modal {
     const color = row.createDiv({ cls: 'pdlh-color-pick' });
     const input = color.createEl('input', {
       cls: 'pdlh-color-input',
-      attr: { type: 'color', 'aria-label': 'Habit colour', title: 'Pick any colour' }
+      attr: { type: 'color', 'aria-label': 'Habit colour', title: t('Pick any colour') }
     });
     input.value = this.draft.color;
     const hex = color.createSpan({ cls: 'pdlh-color-hex', text: String(this.draft.color).toUpperCase() });
@@ -188,46 +200,46 @@ export class HabitModal extends Modal {
     const toggle = more.createEl('button', { cls: 'pdlh-more-toggle', attr: { 'aria-expanded': String(this.moreOpen) } });
     setIcon(toggle.createSpan({ cls: 'pdlh-more-caret' }), this.moreOpen ? 'chevron-down' : 'chevron-right');
     const set = advancedCount(this.draft);
-    toggle.createSpan({ text: set ? `More options · ${set} set` : 'More options' });
+    toggle.createSpan({ text: set ? `More options · ${set} set` : t('More options') });
     toggle.onclick = () => { this.moreOpen = !this.moreOpen; this.render(); };
 
     const body = more.createDiv({ cls: 'pdlh-more-body' });
-    body.createEl('p', { cls: 'pdlh-field-hint', text: 'Optional. Description, category, cue, reward and dates.' });
+    body.createEl('p', { cls: 'pdlh-field-hint', text: t('Optional. Description, category, cue, reward and dates.') });
 
     const description = body.createDiv({ cls: 'pdlh-field' });
-    description.createEl('span', { cls: 'pdlh-field-label', text: 'Description' });
-    const descriptionInput = description.createEl('textarea', { cls: 'pdlh-textarea', attr: { rows: '2', placeholder: 'Why this matters' } });
+    description.createEl('span', { cls: 'pdlh-field-label', text: t('Description') });
+    const descriptionInput = description.createEl('textarea', { cls: 'pdlh-textarea', attr: { rows: '2', placeholder: t('Why this matters') } });
     descriptionInput.value = this.draft.description;
     descriptionInput.oninput = () => { this.draft.description = descriptionInput.value; };
 
     const category = body.createDiv({ cls: 'pdlh-field' });
-    category.createEl('span', { cls: 'pdlh-field-label', text: 'Category' });
-    const categoryInput = category.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'Health, Learning, Mindfulness', 'aria-label': 'Category' } });
+    category.createEl('span', { cls: 'pdlh-field-label', text: t('Category') });
+    const categoryInput = category.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: t('Health, Learning, Mindfulness'), 'aria-label': t('Category') } });
     categoryInput.value = this.draft.category;
     categoryInput.oninput = () => { this.draft.category = categoryInput.value; };
 
     const loop = body.createDiv({ cls: 'pdlh-form-grid' });
     const cue = loop.createDiv({ cls: 'pdlh-field' });
-    cue.createEl('span', { cls: 'pdlh-field-label', text: 'Cue' });
-    const cueInput = cue.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'After morning coffee', 'aria-label': 'Cue' } });
+    cue.createEl('span', { cls: 'pdlh-field-label', text: t('Cue') });
+    const cueInput = cue.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: t('After morning coffee'), 'aria-label': t('Cue') } });
     cueInput.value = this.draft.cue;
     cueInput.oninput = () => { this.draft.cue = cueInput.value; };
 
     const reward = loop.createDiv({ cls: 'pdlh-field' });
-    reward.createEl('span', { cls: 'pdlh-field-label', text: 'Reward' });
-    const rewardInput = reward.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: 'A favourite song', 'aria-label': 'Reward' } });
+    reward.createEl('span', { cls: 'pdlh-field-label', text: t('Reward') });
+    const rewardInput = reward.createEl('input', { cls: 'pdlh-input', attr: { type: 'text', placeholder: t('A favourite song'), 'aria-label': t('Reward') } });
     rewardInput.value = this.draft.reward;
     rewardInput.oninput = () => { this.draft.reward = rewardInput.value; };
 
     const dates = body.createDiv({ cls: 'pdlh-form-grid' });
     const start = dates.createDiv({ cls: 'pdlh-field' });
-    start.createEl('span', { cls: 'pdlh-field-label', text: 'Starts' });
+    start.createEl('span', { cls: 'pdlh-field-label', text: t('Starts') });
     const startInput = start.createEl('input', { cls: 'pdlh-input', attr: { type: 'date', 'aria-label': 'Start date' } });
     startInput.value = this.draft.startDate;
     startInput.oninput = () => { this.draft.startDate = startInput.value; };
 
     const end = dates.createDiv({ cls: 'pdlh-field' });
-    end.createEl('span', { cls: 'pdlh-field-label', text: 'Ends (optional)' });
+    end.createEl('span', { cls: 'pdlh-field-label', text: t('Ends (optional)') });
     const endInput = end.createEl('input', { cls: 'pdlh-input', attr: { type: 'date', 'aria-label': 'End date' } });
     endInput.value = this.draft.endDate;
     endInput.oninput = () => { this.draft.endDate = endInput.value; };
@@ -235,11 +247,11 @@ export class HabitModal extends Modal {
 
   renderFoot(el) {
     const foot = el.createDiv({ cls: 'pdlh-form-foot' });
-    foot.createSpan({ cls: 'pdlh-form-hint', text: 'Enter saves · Esc closes' });
+    foot.createSpan({ cls: 'pdlh-form-hint', text: t('Enter saves · Esc closes') });
     const actions = foot.createDiv({ cls: 'pdlh-form-actions' });
-    const cancel = actions.createEl('button', { cls: 'pdlh-ghost-btn', text: 'Cancel' });
+    const cancel = actions.createEl('button', { cls: 'pdlh-ghost-btn', text: t('Cancel') });
     cancel.onclick = () => this.close();
-    const submit = actions.createEl('button', { cls: 'pdlh-primary', text: this.habit ? 'Save changes' : 'Create habit' });
+    const submit = actions.createEl('button', { cls: 'pdlh-primary', text: this.habit ? t('Save changes') : t('Create habit') });
     submit.onclick = () => this.submit();
     this.submitButton = submit;
     this.syncSubmit();
@@ -287,11 +299,11 @@ export class HabitIconModal extends Modal {
   render() {
     const el = this.contentEl;
     el.empty();
-    el.createEl('h2', { text: 'Choose an icon' });
+    el.createEl('h2', { text: t('Choose an icon') });
     el.createEl('p', { cls: 'pdlh-modal-copy', text: `${ICON_NAMES.length} icons organized by purpose.` });
     const search = el.createDiv({ cls: 'pdlh-icon-search' });
     setIcon(search.createSpan(), 'search');
-    const input = search.createEl('input', { attr: { type: 'search', placeholder: 'Search icon name', 'aria-label': 'Search icons' } });
+    const input = search.createEl('input', { attr: { type: 'search', placeholder: t('Search icon name'), 'aria-label': 'Search icons' } });
     input.value = this.query;
     const groups = el.createDiv({ cls: 'pdlh-icon-groups' });
     input.oninput = () => { this.query = input.value.toLowerCase().trim(); this.renderGroups(groups); };
@@ -316,7 +328,7 @@ export class HabitIconModal extends Modal {
         button.onclick = () => { this.onSelect(icon); this.close(); };
       });
     });
-    if (!found) parent.createEl('p', { cls: 'pdlh-muted', text: 'No matching icons.' });
+    if (!found) parent.createEl('p', { cls: 'pdlh-muted', text: t('No matching icons.') });
   }
 
   onClose() { this.contentEl.empty(); }

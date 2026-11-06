@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.10.0 — Vietnamese interface and flexible schedules
+
+- **Vietnamese UI.** A language setting (Auto / English / Tiếng Việt) now drives every
+  label: tabs, page headers, the habit form, the check-in sheet, the detail sheet,
+  insights, calendar, settings, reminders, toasts and notices. *Auto* follows the
+  Obsidian interface language. About 200 strings have a Vietnamese translation;
+  anything untranslated falls back to English.
+- **Three new schedule types**, on top of daily / selected days / times per week:
+  - **Times per month** — e.g. clean the house 4× a month,
+  - **Every N days** — e.g. water the plants every 3 days, cut hair every 28 days
+    (anchored to the habit's start date),
+  - **A specific time** ("lúc 7:30") on top of the Morning / Afternoon / Evening /
+    Afternoon bucket; Today sorts each group by that time.
+- Monthly habits are counted as sessions (one check-in per day, target per month);
+  the detail sheet reads their target as "4 lần mỗi tháng".
+- Tests cover interval scheduling, monthly sessions and month progress.
+
 ## 1.9.1 — text encoding repair
 
 - **Fixed a stray accent in the interface.** Several source files had been saved

@@ -4,6 +4,7 @@
  * per day while the app is open, inside a short window after the chosen time.
  */
 import { isoDate } from './dates.js';
+import { t } from './i18n.js';
 
 export const DEFAULT_REMINDERS = { enabled: false, time: '20:00' };
 
@@ -29,8 +30,8 @@ export function reminderDue({ enabled = false, time = '20:00', lastReminder = ''
 
 /** One-line nudge that matches the numbers in Today. */
 export function reminderText({ remaining = 0, total = 0 } = {}) {
-  if (!total) return 'No habits scheduled today — a good day to add one.';
-  if (remaining <= 0) return 'Day complete — everything is checked off.';
+  if (!total) return t('No habits scheduled today — a good day to add one.');
+  if (remaining <= 0) return t('Day complete — everything is checked off.');
   if (remaining === 1) return '1 habit left today. Still time for a small win.';
-  return `${remaining} habits left today. Still time for a small win.`;
+  return t('{n} habits left today. Still time for a small win.', { n: remaining });
 }

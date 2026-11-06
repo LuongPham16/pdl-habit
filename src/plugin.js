@@ -1,9 +1,11 @@
 import { Plugin, Notice, normalizePath } from 'obsidian';
+import { t } from './i18n.js';
 import { DEFAULT_SETTINGS, VIEW_TYPE, VIEW_IDS, PERIODS, COLORS, WEEKDAYS } from './constants.js';
 import { isoDate, addDays, parseDate, startOfWeek, safeName, esc } from './dates.js';
 import { completion, daySummary, entryValue, isActiveHabit, isScheduled, normalizeHistory, scheduledKeys, streakFor } from './habits.js';
 import { DEFAULT_REMINDERS, reminderDue, reminderText } from './reminders.js';
 import { toast } from './ui.js';
+import { resolveLanguage, setLanguage, weekdayShort } from './i18n.js';
 import { PDLHabitView } from './view.js';
 import { PDLHabitSettingTab } from './settings.js';
 import { HabitModal } from './modals/habit.js';
@@ -15,15 +17,16 @@ export class PDLHabitPlugin extends Plugin {
     // Archive is a scope inside Habits now; older settings may still point at it.
     if (!VIEW_IDS.includes(this.settings.defaultView)) this.settings.defaultView = 'today';
     this.settings.reminders = { ...DEFAULT_REMINDERS, ...(this.settings.reminders || {}) };
+    setLanguage(resolveLanguage(this.settings.language));
     await this.ensureRoot();
     this.registerView(VIEW_TYPE, (leaf) => new PDLHabitView(leaf, this));
     this.addSettingTab(new PDLHabitSettingTab(this.app, this));
     this.addRibbonIcon('sprout', 'Open PDL Habit', () => this.activateView());
-    this.addCommand({ id: 'open-dashboard', name: 'Open habit dashboard', callback: () => this.activateView() });
-    this.addCommand({ id: 'create-habit', name: 'Create habit', callback: () => new HabitModal(this.app, this).open() });
+    this.addCommand({ id: 'open-dashboard', name: t('Open habit dashboard'), callback: () => this.activateView() });
+    this.addCommand({ id: 'create-habit', name: t('Create habit'), callback: () => new HabitModal(this.app, this).open() });
     this.addCommand({
       id: 'check-in-habit',
-      name: 'Check in a habit',
+      name: t('Check in a habit'),
       callback: async () => {
         const habits = (await this.scanHabits()).filter((habit) => isScheduled(habit, isoDate()) && !habit.archived);
         if (!habits.length) return new Notice('No habits are scheduled today.');
@@ -41,6 +44,14 @@ export class PDLHabitPlugin extends Plugin {
   onunload() { if (this.refreshTimer) clearTimeout(this.refreshTimer); }
 
   async saveSettings() { await this.saveData(this.settings); }
+
+  /** Language change: persist, then re-render every open view and the settings tab. */
+  async setLanguageSetting(value) {
+    this.settings.language = value;
+    setLanguage(resolveLanguage(value));
+    await this.saveSettings();
+    await this.refreshViews();
+  }
 
   /* ----------------------------------------------------------- reminders */
 
@@ -70,7 +81,7 @@ export class PDLHabitPlugin extends Plugin {
     toast({
       icon: 'bell',
       message: reminderText(summary),
-      actionLabel: 'Open today',
+      actionLabel: t('Open today'),
       onAction: () => this.openDay(today),
       timeout: 12000
     });
@@ -84,7 +95,7 @@ export class PDLHabitPlugin extends Plugin {
     toast({
       icon: 'bell',
       message: summary.remaining > 0 ? reminderText(summary) : 'Sample reminder: 3 habits left today.',
-      actionLabel: 'Open today',
+      actionLabel: t('Open today'),
       onAction: () => this.openDay(),
       timeout: 12000
     });
@@ -126,11 +137,13 @@ export class PDLHabitPlugin extends Plugin {
   }
 
   scheduleLabel(habit) {
-    if (habit.frequency === 'daily') return 'Every day';
-    if (habit.frequency === 'weekly') return `${habit.target} / week`;
+    if (habit.frequency === 'daily') return t('Every day');
+    if (habit.frequency === 'weekly') return t('{n} / week', { n: habit.target });
+    if (habit.frequency === 'monthly') return t('{n} / month', { n: habit.target });
+    if (habit.frequency === 'interval') return t('Every {n} days', { n: habit.intervalDays || 1 });
     const days = Array.isArray(habit.days) ? habit.days : [];
-    if (!days.length) return 'Selected days';
-    return [...days].sort((a, b) => a - b).map((day) => WEEKDAYS[day]).join(', ');
+    if (!days.length) return t('Selected days');
+    return [...days].sort((a, b) => a - b).map((day) => weekdayShort(day)).join(', ');
   }
 
   async scanHabits() {
@@ -150,6 +163,8 @@ export class PDLHabitPlugin extends Plugin {
         direction: fm.direction === 'quit' ? 'quit' : 'build',
         frequency: ['daily', 'weekdays', 'weekly'].includes(fm.frequency) ? fm.frequency : 'daily',
         days: Array.isArray(fm.days) ? fm.days.map(Number) : [1, 2, 3, 4, 5],
+        time: String(fm.time || ''),
+        intervalDays: Math.max(0, Number(fm.interval_days) || 0),
         target: Math.max(1, Number(fm.target) || 1),
         unit: String(fm.unit || 'time'),
         icon: String(fm.icon || 'sprout'),
@@ -167,6 +182,15 @@ export class PDLHabitPlugin extends Plugin {
 
   statsFor(habit, days = 30) {
     const keys = scheduledKeys(habit, addDays(isoDate(), -days + 1), isoDate());
+    if (habit.frequency === 'monthly') {
+      const months = new Set();
+      keys.forEach((key) => months.add(key.slice(0, 7)));
+      const doneMonths = [...months].filter((month) => {
+        const count = Object.keys(habit.history).filter((key) => key.startsWith(month) && entryValue(habit.history[key]) > 0).length;
+        return count >= habit.target;
+      }).length;
+      return { due: months.size, done: doneMonths, rate: months.size ? Math.round((doneMonths / months.size) * 100) : 0, streak: streakFor(habit) };
+    }
     if (habit.frequency !== 'weekly') {
       const done = keys.filter((key) => completion(habit, key).done).length;
       return { due: keys.length, done, rate: keys.length ? Math.round(done / keys.length * 100) : 0, streak: streakFor(habit) };
@@ -198,6 +222,8 @@ export class PDLHabitPlugin extends Plugin {
         `direction: ${value.direction}`,
         `frequency: ${value.frequency}`,
         `days: [${value.days.join(', ')}]`,
+        `time: "${esc(value.time || '')}"`,
+        `interval_days: ${Math.max(0, Number(value.intervalDays) || 0)}`,
         `target: ${Math.max(1, Number(value.target) || 1)}`,
         `unit: "${esc(value.unit)}"`,
         `icon: "${value.icon || 'sprout'}"`,
@@ -230,6 +256,8 @@ export class PDLHabitPlugin extends Plugin {
         direction: value.direction,
         frequency: value.frequency,
         days: value.days,
+        time: value.time || '',
+        interval_days: Math.max(0, Number(value.intervalDays) || 0),
         target: Math.max(1, Number(value.target) || 1),
         unit: value.unit,
         icon: value.icon || 'sprout',
@@ -241,7 +269,7 @@ export class PDLHabitPlugin extends Plugin {
       }));
     }
     await this.refreshViews();
-    new Notice(existing ? 'Habit updated.' : `Created ${value.title}`);
+    new Notice(existing ? t('Habit updated.') : `Created ${value.title}`);
   }
 
   async checkIn(habit, key, value, note = '', status = '') {
@@ -279,11 +307,11 @@ export class PDLHabitPlugin extends Plugin {
     toast({
       icon,
       message,
-      actionLabel: 'Undo',
+      actionLabel: t('Undo'),
       timeout: 8000,
       onAction: async () => {
         await this.restoreCheckin(habit, key, previous);
-        new Notice('Check-in restored.');
+        new Notice(t('Check-in restored.'));
       }
     });
   }
@@ -302,7 +330,7 @@ export class PDLHabitPlugin extends Plugin {
       if (!archived && fm.end_date && String(fm.end_date) < isoDate()) fm.end_date = null;
     });
     await this.refreshViews();
-    new Notice(archived ? 'Habit archived.' : 'Habit restored.');
+    new Notice(archived ? t('Habit archived.') : t('Habit restored.'));
   }
 
   async deleteHabit(habit) {

@@ -112,7 +112,7 @@ habitsScreen.view.renderHabitResults();
 const searched = habitsScreen.containerEl.toHtml('');
 assert.equal(searched.includes('No Fap'), true, 'search keeps the matching habit');
 assert.equal(searched.includes('Chườm đá'), false, 'search hides non-matching habits');
-assert.equal(searched.includes('1 of 3 habits'), true, 'the block head reports the filtered count');
+assert.equal(searched.includes('1/3'), true, 'the block head reports the filtered count');
 
 // Sorting by category groups the rows under category headers.
 habitsScreen.view.habitQuery = '';

@@ -1,4 +1,5 @@
 import { Modal, setIcon } from 'obsidian';
+import { t } from '../i18n.js';
 import { shortDay } from '../dates.js';
 import { completion, entryValue, isBinaryHabit } from '../habits.js';
 import { clampStepper } from '../habit-form.js';
@@ -53,9 +54,9 @@ export class CheckinModal extends Modal {
 
   renderStatus(parent) {
     const field = parent.createDiv({ cls: 'pdlh-field' });
-    field.createEl('span', { cls: 'pdlh-field-label', text: 'Status' });
-    const group = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': 'Status' } });
-    [['done', 'Done'], ['missed', 'Not done']].forEach(([id, label]) => {
+    field.createEl('span', { cls: 'pdlh-field-label', text: t('Status') });
+    const group = field.createDiv({ cls: 'pdlh-choice', attr: { role: 'group', 'aria-label': t('Status') } });
+    [['done', t('Done')], [t('missed'), t('Not done')]].forEach(([id, label]) => {
       const active = id === 'done' ? this.done : !this.done;
       const button = group.createEl('button', { cls: active ? 'is-active' : '', text: label, attr: { 'aria-pressed': String(active) } });
       button.onclick = () => { this.done = id === 'done'; this.render(); };
@@ -72,13 +73,13 @@ export class CheckinModal extends Modal {
     field.createEl('span', { cls: 'pdlh-field-label', text: `Amount${unit ? ` (${habit.unit})` : ''}` });
 
     const row = field.createDiv({ cls: 'pdlh-stepper' });
-    const minus = row.createEl('button', { cls: 'pdlh-stepper-btn', attr: { 'aria-label': 'Decrease' } });
+    const minus = row.createEl('button', { cls: 'pdlh-stepper-btn', attr: { 'aria-label': t('Decrease') } });
     setIcon(minus, 'minus');
     const input = row.createEl('input', {
       cls: 'pdlh-stepper-input',
-      attr: { type: 'number', min: '0', max: '99', step: '1', inputmode: 'numeric', 'aria-label': 'Amount' }
+      attr: { type: 'number', min: '0', max: '99', step: '1', inputmode: 'numeric', 'aria-label': t('Amount') }
     });
-    const plus = row.createEl('button', { cls: 'pdlh-stepper-btn', attr: { 'aria-label': 'Increase' } });
+    const plus = row.createEl('button', { cls: 'pdlh-stepper-btn', attr: { 'aria-label': t('Increase') } });
     setIcon(plus, 'plus');
 
     const hint = field.createEl('p', { cls: 'pdlh-stepper-hint' });
@@ -121,10 +122,10 @@ export class CheckinModal extends Modal {
 
   renderNote(parent) {
     const field = parent.createDiv({ cls: 'pdlh-field' });
-    field.createEl('span', { cls: 'pdlh-field-label', text: 'Note (optional)' });
+    field.createEl('span', { cls: 'pdlh-field-label', text: t('Note (optional)') });
     const note = field.createEl('textarea', {
       cls: 'pdlh-textarea',
-      attr: { rows: '2', placeholder: 'What helped or got in the way?', 'aria-label': 'Note' }
+      attr: { rows: '2', placeholder: t('What helped or got in the way?'), 'aria-label': 'Note' }
     });
     note.value = this.note;
     note.oninput = () => { this.note = note.value; };
@@ -134,15 +135,15 @@ export class CheckinModal extends Modal {
     const foot = el.createDiv({ cls: 'pdlh-checkin-foot' });
     const actions = foot.createDiv({ cls: 'pdlh-checkin-actions' });
 
-    const rest = actions.createEl('button', { cls: 'pdlh-ghost-btn', text: 'Planned rest' });
+    const rest = actions.createEl('button', { cls: 'pdlh-ghost-btn', text: t('Planned rest') });
     rest.onclick = () => this.apply(`Planned rest saved for ${this.habit.title}`, () => this.plugin.checkIn(this.habit, this.key, 0, this.note, 'skip'));
 
     if (this.hasEntry) {
-      const clear = actions.createEl('button', { cls: 'pdlh-ghost-btn', text: 'Clear' });
+      const clear = actions.createEl('button', { cls: 'pdlh-ghost-btn', text: t('Clear') });
       clear.onclick = () => this.apply(`Check-in cleared for ${this.habit.title}`, () => this.plugin.clearCheckin(this.habit, this.key));
     }
 
-    const save = actions.createEl('button', { cls: 'pdlh-primary', text: 'Save' });
+    const save = actions.createEl('button', { cls: 'pdlh-primary', text: t('Save') });
     save.onclick = () => this.submit();
     this.saveButton = save;
     this.syncSave();

@@ -1,4 +1,4 @@
-# PDL Habit v1.9
+# PDL Habit v1.10
 
 PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một note độc lập; check-in được lưu trong frontmatter `history`, vì vậy dữ liệu vẫn đọc được khi plugin không hoạt động.
 
@@ -32,6 +32,26 @@ Form chỉ còn **4 quyết định**, tất cả trên một màn hình:
 Phím tắt: **Enter** lưu, **Esc** đóng, **⌘/Ctrl + Enter** lưu từ bất kỳ ô nào. Nút *Create habit* bị mờ cho tới khi có tên; footer luôn dính đáy nên không phải cuộn tìm nút.
 
 Với habit "Did it", danh sách Today không còn hiện chip `0/1 time` vô nghĩa — vòng tròn check đã đủ nói. Trang chi tiết hiển thị Target là *Did it (once)*.
+
+## Ngôn ngữ và lịch linh hoạt (v1.10)
+
+### Ngôn ngữ
+
+**Settings → PDL Habit → Language**: `Auto` (theo ngôn ngữ Obsidian), `English` hoặc `Tiếng Việt`. Đổi xong giao diện cập nhật ngay, không cần khởi động lại. Khoảng 200 chuỗi đã có bản tiếng Việt; chuỗi nào chưa dịch sẽ hiện tiếng Anh.
+
+### Năm kiểu lịch
+
+| Kiểu | Dùng khi | Ví dụ |
+|---|---|---|
+| **Mỗi ngày** | việc hằng ngày | uống thuốc |
+| **Ngày chọn** | vài thứ cố định | gym thứ 2/4/6 |
+| **Số lần mỗi tuần** | linh hoạt trong tuần | tập 3 buổi/tuần |
+| **Số lần mỗi tháng** | mục tiêu tháng | dọn nhà 4 lần/tháng |
+| **Mỗi N ngày** | chu kỳ đều | tưới cây 3 ngày/lần, cắt tóc 28 ngày/lần |
+
+Hai kiểu "số lần" tính theo **buổi** (mỗi ngày chỉ cần 1 lần ghi nhận, mục tiêu tính theo tuần/tháng). Kiểu "mỗi N ngày" neo vào **ngày bắt đầu** của habit.
+
+Ngoài 4 buổi (sáng/chiều/tối/bất kỳ lúc nào), form có thêm ô **"lúc (không bắt buộc)"** để đặt giờ cụ thể; trong Today, các habit cùng buổi được sắp theo giờ này.
 
 ## Check-in một ngày (v1.8)
 
