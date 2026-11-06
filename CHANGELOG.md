@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.12.0 - deeper insights
+
+- **Range switch (7 / 30 / 90 days)** at the top of Insights; every card below
+  recomputes for that window.
+- **Completion trend**: an SVG line + area chart of the daily completion ratio, with
+  a baseline and a dot on the newest day. Leading days with nothing scheduled are
+  skipped so the line does not sit on zero.
+- **By weekday**: completion per day of the week (start day follows the week-start
+  setting), so a Friday slump is visible at a glance.
+- **By category**: completion grouped by habit category, best first.
+- **Losing momentum**: habits whose completion in the newer half of the window is at
+  least 10 points lower than in the older half, worst first, with both rates.
+- New helpers in src/habits.js (dayRates, weekdayRates, categoryRates, momentum),
+  covered by four tests (49 total).
+
 ## 1.11.0 - command palette shortcuts and starter habits
 
 - **Quick add a habit** from the palette: type a name, press Enter, done (daily,

@@ -5,7 +5,8 @@ import { addDays, isoDate, longDay, parseDate, plural, shortDay } from './dates.
 import {
   bestCurrentStreak, completion, daySummary, dueHabits, filterHabits, groupHabitsByCategory,
   habitCategories, isActiveHabit, isExpired, isScheduled, monthSummary, pickFocus, sortHabits,
-  SORT_MODES, monthProgress, streakFor, weekCheckins, weekDone, weekOverview, weekProgress, windowStats
+  SORT_MODES, categoryRates, dayRates, momentum, monthProgress, streakFor, weekCheckins, weekDone,
+  weekOverview, weekProgress, weekdayRates, windowStats
 } from './habits.js';
 import { iconButton, metaChip, setHabitIcon } from './dom.js';
 import { blockHead, card, emptyState, pageHead, segmented } from './ui.js';
@@ -24,6 +25,7 @@ export class PDLHabitView extends ItemView {
     this.mode = VIEW_IDS.includes(plugin.settings.defaultView) ? plugin.settings.defaultView : 'today';
     this.period = 'all';
     this.habitScope = 'active';
+    this.insightRange = 30;
     this.habitQuery = '';
     this.habitCategory = 'all';
     this.habitSort = 'title';
@@ -607,14 +609,20 @@ export class PDLHabitView extends ItemView {
 
   renderInsights(parent) {
     const habits = this.activeHabits();
-    const stats = habits.map((habit) => ({ habit, ...this.plugin.statsFor(habit, 30) }));
-    const window = windowStats(habits, 30);
+    const range = this.insightRange || 30;
+    const stats = habits.map((habit) => ({ habit, ...this.plugin.statsFor(habit, range) }));
+    const window = windowStats(habits, range);
     const page = parent.createDiv({ cls: 'pdlh-page' });
+    const rangeOptions = [7, 30, 90].map((n) => [String(n), t('{n} days', { n })]);
 
     pageHead(page, {
       eyebrow: t('Insights'),
-      title: t('Last 30 days'),
-      sub: t('Consistency, not a scorecard of worth.')
+      title: t('Last {n} days', { n: range }),
+      sub: t('Consistency, not a scorecard of worth.'),
+      tools: (tools) => segmented(tools, rangeOptions, String(range), (id) => {
+        this.insightRange = Number(id);
+        this.render();
+      }, t('Range'))
     });
 
     const statsRow = page.createDiv({ cls: 'pdlh-stats' });
@@ -634,28 +642,71 @@ export class PDLHabitView extends ItemView {
       body.createEl('span', { cls: 'pdlh-stat-note', text: note });
     });
 
-    const bars = card(page, 'pdlh-bars');
-    blockHead(bars, t('Per habit'), plural(habits.length, 'habit'));
     if (!habits.length) {
-      emptyState(bars, {
+      const empty = card(page, 'pdlh-bars');
+      emptyState(empty, {
         icon: 'chart-no-axes-combined',
         title: t('No habit data yet'),
         body: t('Add a habit and check in for a few days — the trend shows up here.'),
         compact: true
       });
+      return;
+    }
+
+    const rates = dayRates(habits, isoDate(), range);
+    const trend = card(page, 'pdlh-trend-card');
+    blockHead(trend, t('Completion trend'), `${rate}%`);
+    this.renderTrend(trend, rates);
+
+    const split = page.createDiv({ cls: 'pdlh-insight-split' });
+
+    const weekday = card(split, 'pdlh-weekday-card');
+    const weekdayBuckets = weekdayRates(habits, isoDate(), range);
+    const weekStart = this.plugin.settings.weekStartsOn;
+    blockHead(weekday, t('By weekday'), t('{n} days', { n: range }));
+    for (let index = 0; index < 7; index += 1) {
+      const bucket = weekdayBuckets[(index + weekStart) % 7];
+      this.renderMiniBar(weekday, weekdayShort(bucket.day), bucket.ratio, `${Math.round(bucket.ratio * 100)}%`);
+    }
+
+    const categories = card(split, 'pdlh-category-card');
+    const categoryBuckets = categoryRates(habits, isoDate(), range);
+    blockHead(categories, t('By category'), plural(categoryBuckets.length, 'category'));
+    categoryBuckets.forEach((bucket) => {
+      const label = bucket.category === 'uncategorised' ? t('Uncategorised') : bucket.category;
+      this.renderMiniBar(categories, label, bucket.ratio, `${Math.round(bucket.ratio * 100)}%`, true);
+    });
+
+    const slipping = momentum(habits, isoDate(), range);
+    const momentumCard = card(page, 'pdlh-momentum');
+    blockHead(momentumCard, t('Losing momentum'), slipping.length ? plural(slipping.length, 'habit') : '');
+    if (!slipping.length) {
+      momentumCard.createEl('p', { cls: 'pdlh-muted', text: t('Nothing is slipping right now.') });
     } else {
-      [...stats].sort((a, b) => b.rate - a.rate).forEach((item) => {
-        const row = bars.createDiv({ cls: 'pdlh-bar-row' });
+      slipping.forEach((item) => {
+        const row = momentumCard.createDiv({ cls: 'pdlh-momentum-row' });
         row.style.setProperty('--habit-color', item.habit.color);
         const name = row.createDiv({ cls: 'pdlh-bar-name' });
         name.createSpan({ cls: 'pdlh-bar-dot' });
         name.createEl('strong', { text: item.habit.title });
-        name.createSpan({ cls: 'pdlh-bar-detail', text: `${item.done}/${item.due}` });
-        const track = row.createDiv({ cls: 'pdlh-bar-track', attr: { 'aria-hidden': 'true' } });
-        track.createSpan({ cls: 'pdlh-bar-fill' }).style.width = `${item.rate}%`;
-        row.createEl('b', { text: `${item.rate}%` });
+        name.createSpan({ cls: 'pdlh-bar-detail', text: t('{before}% → {after}%', { before: Math.round(item.before * 100), after: Math.round(item.after * 100) }) });
+        row.createEl('b', { cls: 'pdlh-delta', text: `${Math.round(item.delta * 100)}%` });
       });
     }
+
+    const bars = card(page, 'pdlh-bars');
+    blockHead(bars, t('Per habit'), plural(habits.length, 'habit'));
+    [...stats].sort((a, b) => b.rate - a.rate).forEach((item) => {
+      const row = bars.createDiv({ cls: 'pdlh-bar-row' });
+      row.style.setProperty('--habit-color', item.habit.color);
+      const name = row.createDiv({ cls: 'pdlh-bar-name' });
+      name.createSpan({ cls: 'pdlh-bar-dot' });
+      name.createEl('strong', { text: item.habit.title });
+      name.createSpan({ cls: 'pdlh-bar-detail', text: `${item.done}/${item.due}` });
+      const track = row.createDiv({ cls: 'pdlh-bar-track', attr: { 'aria-hidden': 'true' } });
+      track.createSpan({ cls: 'pdlh-bar-fill' }).style.width = `${item.rate}%`;
+      row.createEl('b', { text: `${item.rate}%` });
+    });
 
     const reflections = card(page, 'pdlh-reflections');
     const entries = habits
@@ -666,7 +717,7 @@ export class PDLHabitView extends ItemView {
       .slice(0, 8);
     blockHead(reflections, t('Recent reflections'), entries.length ? plural(entries.length, 'note') : '');
     if (!entries.length) {
-      reflections.createEl('p', { cls: 'pdlh-muted', text: 'Notes you add during a check-in show up here.' });
+      reflections.createEl('p', { cls: 'pdlh-muted', text: t('Notes you add during a check-in show up here.') });
     } else {
       entries.forEach((entry) => {
         const item = reflections.createDiv({ cls: 'pdlh-reflection' });
@@ -676,6 +727,58 @@ export class PDLHabitView extends ItemView {
         item.createEl('p', { text: entry.note });
       });
     }
+  }
+
+  /** Line + area chart of daily completion ratios. */
+  renderTrend(parent, rates) {
+    // Leading days with nothing scheduled would drag the line to zero; start at the
+    // first day that actually had something due.
+    const first = rates.findIndex((day) => day.due > 0);
+    const series = first > 0 ? rates.slice(first) : rates;
+    const chart = parent.createDiv({ cls: 'pdlh-trend' });
+
+    if (!series.length) {
+      chart.createEl('p', { cls: 'pdlh-muted', text: t('No check-ins in this range yet.') });
+      return;
+    }
+
+    const width = 320;
+    const height = 72;
+    const pad = 4;
+    const svg = chart.createEl('svg', {
+      cls: 'pdlh-trend-svg',
+      attr: { xmlns: 'http://www.w3.org/2000/svg', viewBox: `0 0 ${width} ${height}`, preserveAspectRatio: 'none', role: 'img', 'aria-label': t('Completion trend') }
+    });
+    const points = series.map((day, index) => {
+      const x = series.length === 1 ? width / 2 : pad + (index / (series.length - 1)) * (width - pad * 2);
+      const y = height - pad - day.ratio * (height - pad * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+    svg.createEl('line', { cls: 'pdlh-trend-base', attr: { x1: String(pad), y1: String(height - pad), x2: String(width - pad), y2: String(height - pad) } });
+    if (points.length > 1) {
+      svg.createEl('polygon', {
+        cls: 'pdlh-trend-area',
+        attr: { points: `${pad},${height - pad} ${points.join(' ')} ${width - pad},${height - pad}` }
+      });
+      svg.createEl('polyline', {
+        cls: 'pdlh-trend-line',
+        attr: { points: points.join(' '), 'stroke-width': '2.5', 'vector-effect': 'non-scaling-stroke' }
+      });
+      const last = points[points.length - 1].split(',');
+      svg.createEl('circle', { cls: 'pdlh-trend-dot', attr: { cx: last[0], cy: last[1], r: '2.6' } });
+    }
+    const foot = chart.createDiv({ cls: 'pdlh-trend-foot' });
+    foot.createSpan({ text: shortDay(series[0].key) });
+    foot.createSpan({ text: shortDay(series[series.length - 1].key) });
+  }
+
+  /** Small labelled bar used by the weekday and category cards. */
+  renderMiniBar(parent, label, ratio, text, wide = false) {
+    const row = parent.createDiv({ cls: `pdlh-mini ${wide ? 'is-wide' : ''}`.trim() });
+    row.createSpan({ cls: 'pdlh-mini-label', text: label });
+    const track = row.createDiv({ cls: 'pdlh-bar-track', attr: { 'aria-hidden': 'true' } });
+    track.createSpan({ cls: 'pdlh-bar-fill' }).style.width = `${Math.round(ratio * 100)}%`;
+    row.createEl('b', { cls: 'pdlh-mini-pct', text });
   }
 }
 

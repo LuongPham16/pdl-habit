@@ -116,6 +116,7 @@ const VI = {
   'By category': 'Theo nhóm',
   'Losing momentum': 'Đang chững lại',
   'Nothing is slipping right now.': 'Hiện không có thói quen nào đi xuống.',
+  'No check-ins in this range yet.': 'Chưa có lượt ghi nhận nào trong khoảng này.',
   'days': 'ngày',
 
   // Calendar
@@ -127,6 +128,13 @@ const VI = {
   'Current streak': 'Chuỗi hiện tại',
   'Best streak': 'Chuỗi dài nhất',
   'Last 30 days': '30 ngày qua',
+  Range: 'Phạm vi',
+  '{n} days': '{n} ngày',
+  'Last {n} days': '{n} ngày qua',
+  category: 'nhóm',
+  '{before}% → {after}%': '{before}% → {after}%',
+  Uncategorised: 'Chưa phân nhóm',
+  'Notes you add during a check-in show up here.': 'Ghi chú bạn thêm khi ghi nhận sẽ hiện ở đây.',
   Time: 'Buổi',
   Schedule: 'Lịch',
   Target: 'Mục tiêu',

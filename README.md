@@ -5,7 +5,7 @@
 Every habit is a plain note; every check-in is a line of frontmatter. Nothing is
 locked inside the plugin.
 
-> **Version 1.11.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
+> **Version 1.12.0** · Obsidian **1.5.0+** · desktop and mobile · undo, reminders, search
 
 ## Highlights
 
@@ -20,6 +20,8 @@ locked inside the plugin.
   N days, plus an optional exact time of day.
 - **Palette shortcuts** — quick add (name + Enter), open any day, undo the last
   check-in; starter habits for an empty vault.
+- **Insights with a 7/30/90-day range** — completion trend line, weekday and
+  category breakdowns, and habits that are losing momentum.
 - **Check-ins in two taps** — counted habits start at **0** with − / + buttons and a
   live `0 of 3 ly` hint; binary habits get a Done / Not done switch instead of a
   meaningless amount.

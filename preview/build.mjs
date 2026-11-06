@@ -79,6 +79,8 @@ if (process.argv.includes('--shot')) {
     { name: 'habit-new-vi.png', file: 'habit-new-vi.html', width: 900, height: 800 },
     { name: 'habit-month-vi.png', file: 'habit-month-vi.html', width: 900, height: 800 },
     { name: 'detail-vi.png', file: 'detail-vi.html', width: 900, height: 1060 },
+    { name: 'insights-90.png', file: 'insights-90.html', ...desktop },
+    { name: 'insights-7-vi.png', file: 'insights-7-vi.html', ...desktop },
     { name: 'quick-add.png', file: 'quick-add.html', width: 720, height: 420 },
     { name: 'quick-add-vi.png', file: 'quick-add-vi.html', width: 720, height: 420 },
     { name: 'day-picker.png', file: 'day-picker.html', width: 720, height: 380 },

@@ -4,7 +4,7 @@
  * Serialises to HTML so a headless browser can screenshot the result.
  */
 
-const VOID = new Set(['input', 'img', 'br', 'hr', 'use', 'path', 'circle']);
+const VOID = new Set(['input', 'img', 'br', 'hr']);
 
 const escapeHtml = (value) => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 

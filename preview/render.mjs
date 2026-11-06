@@ -119,7 +119,7 @@ const DARK = {
 
 const css = fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf8');
 
-function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'active', emptyMonth = false, sort = 'title', query = '', category = 'all', toastMessage = '', lang = 'en' }) {
+function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'active', emptyMonth = false, sort = 'title', query = '', category = 'all', toastMessage = '', lang = 'en', range = 30 }) {
   setLanguage(lang);
   const vars = theme === 'dark' ? DARK : LIGHT;
   const leaf = { app, containerEl: new El('div', { cls: 'workspace-leaf-content' }) };
@@ -130,6 +130,7 @@ function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'a
   const view = new PDLHabitView(leaf, plugin);
   view.mode = mode;
   view.habits = habitList;
+  view.insightRange = range;
   view.habitScope = scope;
   view.habitSort = sort;
   view.habitQuery = query;
@@ -575,6 +576,8 @@ buildPage({ mode: 'today', file: 'today-vi.html', lang: 'vi' });
 buildPage({ mode: 'habits', file: 'habits-vi.html', lang: 'vi' });
 buildPage({ mode: 'calendar', file: 'calendar-vi.html', lang: 'vi' });
 buildPage({ mode: 'insights', file: 'insights-vi.html', lang: 'vi' });
+buildPage({ mode: 'insights', file: 'insights-90.html', range: 90 });
+buildPage({ mode: 'insights', file: 'insights-7-vi.html', lang: 'vi', range: 7 });
 buildHabitFormPage({ file: 'habit-new-vi.html', lang: 'vi' });
 buildHabitFormPage({ file: 'habit-month-vi.html', lang: 'vi', patch: { name: 'Đọc sách', tracking: 'check', schedule: 'month', perMonth: 4, period: 'evening', icon: 'book-open', color: '#0891b2' } });
 buildDetailPage({ file: 'detail-vi.html', habit: waterHabit, lang: 'vi' });

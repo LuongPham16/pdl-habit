@@ -4,7 +4,7 @@ import {
   isScheduled, completion, streakFor, daySummary, dueHabits, pickFocus,
   weekOverview, weekProgress, weekDone, weekCheckins, isExpired, isActiveHabit,
   monthSummary, windowStats, filterHabits, sortHabits, groupHabitsByCategory, habitCategories,
-  isBinaryHabit, monthProgress
+  isBinaryHabit, monthProgress, dayRates, weekdayRates, categoryRates, momentum
 } from '../src/habits.js';
 
 const habit = (overrides = {}) => ({
@@ -224,4 +224,41 @@ test('monthly habits count sessions, not amounts', () => {
 test('monthProgress counts every check-in inside the month', () => {
   const tracked = habit({ frequency: 'monthly', target: 4, history: { '2026-05-02': { value: 1 }, '2026-05-20': { value: 1 }, '2026-06-01': { value: 1 } } });
   assert.equal(monthProgress(tracked, '2026-05-10').count, 2);
+});
+
+test('dayRates reports a ratio per day, oldest first', () => {
+  const done = habit({ history: { '2026-05-01': { value: 1 }, '2026-05-03': { value: 1 } } });
+  const rates = dayRates([done], '2026-05-03', 3);
+  assert.deepEqual(rates.map((day) => day.key), ['2026-05-01', '2026-05-02', '2026-05-03']);
+  assert.deepEqual(rates.map((day) => day.ratio), [1, 0, 1]);
+});
+
+test('weekdayRates buckets every scheduled day', () => {
+  const tracked = habit({ history: { '2026-05-01': { value: 1 }, '2026-05-02': { value: 1 } } });
+  const buckets = weekdayRates([tracked], '2026-05-07', 7);
+  assert.equal(buckets.length, 7);
+  assert.equal(buckets.reduce((sum, bucket) => sum + bucket.due, 0), 7);
+  assert.equal(buckets.reduce((sum, bucket) => sum + bucket.done, 0), 2);
+});
+
+test('categoryRates groups habits and sorts the best first', () => {
+  const strong = habit({ category: 'Health', history: { '2026-05-01': { value: 1 }, '2026-05-02': { value: 1 } } });
+  const weak = habit({ category: 'Learning', history: {} });
+  const buckets = categoryRates([strong, weak], '2026-05-02', 2);
+  assert.deepEqual(buckets.map((bucket) => bucket.category), ['Health', 'Learning']);
+  assert.equal(buckets[0].ratio, 1);
+  assert.equal(buckets[1].ratio, 0);
+  assert.equal(buckets[0].due, 2);
+});
+
+test('momentum flags habits that slipped in the newer half', () => {
+  const history = {};
+  for (let day = 1; day <= 5; day += 1) history[`2026-05-0${day}`] = { value: 1 };
+  const dropped = habit({ history });
+  const steady = habit({ history: {} });
+  for (let day = 1; day <= 10; day += 1) steady.history[`2026-05-${String(day).padStart(2, '0')}`] = { value: 1 };
+  const slipping = momentum([dropped, steady], '2026-05-10', 10);
+  assert.equal(slipping.length, 1);
+  assert.equal(slipping[0].habit, dropped);
+  assert.ok(slipping[0].delta <= -0.1);
 });

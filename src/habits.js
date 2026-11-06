@@ -198,6 +198,85 @@ export function windowStats(habits, days = 30, today = isoDate()) {
   return { days, due, done, rests, perfect, rate: due ? Math.round((done / due) * 100) : 0 };
 }
 
+/* ---------------------------------------------------------- insights */
+/** Per-day completion for the window ending at `endKey` (oldest first). */
+export function dayRates(habits, endKey, days) {
+  return Array.from({ length: Math.max(1, days) }, (_, index) => {
+    const key = addDays(endKey, index - days + 1);
+    const summary = daySummary(habits, key);
+    return {
+      key,
+      due: summary.total,
+      done: summary.done,
+      ratio: summary.total ? summary.done / summary.total : 0
+    };
+  });
+}
+
+/** Completion grouped by day of week (0 = Sunday). */
+export function weekdayRates(habits, endKey, days) {
+  const buckets = Array.from({ length: 7 }, (_, day) => ({ day, due: 0, done: 0 }));
+  dayRates(habits, endKey, days).forEach((day) => {
+    const weekday = parseDate(day.key)?.getDay();
+    if (weekday === undefined || weekday === null) return;
+    buckets[weekday].due += day.due;
+    buckets[weekday].done += day.done;
+  });
+  return buckets.map((bucket) => ({ ...bucket, ratio: bucket.due ? bucket.done / bucket.due : 0 }));
+}
+
+/** Completion grouped by habit category, best first. */
+export function categoryRates(habits, endKey, days) {
+  const byCategory = new Map();
+  const keys = dateRange(addDays(endKey, -days + 1), days);
+  habits.forEach((habit) => {
+    const category = habit.category || 'uncategorised';
+    const bucket = byCategory.get(category) || { category, due: 0, done: 0 };
+    keys.forEach((key) => {
+      if (!isScheduled(habit, key)) return;
+      const state = completion(habit, key);
+      if (state.skipped) return;
+      bucket.due += 1;
+      if (state.done) bucket.done += 1;
+    });
+    byCategory.set(category, bucket);
+  });
+  return [...byCategory.values()]
+    .map((bucket) => ({ ...bucket, ratio: bucket.due ? bucket.done / bucket.due : 0 }))
+    .filter((bucket) => bucket.due > 0)
+    .sort((a, b) => b.ratio - a.ratio);
+}
+
+/** Habits whose completion dropped in the newer half of the window. */
+export function momentum(habits, endKey, days) {
+  const span = Math.max(1, Math.floor(days / 2));
+  const afterStart = addDays(endKey, -span + 1);
+  const beforeStart = addDays(afterStart, -span);
+  const rate = (habit, start) => {
+    let due = 0;
+    let done = 0;
+    for (let index = 0; index < span; index += 1) {
+      const key = addDays(start, index);
+      if (!isScheduled(habit, key)) continue;
+      const state = completion(habit, key);
+      if (state.skipped) continue;
+      due += 1;
+      if (state.done) done += 1;
+    }
+    return due >= 2 ? done / due : null;
+  };
+  return habits
+    .map((habit) => {
+      const before = rate(habit, beforeStart);
+      const after = rate(habit, afterStart);
+      if (before === null || after === null) return null;
+      return { habit, before, after, delta: after - before };
+    })
+    .filter(Boolean)
+    .filter((item) => item.delta <= -0.1)
+    .sort((a, b) => a.delta - b.delta);
+}
+
 /* ------------------------------------------------------- list utilities */
 
 export const SORT_MODES = [
