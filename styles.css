@@ -2820,3 +2820,17 @@ button.pdlh-icon-btn:hover {
     flex: 1;
   }
 }
+
+
+/* Quick add + day picker sheets */
+.pdlh-quickadd-shell,
+.pdlh-daypicker-shell {
+  width: min(440px, calc(100vw - 32px));
+}
+
+.pdlh-quickadd,
+.pdlh-daypicker {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

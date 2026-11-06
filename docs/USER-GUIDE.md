@@ -1,4 +1,4 @@
-# PDL Habit v1.10
+# PDL Habit v1.11
 
 PDL Habit là habit tracker Markdown-first cho Obsidian. Mỗi habit là một note độc lập; check-in được lưu trong frontmatter `history`, vì vậy dữ liệu vẫn đọc được khi plugin không hoạt động.
 
@@ -32,6 +32,18 @@ Form chỉ còn **4 quyết định**, tất cả trên một màn hình:
 Phím tắt: **Enter** lưu, **Esc** đóng, **⌘/Ctrl + Enter** lưu từ bất kỳ ô nào. Nút *Create habit* bị mờ cho tới khi có tên; footer luôn dính đáy nên không phải cuộn tìm nút.
 
 Với habit "Did it", danh sách Today không còn hiện chip `0/1 time` vô nghĩa — vòng tròn check đã đủ nói. Trang chi tiết hiển thị Target là *Did it (once)*.
+
+## Command Palette và onboarding (v1.11)
+
+Mở Command Palette (Ctrl/Cmd + P) và gõ "PDL Habit" để thấy các lệnh:
+
+- **PDL Habit: Quick add a habit** — chỉ cần gõ tên rồi **Enter**; habit được tạo với mặc định hợp lý (mỗi ngày, bất kỳ lúc nào, kiểu "đã làm").
+- **PDL Habit: Open a day** — chọn một ngày bất kỳ rồi bấm **Đi** để nhảy thẳng tới ngày đó trong tab Hôm nay.
+- **PDL Habit: Undo last check-in** — hoàn tác lần ghi nhận gần nhất, kể cả khi toast đã biến mất (plugin ghi nhớ entry trước đó).
+- **PDL Habit: Add starter habits** — thêm 5 thói quen mẫu khi vault còn trống.
+
+**Bộ thói quen mẫu** (chỉ thêm khi chưa có thói quen nào):
+uống nước (8 ly/ngày), đi bộ 20 phút, đọc 10 trang, tập thể dục 3 buổi/tuần, ngủ trước 23:00. Hai nút *Thêm bộ thói quen mẫu* cũng xuất hiện ngay trong màn hình trống của tab Hôm nay và Thói quen.
 
 ## Ngôn ngữ và lịch linh hoạt (v1.10)
 

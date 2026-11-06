@@ -10,6 +10,9 @@ import { PDLHabitView } from './view.js';
 import { PDLHabitSettingTab } from './settings.js';
 import { HabitModal } from './modals/habit.js';
 import { HabitModalPicker } from './modals/picker.js';
+import { QuickAddModal } from './modals/quick-add.js';
+import { DayPickerModal } from './modals/day-picker.js';
+import { starterHabits } from './starters.js';
 
 export class PDLHabitPlugin extends Plugin {
   async onload() {
@@ -33,6 +36,10 @@ export class PDLHabitPlugin extends Plugin {
         new HabitModalPicker(this.app, this, habits).open();
       }
     });
+    this.addCommand({ id: 'quick-add-habit', name: t('Quick add a habit'), callback: () => new QuickAddModal(this.app, this).open() });
+    this.addCommand({ id: 'open-day', name: t('Open a day'), callback: () => new DayPickerModal(this.app, (key) => this.openDay(key)).open() });
+    this.addCommand({ id: 'undo-last-checkin', name: t('Undo last check-in'), callback: () => this.undoLastCheckin() });
+    this.addCommand({ id: 'add-starter-habits', name: t('Add starter habits'), callback: () => this.addStarterHabits() });
     this.registerReminders();
     const refresh = (file, oldPath = '') => { if (this.isHabitPath(file?.path) || this.isHabitPath(oldPath)) this.scheduleRefresh(); };
     this.registerEvent(this.app.metadataCache.on('changed', refresh));
@@ -204,7 +211,7 @@ export class PDLHabitPlugin extends Plugin {
     return { due: weeks.size, done, rate: weeks.size ? Math.round(done / weeks.size * 100) : 0, streak: streakFor(habit) };
   }
 
-  async saveHabit(value, existing = null) {
+  async saveHabit(value, existing = null, silent = false) {
     await this.ensureRoot();
     const name = safeName(value.title);
     let file = existing?.file;
@@ -269,7 +276,7 @@ export class PDLHabitPlugin extends Plugin {
       }));
     }
     await this.refreshViews();
-    new Notice(existing ? t('Habit updated.') : `Created ${value.title}`);
+    if (!silent) new Notice(existing ? t('Habit updated.') : `Created ${value.title}`);
   }
 
   async checkIn(habit, key, value, note = '', status = '') {
@@ -302,8 +309,32 @@ export class PDLHabitPlugin extends Plugin {
     await this.refreshViews();
   }
 
+  /** Remember the last write so the palette can undo it later too. */
+  rememberUndo(habit, key, previous) {
+    this.lastUndo = { habit, key, previous };
+  }
+
+  async undoLastCheckin() {
+    const last = this.lastUndo;
+    if (!last) return new Notice(t('No check-in to undo.'));
+    this.lastUndo = null;
+    await this.restoreCheckin(last.habit, last.key, last.previous);
+    new Notice(t('Check-in restored.'));
+  }
+
+  /** Five starter habits for a brand new vault. */
+  async addStarterHabits() {
+    const existing = await this.scanHabits();
+    if (existing.length) return new Notice(t('Starter habits already exist.'));
+    const habits = starterHabits();
+    for (const habit of habits) await this.saveHabit(habit, null, true);
+    await this.refreshViews();
+    new Notice(t('Added {n} starter habits.', { n: habits.length }));
+  }
+
   /** Toast with an Undo button; resolves the check-in state captured before the write. */
   offerUndo({ message, habit, key, previous, icon = 'check' }) {
+    this.rememberUndo(habit, key, previous);
     toast({
       icon,
       message,

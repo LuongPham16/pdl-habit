@@ -142,6 +142,7 @@ export class PDLHabitView extends ItemView {
         body: t('No habits are due here. Add one, or review another day while the day stays light.'),
         actions: [
           { label: t('New habit'), icon: 'plus', primary: true, onClick: () => this.openHabitForm() },
+          ...(this.habits.length ? [] : [{ label: t('Add starter habits'), icon: 'sparkles', onClick: () => this.plugin.addStarterHabits() }]),
           ...(key === isoDate() ? [] : [{ label: t('Back to today'), onClick: () => { this.selectedDate = isoDate(); this.render(); } }])
         ]
       });
@@ -358,7 +359,10 @@ export class PDLHabitView extends ItemView {
           icon: 'sprout',
           title: t('No habits yet'),
           body: t('Start with one small action you can repeat tomorrow.'),
-          actions: [{ label: t('New habit'), icon: 'plus', primary: true, onClick: () => this.openHabitForm() }]
+          actions: [
+            { label: t('New habit'), icon: 'plus', primary: true, onClick: () => this.openHabitForm() },
+            { label: t('Add starter habits'), icon: 'sparkles', onClick: () => this.plugin.addStarterHabits() }
+          ]
         });
       }
       return;

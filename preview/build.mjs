@@ -79,6 +79,10 @@ if (process.argv.includes('--shot')) {
     { name: 'habit-new-vi.png', file: 'habit-new-vi.html', width: 900, height: 800 },
     { name: 'habit-month-vi.png', file: 'habit-month-vi.html', width: 900, height: 800 },
     { name: 'detail-vi.png', file: 'detail-vi.html', width: 900, height: 1060 },
+    { name: 'quick-add.png', file: 'quick-add.html', width: 720, height: 420 },
+    { name: 'quick-add-vi.png', file: 'quick-add-vi.html', width: 720, height: 420 },
+    { name: 'day-picker.png', file: 'day-picker.html', width: 720, height: 380 },
+    { name: 'day-picker-vi.png', file: 'day-picker-vi.html', width: 720, height: 380 },
     { name: 'icons.png', file: 'icons.html', width: 900, height: 1000 },
     { name: 'icons-dark.png', file: 'icons-dark.html', width: 900, height: 1000 }
   ];

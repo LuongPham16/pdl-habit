@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.11.0 - command palette shortcuts and starter habits
+
+- **Quick add a habit** from the palette: type a name, press Enter, done (daily,
+  any time of day, check-in type). No form.
+- **Open a day** from the palette: pick any date and jump straight to it in Today.
+- **Undo last check-in** from the palette: works after the toast has gone, because
+  every check-in now remembers the previous frontmatter entry.
+- **Five starter habits** for a brand new vault (drink water, walk 20 minutes,
+  read 10 pages, workout 3x/week, sleep before 23:00). Buttons appear in the Today
+  and Habits empty states, plus a palette command; they are only added when the
+  vault has no habits yet.
+- Starter habits are written without five separate "created" notices.
+
 ## 1.10.0 — Vietnamese interface and flexible schedules
 
 - **Vietnamese UI.** A language setting (Auto / English / Tiếng Việt) now drives every

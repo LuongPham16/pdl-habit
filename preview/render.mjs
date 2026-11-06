@@ -12,6 +12,8 @@ import { HabitDetailModal } from '../src/modals/detail.js';
 import { CheckinModal } from '../src/modals/checkin.js';
 import { toast } from '../src/ui.js';
 import { setLanguage } from '../src/i18n.js';
+import { QuickAddModal } from '../src/modals/quick-add.js';
+import { DayPickerModal } from '../src/modals/day-picker.js';
 
 const { } = installDom();
 
@@ -576,6 +578,63 @@ buildPage({ mode: 'insights', file: 'insights-vi.html', lang: 'vi' });
 buildHabitFormPage({ file: 'habit-new-vi.html', lang: 'vi' });
 buildHabitFormPage({ file: 'habit-month-vi.html', lang: 'vi', patch: { name: 'Đọc sách', tracking: 'check', schedule: 'month', perMonth: 4, period: 'evening', icon: 'book-open', color: '#0891b2' } });
 buildDetailPage({ file: 'detail-vi.html', habit: waterHabit, lang: 'vi' });
+
+function buildSmallModalPage({ file, modal, theme = 'light' }) {
+  const vars = theme === 'dark' ? DARK : LIGHT;
+  const page = `<!doctype html>
+<html lang="en" class="theme-${theme}">
+<head>
+<meta charset="utf-8">
+<title>PDL Habit — ${file}</title>
+<style>
+  :root {
+    ${Object.entries(vars).map(([name, value]) => `${name}: ${value};`).join('\n    ')}
+    --background-primary-alt: var(--background-primary);
+    --background-modifier-hover: rgba(127, 127, 127, .12);
+    --font-interface: -apple-system, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --text-faint: #9ca3af;
+    color-scheme: ${theme};
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--background-secondary, #f5f6f7);
+    color: var(--text-normal);
+    font-family: var(--font-interface);
+    -webkit-font-smoothing: antialiased;
+  }
+  .preview-backdrop { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, ${theme === 'dark' ? '.55' : '.35'}); }
+  .preview-modal { width: min(440px, 100%); padding: 20px; border-radius: 12px; background: var(--background-primary); box-shadow: 0 24px 60px rgba(0, 0, 0, ${theme === 'dark' ? '.55' : '.28'}); }
+  svg.svg-icon { width: 18px; height: 18px; flex: none; }
+  button { font-family: inherit; }
+${css}
+</style>
+</head>
+<body>
+<div class="preview-backdrop">
+  <div class="preview-modal">
+${modal.contentEl.toHtml('')}
+  </div>
+</div>
+</body>
+</html>
+`;
+  fs.writeFileSync(path.join(ROOT, 'preview', file), page);
+  console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
+}
+
+for (const [suffix, lang] of [['', 'en'], ['-vi', 'vi']]) {
+  setLanguage(lang);
+  const quickAdd = new QuickAddModal(app, plugin);
+  quickAdd.onOpen();
+  buildSmallModalPage({ file: `quick-add${suffix}.html`, modal: quickAdd });
+
+  setLanguage(lang);
+  const dayPicker = new DayPickerModal(app, () => {});
+  dayPicker.onOpen();
+  buildSmallModalPage({ file: `day-picker${suffix}.html`, modal: dayPicker });
+}
 
 buildIconPickerPage({ file: 'icons.html' });
 buildIconPickerPage({ file: 'icons-dark.html', theme: 'dark' });
