@@ -658,30 +658,37 @@ export class PDLHabitView extends ItemView {
     blockHead(trend, t('Completion trend'), `${rate}%`);
     this.renderTrend(trend, rates);
 
-    const split = page.createDiv({ cls: 'pdlh-insight-split' });
+    const distribution = card(page, 'pdlh-dist');
+    blockHead(distribution, t('Distribution'), t('{n} days', { n: range }));
+    const distGrid = distribution.createDiv({ cls: 'pdlh-dist-grid' });
 
-    const weekday = card(split, 'pdlh-weekday-card');
+    const weekdayCol = distGrid.createDiv({ cls: 'pdlh-dist-col' });
+    weekdayCol.createEl('h4', { cls: 'pdlh-dist-label', text: t('By weekday') });
     const weekdayBuckets = weekdayRates(habits, isoDate(), range);
     const weekStart = this.plugin.settings.weekStartsOn;
-    blockHead(weekday, t('By weekday'), t('{n} days', { n: range }));
     for (let index = 0; index < 7; index += 1) {
       const bucket = weekdayBuckets[(index + weekStart) % 7];
-      this.renderMiniBar(weekday, weekdayShort(bucket.day), bucket.ratio, `${Math.round(bucket.ratio * 100)}%`);
+      this.renderMiniBar(weekdayCol, weekdayShort(bucket.day), bucket.ratio, `${Math.round(bucket.ratio * 100)}%`);
     }
 
-    const categories = card(split, 'pdlh-category-card');
+    const categoryCol = distGrid.createDiv({ cls: 'pdlh-dist-col' });
+    categoryCol.createEl('h4', { cls: 'pdlh-dist-label', text: t('By category') });
     const categoryBuckets = categoryRates(habits, isoDate(), range);
-    blockHead(categories, t('By category'), plural(categoryBuckets.length, 'category'));
+    if (!categoryBuckets.length) {
+      categoryCol.createEl('p', { cls: 'pdlh-muted', text: t('No categories yet.') });
+    }
     categoryBuckets.forEach((bucket) => {
       const label = bucket.category === 'uncategorised' ? t('Uncategorised') : bucket.category;
-      this.renderMiniBar(categories, label, bucket.ratio, `${Math.round(bucket.ratio * 100)}%`, true);
+      this.renderMiniBar(categoryCol, label, bucket.ratio, `${Math.round(bucket.ratio * 100)}%`, true);
     });
 
     const slipping = momentum(habits, isoDate(), range);
     const momentumCard = card(page, 'pdlh-momentum');
     blockHead(momentumCard, t('Losing momentum'), slipping.length ? plural(slipping.length, 'habit') : '');
     if (!slipping.length) {
-      momentumCard.createEl('p', { cls: 'pdlh-muted', text: t('Nothing is slipping right now.') });
+      const quiet = momentumCard.createDiv({ cls: 'pdlh-quiet' });
+      setIcon(quiet.createSpan({ cls: 'pdlh-quiet-icon' }), 'circle-check');
+      quiet.createSpan({ text: t('Nothing is slipping right now.') });
     } else {
       slipping.forEach((item) => {
         const row = momentumCard.createDiv({ cls: 'pdlh-momentum-row' });
@@ -717,7 +724,9 @@ export class PDLHabitView extends ItemView {
       .slice(0, 8);
     blockHead(reflections, t('Recent reflections'), entries.length ? plural(entries.length, 'note') : '');
     if (!entries.length) {
-      reflections.createEl('p', { cls: 'pdlh-muted', text: t('Notes you add during a check-in show up here.') });
+      const quiet = reflections.createDiv({ cls: 'pdlh-quiet' });
+      setIcon(quiet.createSpan({ cls: 'pdlh-quiet-icon' }), 'pencil');
+      quiet.createSpan({ text: t('Notes you add during a check-in show up here.') });
     } else {
       entries.forEach((entry) => {
         const item = reflections.createDiv({ cls: 'pdlh-reflection' });
@@ -729,9 +738,9 @@ export class PDLHabitView extends ItemView {
     }
   }
 
-  /** Line + area chart of daily completion ratios. */
+  /** Line + area chart of daily completion ratios (real SVG elements). */
   renderTrend(parent, rates) {
-    // Leading days with nothing scheduled would drag the line to zero; start at the
+    // Leading days with nothing scheduled would pin the line to zero: start at the
     // first day that actually had something due.
     const first = rates.findIndex((day) => day.due > 0);
     const series = first > 0 ? rates.slice(first) : rates;
@@ -742,31 +751,58 @@ export class PDLHabitView extends ItemView {
       return;
     }
 
-    const width = 320;
-    const height = 72;
-    const pad = 4;
-    const svg = chart.createEl('svg', {
+    const width = 640;
+    const height = 150;
+    const padX = 6;
+    const padY = 10;
+    const yFor = (ratio) => height - padY - ratio * (height - padY * 2);
+    const xFor = (index) => (series.length === 1
+      ? width / 2
+      : padX + (index / (series.length - 1)) * (width - padX * 2));
+
+    // createSvg, not createEl: an <svg> made with createElement is an HTML unknown
+    // element and paints nothing.
+    const svg = chart.createSvg('svg', {
       cls: 'pdlh-trend-svg',
-      attr: { xmlns: 'http://www.w3.org/2000/svg', viewBox: `0 0 ${width} ${height}`, preserveAspectRatio: 'none', role: 'img', 'aria-label': t('Completion trend') }
+      attr: {
+        xmlns: 'http://www.w3.org/2000/svg',
+        viewBox: `0 0 ${width} ${height}`,
+        preserveAspectRatio: 'none',
+        role: 'img',
+        'aria-label': t('Completion trend')
+      }
     });
-    const points = series.map((day, index) => {
-      const x = series.length === 1 ? width / 2 : pad + (index / (series.length - 1)) * (width - pad * 2);
-      const y = height - pad - day.ratio * (height - pad * 2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-    svg.createEl('line', { cls: 'pdlh-trend-base', attr: { x1: String(pad), y1: String(height - pad), x2: String(width - pad), y2: String(height - pad) } });
-    if (points.length > 1) {
-      svg.createEl('polygon', {
-        cls: 'pdlh-trend-area',
-        attr: { points: `${pad},${height - pad} ${points.join(' ')} ${width - pad},${height - pad}` }
+
+    const defs = svg.createSvg('defs');
+    const gradient = defs.createSvg('linearGradient', { attr: { id: 'pdlh-trend-fill', x1: '0', y1: '0', x2: '0', y2: '1' } });
+    gradient.createSvg('stop', { attr: { offset: '0%', 'stop-color': '#059669', 'stop-opacity': '0.24' } });
+    gradient.createSvg('stop', { attr: { offset: '100%', 'stop-color': '#059669', 'stop-opacity': '0.02' } });
+
+    [0.25, 0.5, 0.75].forEach((ratio) => {
+      svg.createSvg('line', {
+        cls: 'pdlh-trend-grid',
+        attr: { x1: String(padX), x2: String(width - padX), y1: String(yFor(ratio)), y2: String(yFor(ratio)) }
       });
-      svg.createEl('polyline', {
+    });
+    svg.createSvg('line', {
+      cls: 'pdlh-trend-base',
+      attr: { x1: String(padX), x2: String(width - padX), y1: String(height - padY), y2: String(height - padY) }
+    });
+
+    const points = series.map((day, index) => `${xFor(index).toFixed(1)},${yFor(day.ratio).toFixed(1)}`);
+    if (points.length > 1) {
+      svg.createSvg('polygon', {
+        cls: 'pdlh-trend-area',
+        attr: { points: `${padX},${height - padY} ${points.join(' ')} ${width - padX},${height - padY}` }
+      });
+      svg.createSvg('polyline', {
         cls: 'pdlh-trend-line',
         attr: { points: points.join(' '), 'stroke-width': '2.5', 'vector-effect': 'non-scaling-stroke' }
       });
-      const last = points[points.length - 1].split(',');
-      svg.createEl('circle', { cls: 'pdlh-trend-dot', attr: { cx: last[0], cy: last[1], r: '2.6' } });
     }
+    const last = points[points.length - 1].split(',');
+    svg.createSvg('circle', { cls: 'pdlh-trend-dot', attr: { cx: last[0], cy: last[1], r: '3' } });
+
     const foot = chart.createDiv({ cls: 'pdlh-trend-foot' });
     foot.createSpan({ text: shortDay(series[0].key) });
     foot.createSpan({ text: shortDay(series[series.length - 1].key) });

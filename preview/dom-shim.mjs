@@ -109,6 +109,7 @@ class El {
     return child;
   }
 
+  createSvg(tag, options = {}) { return this.createEl(tag, options); }
   createDiv(options = {}) { return this.createEl('div', options); }
   createSpan(options = {}) { return this.createEl('span', options); }
 

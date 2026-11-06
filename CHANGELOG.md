@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.12.1 - insights layout repaired
+
+- **The trend chart now actually draws in Obsidian.** The first version built the
+  SVG with createEl, which produces an HTML element that paints nothing; it now uses
+  El.createSvg, adds a gradient area, quarter gridlines, a baseline and a dot on the
+  newest day.
+- **Balanced layout**: weekday and category breakdowns share one "Distribution"
+  card split by a divider instead of two uneven cards; the momentum and reflection
+  empty states got icons; momentum rows keep their percentage on one line.
+- Stat tiles fold to two columns under 700 px and one under 520 px.
+
 ## 1.12.0 - deeper insights
 
 - **Range switch (7 / 30 / 90 days)** at the top of Insights; every card below

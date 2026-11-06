@@ -134,6 +134,8 @@ const VI = {
   category: 'nhóm',
   '{before}% → {after}%': '{before}% → {after}%',
   Uncategorised: 'Chưa phân nhóm',
+  Distribution: 'Phân bổ',
+  'No categories yet.': 'Chưa có nhóm nào.',
   'Notes you add during a check-in show up here.': 'Ghi chú bạn thêm khi ghi nhận sẽ hiện ở đây.',
   Time: 'Buổi',
   Schedule: 'Lịch',
