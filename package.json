@@ -1,7 +1,7 @@
 {
   "name": "pdl-habit",
-  "version": "1.12.1",
-  "description": "A mindful, Markdown-first habit tracker for Obsidian with flexible schedules, streaks, heatmaps and insights.",
+  "version": "1.0.0",
+  "description": "A calm, Markdown-first habit tracker for Obsidian: flexible schedules, streaks, a month calendar and focused insights.",
   "main": "main.js",
   "type": "module",
   "scripts": {
@@ -23,7 +23,7 @@
     "streaks",
     "markdown"
   ],
-  "author": "PDL Ecosystem",
+  "author": "Luong Pham",
   "license": "MIT",
   "devDependencies": {
     "esbuild": "^0.28.0",
@@ -31,5 +31,13 @@
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ducluong16/pdl-habit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ducluong16/pdl-habit/issues"
+  },
+  "homepage": "https://github.com/ducluong16/pdl-habit#readme"
 }

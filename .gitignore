@@ -8,3 +8,6 @@ preview/*.html
 # OS noise
 .DS_Store
 Thumbs.db
+
+# Local vault path for npm run deploy
+.deploy.json
