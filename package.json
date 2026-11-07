@@ -36,10 +36,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ducluong16/pdl-habit.git"
+    "url": "git+https://github.com/LuongPham16/pdl-habit.git"
   },
   "bugs": {
-    "url": "https://github.com/ducluong16/pdl-habit/issues"
+    "url": "https://github.com/LuongPham16/pdl-habit/issues"
   },
-  "homepage": "https://github.com/ducluong16/pdl-habit#readme"
+  "homepage": "https://github.com/LuongPham16/pdl-habit#readme"
 }

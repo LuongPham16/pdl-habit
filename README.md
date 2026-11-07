@@ -58,14 +58,14 @@ locked inside the plugin, and the whole thing works offline.
 ### Manual (works today)
 
 1. Download `main.js`, `manifest.json` and `styles.css` from the
-   [latest release](https://github.com/ducluong16/pdl-habit/releases/latest).
+   [latest release](https://github.com/LuongPham16/pdl-habit/releases/latest).
 2. Put them in `<vault>/.obsidian/plugins/pdl-habit/`.
 3. Enable **PDL Habit** in *Settings → Community plugins*.
 
 ### From source
 
 ```bash
-git clone https://github.com/ducluong16/pdl-habit.git
+git clone https://github.com/LuongPham16/pdl-habit.git
 cd pdl-habit
 npm install
 npm run build:prod

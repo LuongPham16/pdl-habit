@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const OWNER = process.env.GITHUB_OWNER || 'ducluong16';
+const OWNER = process.env.GITHUB_OWNER || 'LuongPham16';
 const REPO = process.env.GITHUB_REPO || 'pdl-habit';
 const TOKEN = process.env.GITHUB_TOKEN;
 const DRY = process.argv.includes('--dry-run');
@@ -57,9 +57,18 @@ function safeJson(text) {
   try { return JSON.parse(text); } catch { return text; }
 }
 
-function git(...args) {
-  console.log('$ git', args.join(' '));
-  return execFileSync('git', args, { encoding: 'utf8' }).trim();
+const REMOTE_URL = `https://github.com/${OWNER}/${REPO}.git`;
+const PUSH_URL = `https://x-access-token:${TOKEN}@github.com/${OWNER}/${REPO}.git`;
+
+function git(args, { redact = [] } = {}) {
+  const shown = args.map((arg) => (redact.includes(arg) ? REMOTE_URL : arg)).join(' ');
+  console.log('$ git', shown);
+  try {
+    return execFileSync('git', args, { encoding: 'utf8' }).trim();
+  } catch (error) {
+    const raw = String((error && (error.stderr || error.message)) || error);
+    throw new Error(raw.split(TOKEN).join('***'));
+  }
 }
 
 function releaseNotes() {
@@ -98,16 +107,17 @@ async function main() {
   });
 
   /* 3. push */
-  const remotes = git('remote').split('\n').filter(Boolean);
-  if (!remotes.includes('origin')) git('remote', 'add', 'origin', `git@github.com:${OWNER}/${REPO}.git`);
-  else git('remote', 'set-url', 'origin', `git@github.com:${OWNER}/${REPO}.git`);
-
   if (!DRY) {
-    git('push', '-u', 'origin', 'master');
-    git('push', 'origin', `refs/tags/${version}:refs/tags/${version}`, '--force');
+    // HTTPS + token: the machine's SSH key belongs to a different account.
+    git(['push', PUSH_URL, 'master:master'], { redact: [PUSH_URL] });
+    git(['push', PUSH_URL, `refs/tags/${version}:refs/tags/${version}`, '--force'], { redact: [PUSH_URL] });
   } else {
     console.log('[dry-run] push master + tag', version);
   }
+
+  const remotes = git(['remote']).split('\n').filter(Boolean);
+  if (!remotes.includes('origin')) git(['remote', 'add', 'origin', REMOTE_URL]);
+  else git(['remote', 'set-url', 'origin', REMOTE_URL]);
 
   /* 4. release */
   const found = await request(`${API}/repos/${OWNER}/${REPO}/releases/tags/${version}`);
@@ -140,7 +150,7 @@ async function main() {
     const body = fs.readFileSync(path.resolve(file));
     const upload = await fetch(`${UPLOAD}/repos/${OWNER}/${REPO}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`, {
       method: 'POST',
-      headers: headers({ 'Content-Type': type, 'Content-Length': String(body.length) }),
+      headers: headers({ 'Content-Type': type }),
       body
     });
     if (!upload.ok && upload.status !== 422) {
