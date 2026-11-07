@@ -312,7 +312,7 @@ buildHabitFormPage({
   file: 'habit-advanced.html',
   moreOpen: true,
   patch: {
-    name: 'Đọc sách',
+    name: t('Read 10 pages'),
     tracking: 'count',
     target: 20,
     unit: 'trang',

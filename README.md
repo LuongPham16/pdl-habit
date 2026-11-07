@@ -11,7 +11,7 @@ locked inside the plugin, and the whole thing works offline.
 
 ## Why another habit tracker?
 
-- **Your notes stay yours.** A habit is `<folder>/Uống nước.md` with frontmatter — no
+- **Your notes stay yours.** A habit is `<folder>/Drink water.md` with frontmatter — no
   database, no sync service.
 - **Four tabs, one job each.** Today for doing, Habits for finding, Calendar for
   seeing, Insights for noticing.
@@ -88,7 +88,7 @@ Notes live in `03 - Area/Habits` by default; change the folder in settings.
 ```yaml
 ---
 type: habit
-title: Uống nước
+title: Drink water
 period: morning          # morning | afternoon | evening | anytime
 time: "07:30"            # optional exact time
 frequency: daily         # daily | weekdays | weekly | monthly | interval
