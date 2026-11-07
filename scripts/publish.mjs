@@ -81,8 +81,7 @@ async function main() {
         description: manifest.description,
         private: false,
         has_issues: true,
-        has_wiki: false,
-        license_template: 'mit'
+        has_wiki: false
       })
     });
   } else {
