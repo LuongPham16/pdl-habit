@@ -1,5 +1,5 @@
 import { Modal, setIcon } from 'obsidian';
-import { t } from '../i18n.js';
+import { currentLanguage, t, weekdayShort } from '../i18n.js';
 import { PERIODS, WEEKDAYS } from '../constants.js';
 import { addDays, isoDate, parseDate } from '../dates.js';
 import { completion, isActiveHabit, isScheduled, monthSummary } from '../habits.js';
@@ -9,7 +9,7 @@ import { ConfirmModal } from './confirm.js';
 import { HabitModal } from './habit.js';
 
 const LEGEND = [
-  ['is-done', t('Done')],
+  ['is-done', 'Done'],
   ['is-partial', 'Partial'],
   ['is-missed', 'Missed'],
   ['is-rest', 'Rest'],
@@ -53,7 +53,7 @@ export class HabitDetailModal extends Modal {
     [[stats.streak.current, t('Current streak')], [stats.streak.best, t('Best streak')], [`${stats.rate}%`, t('Last 30 days')]].forEach(([value, label]) => {
       const item = metrics.createDiv();
       item.createEl('strong', { text: String(value) });
-      item.createSpan({ text: label });
+      item.createSpan({ text: t(label) });
     });
 
     const facts = el.createDiv({ cls: 'pdlh-detail-facts' });
@@ -106,11 +106,11 @@ export class HabitDetailModal extends Modal {
 
     const head = host.createDiv({ cls: 'pdlh-detail-month-head' });
     const title = head.createDiv({ cls: 'pdlh-detail-month-title' });
-    title.createEl('h3', { text: date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) });
+    title.createEl('h3', { text: date.toLocaleDateString(currentLanguage() === 'vi' ? 'vi-VN' : undefined, { month: 'long', year: 'numeric' }) });
     title.createSpan({
       cls: 'pdlh-detail-month-meta',
       text: summary.due
-        ? `${summary.done}/${summary.due} done · ${summary.perfect} perfect ${summary.perfect === 1 ? t('day') : t('days')}`
+        ? t('{done}/{total} done · {perfect} perfect days', { done: summary.done, total: summary.due, perfect: summary.perfect })
         : t('No scheduled days this month')
     });
 
@@ -125,7 +125,7 @@ export class HabitDetailModal extends Modal {
     const grid = host.createDiv({ cls: 'pdlh-mini-cal' });
     const weekStart = this.plugin.settings.weekStartsOn;
     for (let index = 0; index < 7; index += 1) {
-      grid.createDiv({ cls: 'pdlh-mini-cal-wd', text: WEEKDAYS[(index + weekStart) % 7].slice(0, 2) });
+      grid.createDiv({ cls: 'pdlh-mini-cal-wd', text: weekdayShort((index + weekStart) % 7) });
     }
 
     const todayKey = isoDate();
@@ -197,7 +197,7 @@ function targetLabel(habit) {
   if (habit.frequency === 'weekly') return t('{n} times per week', { n: habit.target });
   if (habit.frequency === 'monthly') return t('{n} times per month', { n: habit.target });
   if (habit.frequency === 'interval') return t('Every {n} days', { n: habit.intervalDays || 1 });
-  if (habit.direction === 'quit') return `max ${habit.target}${unit} per day`;
+  if (habit.direction === 'quit') return t('max {n}{unit} per day', { n: habit.target, unit });
   if (Number(habit.target) === 1) return t('Did it (once)');
-  return `${habit.target}${unit} per day`;
+  return t('{n}{unit} per day', { n: habit.target, unit });
 }

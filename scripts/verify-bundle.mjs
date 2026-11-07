@@ -37,9 +37,9 @@ function todayKey() {
 }
 
 const notes = [
-  { path: '03 - Area/Habits/Chườm đá.md', frontmatter: { type: 'habit', title: 'Chườm đá', period: 'morning', frequency: 'daily', target: 1, unit: 'lần', icon: 'snowflake', color: '#059669', history: { [todayKey()]: { value: 1 } } } },
-  { path: '03 - Area/Habits/Uống nước.md', frontmatter: { type: 'habit', title: 'Uống nước', period: 'afternoon', frequency: 'daily', target: 3, unit: 'ly', icon: 'glass-water', color: '#0891b2', history: {} } },
-  { path: '03 - Area/Habits/No Fap.md', frontmatter: { type: 'habit', title: 'No Fap', period: 'anytime', frequency: 'weekly', target: 3, unit: 'lần', icon: 'shield', color: '#db2777', history: {} } }
+  { path: '03 - Area/Habits/Walk 20 minutes.md', frontmatter: { type: 'habit', title: 'Walk 20 minutes', period: 'morning', frequency: 'daily', target: 1, unit: 'lần', icon: 'snowflake', color: '#059669', history: { [todayKey()]: { value: 1 } } } },
+  { path: '03 - Area/Habits/Drink water.md', frontmatter: { type: 'habit', title: 'Drink water', period: 'afternoon', frequency: 'daily', target: 3, unit: 'ly', icon: 'glass-water', color: '#0891b2', history: {} } },
+  { path: '03 - Area/Habits/No sugar.md', frontmatter: { type: 'habit', title: 'No sugar', period: 'anytime', frequency: 'weekly', target: 3, unit: 'lần', icon: 'shield', color: '#db2777', history: {} } }
 ];
 
 const files = notes.map((note) => ({ path: note.path, basename: path.basename(note.path, '.md') }));
@@ -73,7 +73,7 @@ assert.equal(habitCount, 3, 'scanHabits must read the markdown frontmatter');
 const scanned = await plugin.scanHabits();
 
 const EXPECTED = {
-  today: ['Chườm đá', 'Uống nước', 'No Fap', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check'],
+  today: ['Walk 20 minutes', 'Drink water', 'No sugar', 'pdlh-hero-ring', 'pdlh-week', 'pdlh-group-head', 'Next up', 'pdlh-row-check'],
   habits: ['All habits', 'pdlh-list', 'pdlh-day-cell', 'pdlh-list-streak', 'Active', 'Archived', 'pdlh-toolbar', 'pdlh-search', 'pdlh-select'],
   calendar: ['pdlh-cal', 'pdlh-cal-grid', 'pdlh-cal-day', 'pdlh-cal-foot', 'pdlh-page-head'],
   insights: ['Last 30 days', 'pdlh-stats', 'pdlh-bar-row', 'pdlh-bar-fill']
@@ -110,8 +110,8 @@ const habitsScreen = views.habits;
 habitsScreen.view.habitQuery = 'Fap';
 habitsScreen.view.renderHabitResults();
 const searched = habitsScreen.containerEl.toHtml('');
-assert.equal(searched.includes('No Fap'), true, 'search keeps the matching habit');
-assert.equal(searched.includes('Chườm đá'), false, 'search hides non-matching habits');
+assert.equal(searched.includes('No sugar'), true, 'search keeps the matching habit');
+assert.equal(searched.includes('Walk 20 minutes'), false, 'search hides non-matching habits');
 assert.equal(searched.includes('1/3'), true, 'the block head reports the filtered count');
 
 // Sorting by category groups the rows under category headers.

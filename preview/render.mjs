@@ -11,7 +11,7 @@ import { HabitModal, HabitIconModal } from '../src/modals/habit.js';
 import { HabitDetailModal } from '../src/modals/detail.js';
 import { CheckinModal } from '../src/modals/checkin.js';
 import { toast } from '../src/ui.js';
-import { setLanguage } from '../src/i18n.js';
+import { setLanguage, t } from '../src/i18n.js';
 import { QuickAddModal } from '../src/modals/quick-add.js';
 import { DayPickerModal } from '../src/modals/day-picker.js';
 
@@ -44,50 +44,53 @@ const base = {
 
 const habits = [
   {
-    ...base, id: 'Chườm đá', title: 'Chườm đá', description: 'Giảm đau vai gáy sau giờ làm.', category: 'Wellness',
-    period: 'morning', frequency: 'daily', target: 1, unit: 'lần', icon: 'snowflake', color: '#059669',
-    history: {
-      ...buildHistory(11, { rate: 0.86 }),
-      [shift(-4)]: { value: 1, note: 'Chườm 15 phút, vai đỡ hẳn.' },
-      [shift(0)]: { value: 1 }
-    }
+    ...base, id: 'walk', title: t('Walk 20 minutes'), description: t('A short loop around the block.'), category: 'Fitness',
+    period: 'afternoon', frequency: 'daily', target: 1, unit: 'time', icon: 'footprints', color: '#059669',
+    history: { ...buildHistory(11, { rate: 0.86 }), [shift(-4)]: { value: 1, note: t('Felt easy today.') }, [shift(0)]: { value: 1 } }
   },
   {
-    ...base, id: 'Uống nước', title: 'Uống nước', description: 'Ba ly trước bữa trưa.', category: 'Health',
-    period: 'afternoon', frequency: 'daily', target: 3, unit: 'ly', icon: 'glass-water', color: '#0891b2',
-    history: { ...buildHistory(23, { rate: 0.6 }), [shift(-2)]: { value: 3, note: 'Ngày nóng, uống đủ 3 ly.' }, [shift(0)]: { value: 1 } }
+    ...base, id: 'water', title: t('Drink water'), description: t('Eight glasses across the day.'), category: 'Health',
+    period: 'morning', frequency: 'daily', target: 8, unit: t('glass'), icon: 'glass-water', color: '#0891b2',
+    history: { ...buildHistory(23, { rate: 0.6 }), [shift(-2)]: { value: 8, note: t('Hot day, drank all eight.') }, [shift(0)]: { value: 3 } }
   },
   {
-    ...base, id: 'Tập thể dục', title: 'Tập thể dục', description: 'Ba buổi mỗi tuần là đủ.', category: 'Fitness',
-    period: 'evening', frequency: 'weekly', target: 3, unit: 'buổi', icon: 'dumbbell', color: '#7c3aed',
+    ...base, id: 'read', title: t('Read 10 pages'), description: t('Ten pages before bed.'), category: 'Learning',
+    period: 'evening', frequency: 'daily', target: 10, unit: t('page'), icon: 'book-open', color: '#d97706',
+    history: { ...buildHistory(37, { rate: 0.55, skipEvery: 11 }) }
+  },
+  {
+    ...base, id: 'workout', title: t('Workout 3 times a week'), description: t('Three sessions is enough.'), category: 'Fitness',
+    period: 'anytime', frequency: 'weekly', target: 3, unit: 'time', icon: 'dumbbell', color: '#7c3aed',
     startDate: shift(-90), history: { [shift(-1)]: { value: 1 }, [shift(-3)]: { value: 1 } }
   },
   {
-    ...base, id: 'No Fap', title: 'No Fap', category: 'Personal',
-    period: 'anytime', frequency: 'daily', target: 1, unit: 'lần', icon: 'shield', color: '#db2777',
-    history: buildHistory(37, { rate: 0.55, skipEvery: 11 })
-  },
-  {
-    ...base, id: 'Uống thuốc', title: 'Uống thuốc', description: 'Vitamin D sau bữa tối.', category: 'Health',
-    period: 'anytime', frequency: 'daily', target: 1, unit: 'viên', icon: 'pill', color: '#2563eb',
+    ...base, id: 'meditate', title: t('Meditate 10 minutes'), category: 'Mindfulness',
+    period: 'morning', frequency: 'daily', target: 1, unit: 'time', icon: 'brain', color: '#0d9488',
     history: buildHistory(53, { rate: 0.78, skipEvery: 13 })
   },
   {
-    ...base, id: 'Xít tóc', title: 'Xít tóc', category: 'Self care',
-    period: 'anytime', frequency: 'daily', target: 1, unit: 'lần', icon: 'wind', color: '#d97706',
+    ...base, id: 'sleep', title: t('Sleep before 23:00'), category: 'Health',
+    period: 'evening', time: '23:00', frequency: 'daily', target: 1, unit: 'time', icon: 'bed', color: '#2563eb',
     history: { ...buildHistory(71, { rate: 0.65 }), [shift(0)]: { value: 1 } }
   },
   {
-    ...base, id: 'Đọc sách', title: 'Đọc sách', category: 'Learning', archived: true,
-    period: 'evening', frequency: 'daily', target: 10, unit: 'trang', icon: 'book-open', color: '#0891b2',
+    ...base, id: 'journal', title: t('Journal'), category: 'Personal', archived: true,
+    period: 'evening', frequency: 'daily', target: 1, unit: 'time', icon: 'notebook-pen', color: '#9333ea',
     history: buildHistory(89, { rate: 0.5 })
   },
   {
-    ...base, id: 'Chạy bộ', title: 'Chạy bộ', category: 'Fitness', endDate: shift(-12),
-    period: 'morning', frequency: 'weekdays', days: [1, 2, 3, 4, 5], target: 1, unit: 'buổi', icon: 'footprints', color: '#dc2626',
+    ...base, id: 'language', title: t('Practice a language'), category: 'Learning', endDate: shift(-12),
+    period: 'morning', frequency: 'weekdays', days: [1, 2, 3, 4, 5], target: 1, unit: 'time', icon: 'languages', color: '#dc2626',
     history: buildHistory(97, { rate: 0.62 })
   }
 ];
+/** Sample fixtures store English keys; translate them for the page language. */
+const localise = (habit) => ({
+  ...habit,
+  title: t(habit.title),
+  description: habit.description ? t(habit.description) : habit.description,
+  unit: habit.unit && habit.unit !== 'time' ? t(habit.unit) : habit.unit
+});
 
 const app = {
   vault: { adapter: { exists: async () => true }, getMarkdownFiles: () => [], getAbstractFileByPath: () => null, on: () => ({}) },
@@ -96,8 +99,8 @@ const app = {
   fileManager: {}
 };
 
-const plugin = new PDLHabitPlugin(app, { id: 'pdl-habit', version: '1.4.0' });
-plugin.settings = { rootFolder: '03 - Area/Habits', weekStartsOn: 1, defaultView: 'today' };
+const plugin = new PDLHabitPlugin(app, { id: 'pdl-habit', version: '1.0.0' });
+plugin.settings = { rootFolder: '03 - Area/Habits', weekStartsOn: 1, defaultView: 'today', language: 'auto' };
 
 const LIGHT = {
   '--background-primary': '#ffffff',
@@ -129,7 +132,7 @@ function buildPage({ mode, theme = 'light', file, habitList = habits, scope = 'a
 
   const view = new PDLHabitView(leaf, plugin);
   view.mode = mode;
-  view.habits = habitList;
+  view.habits = habitList.map(localise);
   view.insightRange = range;
   view.habitScope = scope;
   view.habitSort = sort;
@@ -192,7 +195,7 @@ const active = habits.filter((habit) => !habit.archived && !(habit.endDate && ha
 buildPage({ mode: 'today', file: 'today.html' });
 buildPage({ mode: 'today', theme: 'dark', file: 'today-dark.html' });
 buildPage({ mode: 'today', file: 'today-empty.html', habitList: [] });
-buildPage({ mode: 'today', file: 'today-undo.html', toastMessage: 'Chườm đá checked in' });
+buildPage({ mode: 'today', file: 'today-undo.html', toastMessage: 'Walk 20 minutes checked in' });
 buildPage({
   mode: 'today',
   file: 'today-complete.html',
@@ -220,8 +223,10 @@ buildPage({ mode: 'insights', file: 'insights-empty.html', habitList: [] });
 function buildHabitFormPage({ file, theme = 'light', patch = {}, moreOpen = false, habit = null, lang = 'en' }) {
   setLanguage(lang);
   const vars = theme === 'dark' ? DARK : LIGHT;
-  const modal = new HabitModal(app, plugin, habit);
+  const modal = new HabitModal(app, plugin, habit ? localise(habit) : null);
   Object.assign(modal.draft, patch);
+  modal.draft.name = t(modal.draft.name);
+  if (modal.draft.unit && modal.draft.unit !== 'time') modal.draft.unit = t(modal.draft.unit);
   if (moreOpen) modal.moreOpen = true;
   modal.onOpen();
 
@@ -297,11 +302,11 @@ buildHabitFormPage({ file: 'habit-new.html' });
 buildHabitFormPage({ file: 'habit-new-dark.html', theme: 'dark' });
 buildHabitFormPage({
   file: 'habit-count.html',
-  patch: { name: 'Uống nước', tracking: 'count', target: 3, unit: 'ly', period: 'afternoon' }
+  patch: { name: t('Drink water'), tracking: 'count', target: 8, unit: t('glass'), period: 'morning' }
 });
 buildHabitFormPage({
   file: 'habit-week.html',
-  patch: { name: 'Tập thể dục', schedule: 'week', perWeek: 3, period: 'evening', icon: 'dumbbell', color: '#7c3aed' }
+  patch: { name: t('Workout 3 times a week'), schedule: 'week', perWeek: 3, period: 'evening', icon: 'dumbbell', color: '#7c3aed' }
 });
 buildHabitFormPage({
   file: 'habit-advanced.html',
@@ -324,7 +329,7 @@ buildHabitFormPage({
 });
 buildHabitFormPage({
   file: 'habit-edit.html',
-  habit: { ...habits[1], title: 'Uống nước' }
+  habit: { ...habits[1], title: t('Drink water') }
 });
 
 /* ---------------------------------------------------------- habit detail */
@@ -350,7 +355,7 @@ function monthHistory({ target }) {
 function buildDetailPage({ file, habit, theme = 'light', monthOffset = 0, lang = 'en' }) {
   setLanguage(lang);
   const vars = theme === 'dark' ? DARK : LIGHT;
-  const modal = new HabitDetailModal(app, plugin, habit);
+  const modal = new HabitDetailModal(app, plugin, localise(habit));
   if (monthOffset) modal.monthDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
   modal.onOpen();
 
@@ -416,11 +421,11 @@ ${modal.contentEl.toHtml('')}
 
 const waterHabit = {
   ...habits[1],
-  title: 'Uống nước',
-  target: 3,
-  unit: 'ly',
-  period: 'afternoon',
-  history: monthHistory({ target: 3 })
+  title: t('Drink water'),
+  target: 8,
+  unit: t('glass'),
+  period: 'morning',
+  history: monthHistory({ target: 8 })
 };
 
 buildDetailPage({ file: 'detail.html', habit: waterHabit });
@@ -431,7 +436,7 @@ buildDetailPage({ file: 'detail-prev.html', habit: waterHabit, monthOffset: -1 }
 
 function buildCheckinPage({ file, habit, theme = 'light' }) {
   const vars = theme === 'dark' ? DARK : LIGHT;
-  const modal = new CheckinModal(app, plugin, habit, iso(today));
+  const modal = new CheckinModal(app, plugin, localise(habit), iso(today));
   modal.onOpen();
 
   const page = `<!doctype html>
@@ -494,9 +499,9 @@ ${modal.contentEl.toHtml('')}
   console.log(`[preview] preview/${file} (${(page.length / 1024).toFixed(1)} KB)`);
 }
 
-const waterToday = { ...habits[1], title: 'Uống nước', target: 3, unit: 'ly', history: {} };
+const waterToday = { ...habits[1], title: t('Drink water'), target: 8, unit: t('glass'), history: {} };
 const sweetsLimit = {
-  ...habits[1], id: 'Sweets', title: 'Đồ ngọt', target: 2, unit: 'cái', direction: 'quit', icon: 'cookie', color: '#db2777', history: {}
+  ...habits[1], id: 'sweets', title: t('Sweets'), target: 2, unit: t('piece'), direction: 'quit', icon: 'cookie', color: '#db2777', history: {}
 };
 
 buildCheckinPage({ file: 'checkin-count.html', habit: waterToday });
@@ -579,7 +584,7 @@ buildPage({ mode: 'insights', file: 'insights-vi.html', lang: 'vi' });
 buildPage({ mode: 'insights', file: 'insights-90.html', range: 90 });
 buildPage({ mode: 'insights', file: 'insights-7-vi.html', lang: 'vi', range: 7 });
 buildHabitFormPage({ file: 'habit-new-vi.html', lang: 'vi' });
-buildHabitFormPage({ file: 'habit-month-vi.html', lang: 'vi', patch: { name: 'Đọc sách', tracking: 'check', schedule: 'month', perMonth: 4, period: 'evening', icon: 'book-open', color: '#0891b2' } });
+buildHabitFormPage({ file: 'habit-month-vi.html', lang: 'vi', patch: { name: t('Read 10 pages'), tracking: 'check', schedule: 'month', perMonth: 4, period: 'evening', icon: 'book-open', color: '#0891b2' } });
 buildDetailPage({ file: 'detail-vi.html', habit: waterHabit, lang: 'vi' });
 
 function buildSmallModalPage({ file, modal, theme = 'light' }) {
