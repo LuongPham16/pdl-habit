@@ -11,3 +11,6 @@ Thumbs.db
 
 # Local vault path for npm run deploy
 .deploy.json
+
+# Scratch space used while patching
+.work/
