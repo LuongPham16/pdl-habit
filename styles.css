@@ -2836,8 +2836,12 @@ button.pdlh-icon-btn:hover {
 }
 
 /* Deeper insights: trend chart, distribution, quiet states */
+.pdlh-trend-card {
+  padding: 16px 18px 12px;
+}
+
 .pdlh-trend {
-  padding: 2px 2px 0;
+  padding: 0;
 }
 
 .pdlh-trend-svg {

@@ -1,7 +1,7 @@
 {
   "name": "pdl-habit",
   "version": "1.0.0",
-  "description": "A calm, Markdown-first habit tracker for Obsidian: flexible schedules, streaks, a month calendar and focused insights.",
+  "description": "A calm, Markdown-first habit tracker: flexible schedules, streaks, a month calendar and focused insights.",
   "main": "main.js",
   "type": "module",
   "scripts": {
