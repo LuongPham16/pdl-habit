@@ -107,7 +107,7 @@ for (const mode of Object.keys(EXPECTED)) {
 
 // Search re-renders only the list body, so the input keeps its focus and value.
 const habitsScreen = views.habits;
-habitsScreen.view.habitQuery = 'Fap';
+habitsScreen.view.habitQuery = 'sugar';
 habitsScreen.view.renderHabitResults();
 const searched = habitsScreen.containerEl.toHtml('');
 assert.equal(searched.includes('No sugar'), true, 'search keeps the matching habit');

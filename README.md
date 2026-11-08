@@ -7,7 +7,7 @@ locked inside the plugin, and the whole thing works offline.
 
 ![Today tab](docs/images/today.png)
 
-> **Version 1.0.0** · Obsidian **1.5.0+** · desktop and mobile · English / Tiếng Việt
+> **Version 1.0.1** · Obsidian **1.5.0+** · desktop and mobile · English / Tiếng Việt
 
 ## Why another habit tracker?
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 — layout balance and review lint
+
+- The Insights trend card now shares the same inset as the other cards, so the axis
+  dates and the average percentage no longer hug the card edges. The line itself is
+  unchanged, flat 0% stretches included.
+- `manifest.json` no longer contains the word "Obsidian" in its description, which
+  the community plugin review rejects.
+
 ## 1.0.0 — first public release
 
 PDL Habit is a Markdown-first habit tracker for Obsidian: every habit is a note in

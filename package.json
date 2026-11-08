@@ -1,6 +1,6 @@
 {
   "name": "pdl-habit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A calm, Markdown-first habit tracker: flexible schedules, streaks, a month calendar and focused insights.",
   "main": "main.js",
   "type": "module",
