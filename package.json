@@ -1,21 +1,23 @@
 {
   "name": "pdl-habit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A calm, Markdown-first habit tracker: flexible schedules, streaks, a month calendar and focused insights.",
   "main": "main.js",
-  "type": "module",
   "scripts": {
-    "dev": "node scripts/build.js --watch",
-    "build": "node scripts/build.js",
-    "build:prod": "node scripts/build.js --production",
-    "deploy": "node scripts/build.js --production --deploy",
+    "dev": "node scripts/build.mjs --watch",
+    "build": "node scripts/build.mjs",
+    "build:dev": "node scripts/build.mjs --dev",
+    "build:prod": "node scripts/build.mjs",
+    "deploy": "node scripts/build.mjs --deploy",
     "preview": "node preview/build.mjs --shot",
-    "verify": "node scripts/verify-bundle.mjs",
+    "audit": "node scripts/audit.mjs",
+    "verify": "node scripts/audit.mjs && node scripts/verify-build.mjs && node scripts/verify-bundle.mjs",
+    "verify:build": "node scripts/verify-build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "version": "node scripts/sync-version.js && git add manifest.json versions.json",
-    "prepare:release": "npm run build:prod && npm test && npm run verify",
+    "version": "node scripts/sync-version.mjs && git add manifest.json versions.json",
+    "prepare:release": "npm run build && npm test && npm run verify",
     "publish": "node scripts/publish.mjs",
-    "release": "npm run build:prod && npm test && npm run verify"
+    "release": "npm run prepare:release"
   },
   "keywords": [
     "obsidian",
@@ -28,7 +30,7 @@
   "author": "Luong Pham",
   "license": "MIT",
   "devDependencies": {
-    "esbuild": "^0.28.0",
+    "esbuild": "0.28.2",
     "lucide-static": "^1.69.0"
   },
   "engines": {

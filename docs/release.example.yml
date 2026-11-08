@@ -1,0 +1,62 @@
+# Copy to .github/workflows/release.yml.
+#
+# Builds the release from the tag, attests the provenance of the three assets and
+# attaches them to the GitHub release. Attestations are what the community-portal
+# scorecard looks for with "release assets are missing a GitHub artifact attestation";
+# the build step is also what makes "build output matches the released main.js"
+# verifiable, because this workflow ships exactly what `npm run build` produced from
+# the tagged source.
+#
+# Needs a token with the `workflow` scope, or add the file through the GitHub web UI.
+name: Release
+
+on:
+  push:
+    tags: ["*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run verify
+      - name: Committed artifacts match the tag
+        run: git diff --exit-code -- main.js styles.css manifest.json versions.json
+      - id: version
+        run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            main.js
+            styles.css
+            manifest.json
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          NOTES=$(node -e "
+            const fs = require('fs');
+            const version = process.env.VERSION;
+            const text = fs.readFileSync('CHANGELOG.md', 'utf8');
+            const match = text.match(new RegExp('## ' + version.replace(/\./g, '\\\\.') + '[^\\n]*\\n([\\\\s\\\\S]*?)(?=\\n## |$)'));
+            const section = match ? match[1].trim() : '';
+            console.log(section + '\n\n---\n\n**Install:** copy \`main.js\`, \`manifest.json\` and \`styles.css\` from the assets below into \`<vault>/.obsidian/plugins/pdl-habit/\`, then enable the plugin.');
+          ")
+          gh release create "$VERSION" \
+            --title "PDL Habit $VERSION" \
+            --notes "$NOTES" \
+            main.js styles.css manifest.json

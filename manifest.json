@@ -1,7 +1,7 @@
 {
   "id": "pdl-habit",
   "name": "PDL Habit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minAppVersion": "1.5.0",
   "description": "A calm, Markdown-first habit tracker: flexible schedules, streaks, a month calendar and focused insights.",
   "author": "Luong Pham",

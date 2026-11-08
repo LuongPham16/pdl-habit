@@ -1,3 +1,5 @@
+# Copy to .github/workflows/ci.yml.
+# Needs a token with the `workflow` scope, or add the file through the GitHub web UI.
 name: CI
 
 on:
@@ -14,7 +16,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      # `npm ci` installs the exact tree from package-lock.json, esbuild included: the
+      # release artifact is only reproducible if the bundler version is identical.
       - run: npm ci
-      - run: npm run build:prod
+      - run: npm run build
       - run: npm test
+      # Audits the review rules (no !important, no partially supported CSS…), proves the
+      # build is reproducible and loads the shipped main.js against a stubbed Obsidian.
       - run: npm run verify
+      # Same source + same pin + no timestamps or absolute paths = the committed
+      # main.js must come out of this build unchanged.
+      - name: Committed release artifacts are up to date
+        run: git diff --exit-code -- main.js styles.css manifest.json versions.json

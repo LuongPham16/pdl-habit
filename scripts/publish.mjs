@@ -3,6 +3,10 @@
  * missing, pushes master and the tag, then opens a release with the three files
  * Obsidian needs (main.js, manifest.json, styles.css).
  *
+ * The assets are the files at the repo root, i.e. exactly what `npm run build` produced
+ * and what the committed source builds to — the store rebuilds the tag and compares the
+ * result byte-for-byte with the uploaded `main.js`.
+ *
  * Usage:
  *   GITHUB_TOKEN=... node scripts/publish.mjs            # uses manifest.json version
  *   GITHUB_TOKEN=... node scripts/publish.mjs --dry-run
@@ -11,6 +15,7 @@
  * Nothing is written to disk except the built assets in dist/.
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -140,12 +145,23 @@ async function main() {
 
   /* 5. assets */
   const assets = [
-    ['dist/main.js', 'main.js', 'application/javascript'],
-    ['dist/styles.css', 'styles.css', 'text/css'],
+    ['main.js', 'main.js', 'application/javascript'],
+    ['styles.css', 'styles.css', 'text/css'],
     ['manifest.json', 'manifest.json', 'application/json']
   ];
+  if (!DRY) {
+    for (const [file] of assets) {
+      if (!fs.existsSync(file)) throw new Error(`missing ${file}; run npm run build`);
+    }
+    const bundle = fs.readFileSync('main.js');
+    if (!bundle.toString('utf8').startsWith(`/* PDL Habit v${version} -`)) {
+      throw new Error(`main.js was not built from manifest.json v${version}; run npm run build`);
+    }
+    const digest = createHash('sha256').update(bundle).digest('hex');
+    console.log(`main.js sha256 ${digest}`);
+  }
   for (const [file, name, type] of assets) {
-    if (!fs.existsSync(file)) throw new Error(`missing ${file}; run npm run build:prod first`);
+    if (!fs.existsSync(file)) throw new Error(`missing ${file}; run npm run build`);
     if (DRY) { console.log(`[dry-run] upload ${file} as ${name}`); continue; }
     const body = fs.readFileSync(path.resolve(file));
     const upload = await fetch(`${UPLOAD}/repos/${OWNER}/${REPO}/releases/${release.id}/assets?name=${encodeURIComponent(name)}`, {

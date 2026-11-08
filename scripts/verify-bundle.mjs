@@ -1,7 +1,7 @@
 /**
- * Loads the *built* bundle (dist/main.js) with a stubbed Obsidian API, feeds it a
- * fake vault and renders every tab — a last check that the shipped artifact works,
- * not just the source modules.
+ * Loads the *shipped* bundle (main.js at the repo root) with a stubbed Obsidian API,
+ * feeds it a fake vault and renders every tab — a last check that the released
+ * artifact works, not just the source modules.
  *
  * Usage: node scripts/verify-bundle.mjs
  */
@@ -15,7 +15,7 @@ const OUT = path.join(ROOT, 'preview/.build/bundle-check.mjs');
 const VIEW_TYPE = 'pdlh-habit-dashboard';
 
 await esbuild.build({
-  entryPoints: [path.join(ROOT, 'dist/main.js')],
+  entryPoints: [path.join(ROOT, 'main.js')],
   outfile: OUT,
   bundle: true,
   format: 'esm',

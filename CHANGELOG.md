@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.0.2 — clean review, reproducible build
+
+Nothing about how habits work changed; this release exists to pass the community-store
+review cleanly and to make the shipped bundle verifiable.
+
+- **All 470 `!important` declarations are gone.** The rules that relied on them now win
+  the cascade on specificity instead — every rule carries an extra `:root:root` scope —
+  so the plugin still overrides Obsidian's defaults without forcing styles. Nothing
+  moved: computed styles for every element and pseudo-element of all 47 offline preview
+  pages are identical before and after.
+- **No partially supported CSS.** `scrollbar-width` was dropped; the tab strip already
+  hides its scrollbar with `::-webkit-scrollbar`, which works in every Obsidian version.
+- **Duplicate selector blocks merged** — 16 blocks that were restated later in the same
+  scope now live once.
+- **The release artifact is reproducible.** `npm run build` writes the shipped
+  `main.js` at the repo root in production mode (minified, no sourcemap), `main.js` is
+  committed again, esbuild is pinned to one exact version and the build contains no
+  timestamp or absolute path. A fresh build from the tag is byte-identical, which is
+  what the store's "build output does not match the released main.js artifact" check
+  compares.
+- **`npm run verify` now audits the review rules.** It fails on `!important`,
+  `scrollbar-width`/`scrollbar-color`, `:has()`, duplicate selectors, rules that leak
+  into Obsidian's global UI, an unminified or stale `main.js`, and a build that is not
+  reproducible.
+- Dev builds moved to `dist/main.js`, so `npm run dev` can never dirty the committed
+  release file.
+
 ## 1.0.1 — layout balance and review lint
 
 - The Insights trend card now shares the same inset as the other cards, so the axis
