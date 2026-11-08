@@ -3,7 +3,7 @@
   "name": "PDL Habit",
   "version": "1.0.0",
   "minAppVersion": "1.5.0",
-  "description": "A calm, Markdown-first habit tracker for Obsidian: flexible schedules, streaks, a month calendar and focused insights.",
+  "description": "A calm, Markdown-first habit tracker: flexible schedules, streaks, a month calendar and focused insights.",
   "author": "Luong Pham",
   "authorUrl": "https://github.com/LuongPham16",
   "isDesktopOnly": false
